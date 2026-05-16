@@ -1,0 +1,36 @@
+[
+  {
+    "email": "pryclova.jana@gmail.com",
+    "pouzijuCount": 2,
+    "spzCount": 1,
+    "timestamp": "2026-03-19T19:46:56.128Z"
+  },
+  {
+    "email": "pryclova@svetvzdelani.cz",
+    "pouzijuCount": 6,
+    "spzCount": 3,
+    "choices": {
+      "po_sim_4": "POUZIJU",
+      "po_sim_5": "NECHAM_NA_SPZ",
+      "po_sim_6": "POUZIJU",
+      "po_sim_7": "POUZIJU",
+      "po_sim_8": "POUZIJU",
+      "po_sim_9": "POUZIJU",
+      "po_sim_10": "NECHAM_NA_SPZ",
+      "po_sim_11": "NECHAM_NA_SPZ",
+      "po_sim_12": "POUZIJU"
+    },
+    "timestamp": "2026-03-19T20:07:32.252Z"
+  },
+  {
+    "id": "1773954001595",
+    "email": "pryclova.jana@gmail.com",
+    "pouzijuCount": 1,
+    "spzCount": 1,
+    "choices": {
+      "po_sim_4": "POUZIJU",
+      "po_sim_5": "NECHAM_NA_SPZ"
+    },
+    "timestamp": "2026-03-19T21:00:01.595Z"
+  }
+]

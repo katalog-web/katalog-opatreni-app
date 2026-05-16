@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  
+  /* Brand colors from Logo Manual */
+  --color-brand-navy: #26325D;
+  --color-brand-yellow: #FAB609;
+  --color-brand-orange: #EE7618;
+  --color-brand-green: #76B72A;
+  --color-brand-surface: #C2D0DD;
+  --color-brand-bg: #F2F4F8;
+
+  /* Legacy Slate mappings (for compatibility) */
+  --color-slate-50: #F2F4F8;
+  --color-slate-100: #E5E9F0;
+  --color-slate-800: #26325D;
+  --color-slate-900: #1A2240;
+}
+
+@layer base {
+  body {
+    background-color: theme('colors.slate.50');
+    color: theme('colors.slate.900');
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+/* ========== TISK / PDF ========== */
+@media print {
+  /* Úplně schovat celou stránku */
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Skrýt hlavičku, záložky, karty, progress bar – vše */
+  main > div:first-child,
+  main > div:nth-child(2),
+  main > div:nth-child(3) {
+    display: none !important;
+  }
+
+  /* Souhrn – zobrazit čistě */
+  #print-summary {
+    display: block !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Skrýt ovládací prvky v tisku */
+  #pdf-controls {
+    display: none !important;
+  }
+
+  /* Zachovat barvy pozadí */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Neroztrhnout kartičky */
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

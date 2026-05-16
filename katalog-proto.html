@@ -1,0 +1,3081 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Favicon180x180.png">
+    <title>Katalog podpůrných opatření - Prototyp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brandNavy: '#26325D',
+              brandYellow: '#FAB609',
+              brandOrange: '#EE7618',
+              brandGreen: '#76B72A',
+              brandSurface: '#C2D0DD',
+              brandBg: '#F2F4F8',
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .animate-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media print {
+            #password-screen, #tabs, #measures-container, #progress-bar, #progress-text, #pdf-controls, .no-print, header, .mb-12 { display: none !important; }
+            #summary-section { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; margin: 0 !important; }
+            .page-break { page-break-before: always; }
+            body { background: white !important; font-size: 11pt; color: #000; }
+            .bg-white { background: #fff !important; }
+            .bg-emerald-50 { background: #f0fdf4 !important; }
+            .bg-rose-50 { background: #fff1f2 !important; }
+            .rounded-xl, .rounded-[2rem] { border-radius: 0.5rem !important; }
+            .shadow-xl, .shadow-sm { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            .border-indigo-100, .border-slate-100 { border-color: #cbd5e1 !important; }
+            h1, h2, h3, h4 { page-break-after: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-brandBg text-brandNavy min-h-screen">
+
+    <!-- Password Gate -->
+    <div id="password-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-brandNavy/95 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-[2rem] p-8 md:p-12 max-w-md w-full shadow-2xl animate-in">
+            <div class="mb-8 text-center">
+                <div class="w-16 h-16 bg-brandSurface/20 text-brandNavy rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Chráněný přístup</h2>
+                <p class="text-slate-500">Zadejte heslo pro vstup do katalogu opatření.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="password" id="pass-input" placeholder="Heslo" class="w-full px-5 py-4 rounded-xl border-2 border-brandSurface focus:border-brandYellow focus:ring-4 focus:ring-brandYellow/10 outline-none transition-all text-lg font-medium pr-14">
+                    <button onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-brandSurface hover:text-brandYellow transition-colors" title="Zobrazit/skrýt heslo">
+                        <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+                <button onclick="checkPassword()" class="w-full py-4 bg-brandNavy hover:bg-brandNavy/90 text-white rounded-xl font-black text-lg shadow-xl shadow-brandNavy/20 transition-all transform active:scale-[0.98]">
+                    Vstoupit do katalogu
+                </button>
+                <p id="pass-error" class="hidden text-brandOrange text-sm font-black text-center mt-2 uppercase tracking-tighter">Nesprávné heslo. Zkuste to znovu.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="hidden max-w-4xl mx-auto px-4 py-12 md:py-24">
+        <!-- Header -->
+        <div class="mb-12 no-print">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
+                Katalog podpůrných opatření
+            </h1>
+                <p class="text-lg text-brandNavy/70 mb-8 max-w-2xl leading-relaxed">
+                    Projděte si všechna podpůrná opatření a rozhodněte se, zda je podle Vás možná 
+                    implementace v rámci PO1 ve škole.
+                </p>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-brandSurface h-3 mb-2 rounded-full overflow-hidden shadow-inner">
+                <div id="progress-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+            </div>
+            <p class="text-sm font-bold text-brandNavy/60 text-right">
+                Hotovo: <span id="progress-text">0</span>%
+            </p>
+        </div>
+
+        <!-- Tabs -->
+        <div id="tabs" class="flex flex-wrap gap-3 mb-10 border-b-2 border-brandSurface pb-5 no-print">
+            <!-- Dynamic tabs go here -->
+        </div>
+
+        <!-- Measures List -->
+        <div id="measures-container" class="flex flex-col gap-12 no-print">
+            <div class="text-center py-12 text-slate-500 animate-pulse">
+                Načítám opatření...
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div id="summary-section" class="hidden mt-24 p-8 md:p-12 bg-white border-2 border-slate-100 rounded-[2rem] shadow-xl shadow-slate-200/50">
+            <h2 class="text-3xl font-extrabold text-slate-900 mb-8 border-b-2 border-slate-100 pb-6 tracking-tight">
+                Vaše shrnutí vybraných opatření
+            </h2>
+            <div id="teacher-info" class="mb-8"></div>
+            
+            <div class="mb-14">
+                <h3 class="text-xl font-bold text-slate-700 mb-6">Aktuální stav hodnocení</h3>
+                <div class="flex justify-between text-sm md:text-base font-semibold mb-3">
+                    <span class="text-emerald-600 flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-emerald-500"></div> Použiju do PO 1 (<span id="sum-pouziju-count">0</span>)</span>
+                    <span class="text-rose-600 flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-rose-500"></div> Nechám na ŠPZ (<span id="sum-spz-count">0</span>)</span>
+                    <span class="text-slate-400 font-medium">Zbývá (<span id="sum-missing-count">0</span>)</span>
+                </div>
+                <div class="w-full h-5 rounded-full overflow-hidden flex bg-slate-100 shadow-inner">
+                    <div id="pouziju-pct-bar" class="bg-emerald-500 h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    <div id="spz-pct-bar" class="bg-rose-500 h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="pouziju-list-container">
+                <h3 class="text-xl font-bold text-emerald-800 mb-6 flex items-center gap-3">
+                    <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Opatření a kroky k zavedení
+                </h3>
+                <ul id="pouziju-list" class="space-y-4"></ul>
+            </div>
+
+            <div id="spz-list-container" class="mt-12 pt-10 border-t-2 border-slate-100/80 page-break">
+                <h3 class="text-xl font-bold text-rose-800 mb-6 flex items-center gap-3">
+                    <svg class="w-7 h-7 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Kroky vyhrazené k vyřešení přes ŠPZ
+                </h3>
+                <ul id="spz-list" class="space-y-4"></ul>
+            </div>
+
+            <!-- PDF Controls -->
+            <div id="pdf-controls" class="mt-14 p-10 bg-brandSurface/10 border-4 border-brandSurface/30 rounded-[2.5rem] shadow-inner no-print">
+                <h3 class="text-brandNavy text-2xl font-black mb-4 uppercase tracking-tighter">Máte hotovo? 🎉</h3>
+                <p class="text-brandNavy/70 text-lg font-bold mb-6 italic">
+                    Doplňte prosím údaje o škole a roli pro správné vygenerování sumáře.
+                </p>
+                <div id="missing-info-pdf-container" class="hidden text-brandOrange font-black mb-6 flex items-center gap-3 bg-white px-6 py-3 rounded-2xl border-2 border-brandOrange shadow-lg animate-bounce">
+                    <div class="w-3 h-3 bg-brandOrange rounded-full animate-ping"></div>
+                    Zbývá ohodnotit: <span id="missing-info-pdf-count">0</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="space-y-2">
+                        <label class="text-sm font-black text-brandNavy/60 uppercase ml-2">Váš E-mail</label>
+                        <input type="email" id="teacher-email-input" placeholder="Váš e-mail (povinné)" 
+                               class="w-full px-6 py-4 rounded-2xl border-4 border-brandSurface/50 focus:border-brandYellow focus:ring-8 focus:ring-brandYellow/10 outline-none transition-all placeholder:text-brandNavy/30 text-brandNavy font-bold">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-black text-brandNavy/60 uppercase ml-2">Vaše Role</label>
+                        <select id="role-input" class="w-full px-6 py-4 rounded-2xl border-4 border-brandSurface/50 focus:border-brandYellow focus:ring-8 focus:ring-brandYellow/10 outline-none transition-all text-brandNavy font-bold appearance-none bg-white">
+                            <option value="">Vyberte roli...</option>
+                            <option value="Učitel">Učitel</option>
+                            <option value="Poradenský pracovník">Poradenský pracovník (ŠPP)</option>
+                            <option value="Vedení školy">Vedení školy</option>
+                            <option value="Asistent pedagoga">Asistent pedagoga</option>
+                            <option value="Jiné">Jiné</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-black text-brandNavy/60 uppercase ml-2">Typ školy</label>
+                        <select id="school-type-input" class="w-full px-6 py-4 rounded-2xl border-4 border-brandSurface/50 focus:border-brandYellow focus:ring-8 focus:ring-brandYellow/10 outline-none transition-all text-brandNavy font-bold appearance-none bg-white">
+                            <option value="">Vyberte typ školy...</option>
+                            <option value="ZŠ">Základní škola (ZŠ)</option>
+                            <option value="MŠ">Mateřská škola (MŠ)</option>
+                            <option value="ZŠ a MŠ">ZŠ a MŠ (spojená)</option>
+                            <option value="Jiné">Jiné</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-black text-brandNavy/60 uppercase ml-2">Počet žáků / třída</label>
+                        <input type="number" id="student-count-input" placeholder="Např. 25" 
+                               class="w-full px-6 py-4 rounded-2xl border-4 border-brandSurface/50 focus:border-brandYellow focus:ring-8 focus:ring-brandYellow/10 outline-none transition-all placeholder:text-brandNavy/30 text-brandNavy font-bold">
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <button id="print-btn" onclick="handlePrint()" 
+                            class="w-full md:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-brandNavy text-white rounded-2xl font-black text-lg transition-all hover:bg-brandNavy/90 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-brandNavy/20 uppercase tracking-wider h-[64px]">
+                        Uložit a odeslat
+                    </button>
+                    <p id="email-error" class="hidden text-brandOrange text-sm font-black uppercase tracking-tighter shadow-sm bg-white/50 px-4 py-2 rounded-lg border border-brandOrange/20">Vyplňte prosím povinná pole.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- DATA ---
+        let measures = []; // JSON will be injected here
+        
+        // --- STATE ---
+        let userChoices = {};
+        let activeTab = '';
+        let expandedAreas = {};
+        let teacherEmail = '';
+
+        // --- ON LOAD ---
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('katalog_auth') === 'true') {
+                document.getElementById('password-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                
+                const savedChoices = localStorage.getItem('katalog_choices');
+                if (savedChoices) {
+                    userChoices = JSON.parse(savedChoices);
+                }
+                
+                initApp();
+            }
+        });
+
+        // --- PASSWORD GATE ---
+        function togglePassword() {
+            const input = document.getElementById('pass-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
+        function checkPassword() {
+            const pass = document.getElementById('pass-input').value;
+            if (pass === 'podporanadaniprospejevsem1') {
+                localStorage.setItem('katalog_auth', 'true');
+                document.getElementById('password-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                initApp();
+            } else {
+                document.getElementById('pass-error').classList.remove('hidden');
+            }
+        }
+
+        // --- APP LOGIC ---
+        function initApp() {
+            // Filter out Nezařazeno and ensure only the selected oblast stays in Pomůcky
+            const filteredMeasures = measures.filter(m => {
+                if (m.sheetName.includes('Hodnocení')) return false;
+                if (m.sheetName.includes('Metody výuky') || m.sheetName === '2. Pomůcky') {
+                    return m.oblast === 'Podmínky pro setkávání v souladném prostředí';
+                }
+                return true;
+            }).map(m => {
+                if (m.sheetName.includes('Metody výuky')) return { ...m, sheetName: '2. Pomůcky' };
+                return m;
+            });
+            
+            // Group measures for UI
+            const grouped = filteredMeasures.reduce((acc, curr) => {
+                if (!acc[curr.sheetName]) acc[curr.sheetName] = {};
+                if (!acc[curr.sheetName][curr.oblast]) acc[curr.sheetName][curr.oblast] = {};
+                if (!acc[curr.sheetName][curr.oblast][curr.opatreni]) acc[curr.sheetName][curr.oblast][curr.opatreni] = [];
+                acc[curr.sheetName][curr.oblast][curr.opatreni].push(curr);
+                return acc;
+            }, {});
+
+            const sheetNames = Object.keys(grouped);
+            if (!activeTab) activeTab = sheetNames[0];
+
+            renderTabs(sheetNames);
+            renderMeasures(grouped);
+            updateProgress();
+            renderSummary();
+        }
+
+        function renderTabs(sheetNames) {
+            const tabsContainer = document.getElementById('tabs');
+            if (sheetNames.length <= 1) {
+                tabsContainer.classList.add('hidden');
+                return;
+            }
+            tabsContainer.innerHTML = sheetNames.map(name => `
+                <button onclick="setActiveTab('${name}')" class="tab-btn px-5 py-3 rounded-xl font-extrabold transition-all ${name === activeTab ? 'bg-brandNavy text-white shadow-md' : 'bg-white text-brandNavy/60 hover:bg-brandBg border-2 border-brandSurface shadow-sm'}">
+                    ${name}
+                </button>
+            `).join('');
+        }
+
+        function setActiveTab(name) {
+            activeTab = name;
+            initApp();
+        }
+
+        function toggleArea(oblast) {
+            expandedAreas[oblast] = !expandedAreas[oblast];
+            initApp();
+        }
+
+        function handleChoice(id, choice) {
+            if (userChoices[id] === choice) {
+                delete userChoices[id];
+            } else {
+                userChoices[id] = choice;
+            }
+            localStorage.setItem('katalog_choices', JSON.stringify(userChoices));
+            updateProgress();
+            renderSummary();
+            initApp(); // Re-render current view to show active states
+        }
+
+        function updateProgress() {
+            const filteredMeasures = measures.filter(m => {
+                if (m.sheetName.includes('Hodnocení')) return false;
+                if (m.sheetName.includes('Metody výuky') || m.sheetName === '2. Pomůcky') {
+                    return m.oblast === 'Podmínky pro setkávání v souladném prostředí';
+                }
+                return true;
+            });
+            const completed = filteredMeasures.filter(m => userChoices[m.id]).length;
+            const pct = Math.min((completed / (filteredMeasures.length || 1)) * 100, 100);
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-text').innerText = Math.round(pct);
+        }
+
+        function renderMeasures(grouped) {
+            const container = document.getElementById('measures-container');
+            const data = grouped[activeTab];
+            
+            let html = `<h2 class="text-3xl font-extrabold text-brandNavy border-b-4 border-brandSurface/20 pb-4">List: ${activeTab}</h2>`;
+            
+            const colors = [
+                { border: 'border-brandNavy', text: 'text-brandNavy', hoverBg: 'hover:bg-brandNavy/10' },
+                { border: 'border-brandYellow', text: 'text-brandYellow', hoverBg: 'hover:bg-brandYellow/10' },
+                { border: 'border-brandOrange', text: 'text-brandOrange', hoverBg: 'hover:bg-brandOrange/10' },
+                { border: 'border-brandGreen', text: 'text-brandGreen', hoverBg: 'hover:bg-brandGreen/10' },
+            ];
+            let idx = 0;
+
+            for (const oblast in data) {
+                const isExpanded = expandedAreas[oblast];
+                const theme = colors[idx % colors.length];
+                idx++;
+                html += `
+                    <div class="pl-0 md:pl-6 border-l-0 md:border-l-4 ${theme.border}">
+                        <button onclick="toggleArea('${oblast}')" class="flex justify-between items-center w-full text-left group mb-4 ${theme.hoverBg} p-3 rounded-xl transition-all">
+                            <h3 class="text-2xl font-bold text-brandNavy/90">${oblast}</h3>
+                            <svg class="w-6 h-6 ${theme.text} opacity-80 group-hover:opacity-100 transform transition-all duration-300 ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        ${isExpanded ? `
+                            <div class="pt-4 space-y-8">
+                                ${Object.keys(data[oblast]).map(opatreni => `
+                                    <div class="mb-10">
+                                        <div class="bg-brandSurface/20 p-5 rounded-xl border border-brandSurface/30 mb-5 text-brandNavy">
+                                            <h4 class="text-xl md:text-2xl font-black">${opatreni}</h4>
+                                        </div>
+                                        <div class="flex flex-col gap-4 pl-0 md:pl-6">
+                                            ${data[oblast][opatreni].map(m => `
+                                                <div class="bg-white rounded-2xl p-6 shadow-sm border-2 ${userChoices[m.id] ? (userChoices[m.id] === 'POUZIJU' ? 'border-brandGreen bg-brandGreen/5' : 'border-brandOrange bg-brandOrange/5') : 'border-brandSurface/30'}">
+                                                    <p class="text-lg text-brandNavy font-extrabold mb-6">${m.krok}</p>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <button onclick="handleChoice('${m.id}', 'POUZIJU')" class="px-5 py-2.5 rounded-xl font-black text-sm transition-all ${userChoices[m.id] === 'POUZIJU' ? 'bg-brandGreen text-white shadow-lg' : 'bg-brandBg text-brandNavy/60 hover:bg-brandGreen/10 hover:text-brandGreen'}">
+                                                            Použiju v PO 1
+                                                        </button>
+                                                        <button onclick="handleChoice('${m.id}', 'NECHAM_NA_SPZ')" class="px-5 py-2.5 rounded-xl font-black text-sm transition-all ${userChoices[m.id] === 'NECHAM_NA_SPZ' ? 'bg-brandOrange text-white shadow-lg' : 'bg-brandBg text-brandNavy/60 hover:bg-brandOrange/10 hover:text-brandOrange'}">
+                                                            Nechám na ŠPZ
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderSummary() {
+            const summarySec = document.getElementById('summary-section');
+            const filteredMeasures = measures.filter(m => {
+                if (m.sheetName.includes('Hodnocení')) return false;
+                if (m.sheetName.includes('Metody výuky') || m.sheetName === '2. Pomůcky') {
+                    return m.oblast === 'Podmínky pro setkávání v souladném prostředí';
+                }
+                return true;
+            }).map(m => {
+                if (m.sheetName.includes('Metody výuky')) return { ...m, sheetName: '2. Pomůcky' };
+                return m;
+            });
+            const total = filteredMeasures.length;
+            const completed = filteredMeasures.filter(m => userChoices[m.id]).length;
+
+            if (total === 0 || completed === 0) {
+                summarySec.classList.add('hidden');
+                return;
+            }
+            
+            summarySec.classList.remove('hidden');
+
+            const pouziju = filteredMeasures.filter(m => userChoices[m.id] === 'POUZIJU');
+            const spz = filteredMeasures.filter(m => userChoices[m.id] === 'NECHAM_NA_SPZ');
+
+            const missingInfo = document.getElementById('missing-info-pdf-container');
+            const missingCountSpan = document.getElementById('missing-info-pdf-count');
+            
+            const missingCountValue = total - completed;
+
+            const printBtn = document.getElementById('print-btn');
+            if (printBtn) {
+                if (completed < total) {
+                    printBtn.disabled = true;
+                    printBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    printBtn.title = 'Pro tisk musíte nejdříve ohodnotit všechna opatření.';
+                    
+                    if (missingInfo && missingCountSpan) {
+                        missingInfo.classList.remove('hidden');
+                        const label = missingCountValue === 1 ? 'položku' : (missingCountValue > 1 && missingCountValue < 5) ? 'položky' : 'položek';
+                        missingCountSpan.innerText = `${missingCountValue} ${label}`;
+                    }
+                } else {
+                    printBtn.disabled = false;
+                    printBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    printBtn.title = '';
+                    if (missingInfo) missingInfo.classList.add('hidden');
+                }
+            }
+
+            document.getElementById('sum-pouziju-count').innerText = pouziju.length;
+            document.getElementById('sum-spz-count').innerText = spz.length;
+            document.getElementById('sum-missing-count').innerText = total - pouziju.length - spz.length;
+
+            const pPct = (pouziju.length / total) * 100;
+            const sPct = (spz.length / total) * 100;
+            document.getElementById('pouziju-pct-bar').style.width = pPct + '%';
+            document.getElementById('spz-pct-bar').style.width = sPct + '%';
+            
+            // Re-map colors just in case
+            document.getElementById('pouziju-pct-bar').style.backgroundColor = '#76B72A';
+            document.getElementById('spz-pct-bar').style.backgroundColor = '#EE7618';
+
+            document.getElementById('pouziju-list-container').style.display = pouziju.length > 0 ? 'block' : 'none';
+            document.getElementById('pouziju-list').innerHTML = pouziju.map(m => `
+                <li class="p-4 bg-brandGreen/5 rounded-xl text-brandNavy border border-brandGreen/20">
+                    <span class="text-xs font-black text-brandGreen/70 block mb-1 uppercase tracking-widest">${m.sheetName} / ${m.oblast}</span>
+                    <span class="font-black">${m.krok}</span>
+                </li>
+            `).join('');
+
+            document.getElementById('spz-list-container').style.display = spz.length > 0 ? 'block' : 'none';
+            document.getElementById('spz-list').innerHTML = spz.map(m => `
+                <li class="p-4 bg-brandOrange/5 rounded-xl text-brandNavy border border-brandOrange/20 shadow-sm">
+                    <span class="text-xs font-black text-brandOrange/70 block mb-1 uppercase tracking-widest">${m.sheetName} / ${m.oblast}</span>
+                    <span class="font-black">${m.krok}</span>
+                </li>
+            `).join('');
+            
+            const updateTeacherInfo = () => {
+                const email = document.getElementById('teacher-email-input').value;
+                const role = document.getElementById('role-input').value;
+                const schoolType = document.getElementById('school-type-input').value;
+                const studentCount = document.getElementById('student-count-input').value;
+
+                if (!email && !role && !schoolType && !studentCount) {
+                    document.getElementById('teacher-info').innerHTML = '';
+                    return;
+                }
+
+                document.getElementById('teacher-info').innerHTML = `
+                    <div class="mb-10 p-6 bg-brandBg/30 rounded-3xl border-2 border-brandSurface/30 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <p class="text-xl text-brandNavy/70 font-black">
+                            Vypracoval/a: <span class="text-brandNavy border-b-2 border-brandYellow pb-1">${email || '---'}</span>
+                        </p>
+                        ${role ? `<p class="text-xl text-brandNavy/70 font-black">Role: <span class="text-brandNavy">${role}</span></p>` : ''}
+                        ${schoolType ? `<p class="text-xl text-brandNavy/70 font-black">Škola: <span class="text-brandNavy">${schoolType}</span></p>` : ''}
+                        ${studentCount ? `<p class="text-xl text-brandNavy/70 font-black">Počet žáků: <span class="text-brandNavy">${studentCount}</span></p>` : ''}
+                    </div>
+                `;
+            };
+
+            document.getElementById('teacher-email-input').addEventListener('input', updateTeacherInfo);
+            document.getElementById('role-input').addEventListener('change', updateTeacherInfo);
+            document.getElementById('school-type-input').addEventListener('change', updateTeacherInfo);
+            document.getElementById('student-count-input').addEventListener('input', updateTeacherInfo);
+        }
+
+        function handlePrint() {
+            const email = document.getElementById('teacher-email-input').value;
+            const role = document.getElementById('role-input').value;
+            const schoolType = document.getElementById('school-type-input').value;
+            const error = document.getElementById('email-error');
+            
+            // Validation
+            let hasError = false;
+            
+            if (!email || !email.includes('@')) {
+                document.getElementById('teacher-email-input').classList.add('border-rose-300', 'ring-2', 'ring-rose-100');
+                hasError = true;
+            } else {
+                document.getElementById('teacher-email-input').classList.remove('border-rose-300', 'ring-2', 'ring-rose-100');
+            }
+
+            if (!role) {
+                document.getElementById('role-input').classList.add('border-rose-300', 'ring-2', 'ring-rose-100');
+                hasError = true;
+            } else {
+                document.getElementById('role-input').classList.remove('border-rose-300', 'ring-2', 'ring-rose-100');
+            }
+
+            if (!schoolType) {
+                document.getElementById('school-type-input').classList.add('border-rose-300', 'ring-2', 'ring-rose-100');
+                hasError = true;
+            } else {
+                document.getElementById('school-type-input').classList.remove('border-rose-300', 'ring-2', 'ring-rose-100');
+            }
+
+            if (hasError) {
+                error.classList.remove('hidden');
+                error.innerText = 'Prosím vyplňte všechna povinná pole (Email, Role, Typ školy).';
+                return;
+            }
+
+            error.classList.add('hidden');
+            window.print();
+        }
+
+        // --- INJECT DATA ---
+        measures = [
+  {
+    "id": "po_sim_1",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "umožnot volbu práce ve skupině či samostatně"
+  },
+  {
+    "id": "po_sim_2",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v heterogenních skupinách s dif. zadáním či rozdělením rolí"
+  },
+  {
+    "id": "po_sim_3",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky"
+  },
+  {
+    "id": "po_sim_4",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu)."
+  },
+  {
+    "id": "po_sim_5",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření."
+  },
+  {
+    "id": "po_sim_6",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním."
+  },
+  {
+    "id": "po_sim_7",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích."
+  },
+  {
+    "id": "po_sim_8",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy."
+  },
+  {
+    "id": "po_sim_9",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit."
+  },
+  {
+    "id": "po_sim_10",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny)."
+  },
+  {
+    "id": "po_sim_11",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Nabízet prostor pro sdílení zájmů a zkušeností mimo rámec soutěží (diskusní kluby, čtenářské či vědecké semináře)."
+  },
+  {
+    "id": "po_sim_12",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty)."
+  },
+  {
+    "id": "po_sim_13",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zjišťovat aktuální zájmy a potřeby žáků prostřednictvím dotazníků, rozhovorů nebo třídních diskusí."
+  },
+  {
+    "id": "po_sim_14",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Na základě zjištěných preferencí organizovat školní kroužky a volnočasové aktivity, které rozvíjejí talenty žáků (např. programování, vědecké experimenty, umělecká tvorba, debatní klub)."
+  },
+  {
+    "id": "po_sim_15",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zajistit vedení kroužků pedagogem, externím odborníkem nebo zkušeným studentem, který má v dané oblasti potřebné znalosti a dovednosti."
+  },
+  {
+    "id": "po_sim_16",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Přizpůsobit obsah a formu kroužků úrovni schopností žáků, včetně možnosti diferenciace úkolů pro nadané účastníky."
+  },
+  {
+    "id": "po_sim_17",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Pravidelně vyhodnocovat zájem o kroužky a podle potřeby upravovat jejich náplň nebo otevírat nové, aby nabídka zůstala aktuální a motivující."
+  },
+  {
+    "id": "po_sim_18",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Přizpůsobovat tempo výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých možností."
+  },
+  {
+    "id": "po_sim_19",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat individuální zadání úloh, které zohledňují úroveň schopností a zájmy žáka (např. rozšiřující projekty, úkoly propojující více oborů, otevřené badatelské otázky)."
+  },
+  {
+    "id": "po_sim_20",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Nabízet pravidelné individuální konzultace k probíranému učivu, projektům či osobním vzdělávacím cílům žáka."
+  },
+  {
+    "id": "po_sim_21",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Vytvářet podmínky pro samostatnou práci žáka během části vyučovací hodiny (např. práce v učebním koutku, využití školní knihovny, práce na dlouhodobém projektu)."
+  },
+  {
+    "id": "po_sim_22",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat průběžnou zpětnou vazbu, která oceňuje nejen výsledky, ale i způsob myšlení, kreativitu a strategii řešení úloh."
+  },
+  {
+    "id": "po_sim_23",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Upravovat organizaci výuky tak, aby žák mohl využívat podpůrné materiály, pomůcky nebo digitální nástroje, které mu umožní pracovat efektivně a podle individuálního plánu."
+  },
+  {
+    "id": "po_sim_24",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Umožnit žákovi pracovat samostatně vlastním tempem, a to jak při rychlejším postupu, tak při potřebě delšího času na zpracování úkolu."
+  },
+  {
+    "id": "po_sim_25",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Nabízet otevřené úlohy s možností volby hloubky a rozsahu zpracování."
+  },
+  {
+    "id": "po_sim_26",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Poskytovat doplňující nebo rozšiřující aktivity pro žáky, kteří úkol dokončí dříve."
+  },
+  {
+    "id": "po_sim_27",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Zapisovat na začátku hodiny její strukturu na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce."
+  },
+  {
+    "id": "po_sim_28",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Uvádět u jednotlivých kroků časové vymezení, aby žáci mohli lépe plánovat své pracovní tempo."
+  },
+  {
+    "id": "po_sim_29",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Nabízet v rámci struktury možnosti volby (např. výběr z několika typů úloh, rozdílné formy výstupu, varianta samostatné či skupinové práce) a zapsat je přehledně na tabuli."
+  },
+  {
+    "id": "po_sim_30",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "V případě diferenciace označit úkoly podle úrovně obtížnosti nebo zaměření (např. základní, rozšiřující, výzvové), aby si žák mohl zvolit odpovídající variantu."
+  },
+  {
+    "id": "po_sim_31",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Po skončení jednotlivých částí hodiny strukturu společně se třídou revidovat a zhodnotit, jak se podařilo dodržet plán a časové rámce."
+  },
+  {
+    "id": "po_sim_32",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Slučovat vyučovací jednotky do delších tematických bloků, aby měl žák dostatek času ponořit se do učiva a pracovat na komplexnějších úkolech bez častého přerušování."
+  },
+  {
+    "id": "po_sim_33",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Plánovat delší časové celky pro projektovou, badatelskou nebo tvořivou činnost, která vyžaduje soustředění a kontinuitu (např. laboratorní práce, výzkumný projekt, umělecká tvorba)."
+  },
+  {
+    "id": "po_sim_34",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Střídat náročné kognitivní aktivity s odlehčujícími činnostmi (např. reflexe, krátké pohybové aktivity, diskuse) pro udržení pozornosti během delšího bloku."
+  },
+  {
+    "id": "po_sim_35",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Přizpůsobit organizaci přestávek tak, aby delší vyučovací celky nenarušovaly potřebu odpočinku a regenerace."
+  },
+  {
+    "id": "po_sim_36",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Využívat delší bloky k propojování učiva z různých předmětů a k mezioborovým projektům, které lépe odpovídají zájmům a schopnostem žáka s nadáním."
+  },
+  {
+    "id": "po_sim_37",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Zařazovat pravidelné bloky individuální práce se žákem, zaměřené na rozvoj jeho silných stránek, řešení aktuálních vzdělávacích potřeb a rozšiřování učiva nad rámec běžného programu."
+  },
+  {
+    "id": "po_sim_38",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využívat podporu asistenta pedagoga, speciálního pedagoga nebo jiného odborníka pro cílenou práci na specifických dovednostech (např. rozvoj tvůrčího psaní, řešení náročných matematických úloh, badatelské činnosti)."
+  },
+  {
+    "id": "po_sim_39",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Připravovat individuální zadání úkolů a projektů odpovídající schopnostem a zájmům žáka, včetně otevřených úloh s více možnými řešeními."
+  },
+  {
+    "id": "po_sim_40",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Poskytovat okamžitou a konkrétní zpětnou vazbu během individuální práce, která podporuje sebereflexi a plánování dalšího postupu."
+  },
+  {
+    "id": "po_sim_41",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Nastavit organizaci vyučování tak, aby byla individuální práce časově i prostorově nerušená (např. práce v klidovém koutku, v knihovně nebo v menší skupině mimo třídu)."
+  },
+  {
+    "id": "po_sim_42",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využít tandemovou výuku k hlubší diferenciaci či individuální práci s žákem (podle možností školy)"
+  },
+  {
+    "id": "po_sim_43",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Umožnit žákovi příchod do školy před oficiálním začátkem vyučování, aby mohl vstoupit do třídy v klidném prostředí bez nadměrného hluku a ruchu."
+  },
+  {
+    "id": "po_sim_44",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "V případě potřeby povolit pozdější příchod do školy, aby se žák vyhnul rannímu shonu a přeplněným společným prostorám."
+  },
+  {
+    "id": "po_sim_45",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Domluvit se s pedagogickým sborem a školními pracovníky na organizačním řešení (např. dohled v učebně, umožnění vstupu do knihovny či jiné klidové místnosti)."
+  },
+  {
+    "id": "po_sim_46",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Informovat žáka i jeho rodiče o dohodnutých pravidlech a časech příchodu tak, aby byla zachována kontinuita výuky."
+  },
+  {
+    "id": "po_sim_47",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Zajistit, aby měl žák po příchodu prostor na adaptaci před začátkem vyučování (např. krátké čtení, tiché hry, relaxační techniky)."
+  },
+  {
+    "id": "po_sim_48",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Umožnit žákovi odchod na oběd před hlavní skupinou, aby se vyhnul hluku, tlačenici a nadměrným sociálním podnětům."
+  },
+  {
+    "id": "po_sim_49",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nabídnout možnost oběda v klidnějších prostorách (např. menší jídelna, učebna, relaxační místnost) dle organizačních možností školy."
+  },
+  {
+    "id": "po_sim_50",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "V mateřské škole zařadit oběd pro dítě dříve než pro ostatní skupinu, aby se minimalizoval čas strávený v rušném prostředí."
+  },
+  {
+    "id": "po_sim_51",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Domluvit se s personálem jídelny a pedagogickým sborem na logistice (např. vyhrazení stolu, zajištění dohledu)."
+  },
+  {
+    "id": "po_sim_52",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nastavit jasná pravidla a rutinu, aby žák věděl, kdy a kam má na oběd odcházet, a předešlo se nedorozuměním."
+  },
+  {
+    "id": "po_sim_53",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Vyhradit žákovi stálé místo pro uložení osobních věcí (např. poličku, skříňku, box), které bude snadno přístupné a jasně označené."
+  },
+  {
+    "id": "po_sim_54",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Zajistit, aby úložné místo bylo v klidnější části třídy nebo šatny, čímž se sníží riziko ztráty či poškození věcí."
+  },
+  {
+    "id": "po_sim_55",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Nastavit pravidla pro ukládání a udržování pořádku na vyhrazeném místě, včetně pravidelné kontroly s žákem."
+  },
+  {
+    "id": "po_sim_56",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "V případě potřeby umožnit žákovi přístup k uloženým věcem i mimo běžné přestávky (např. při změně aktivit, před specializovanými činnostmi)."
+  },
+  {
+    "id": "po_sim_57",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Podpořit žáka v organizaci jeho pracovních a osobních pomůcek (např. použití přihrádek, popisek, barevného značení)."
+  },
+  {
+    "id": "po_sim_58",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vyhradit ve třídě nebo jiné vhodné místnosti samostatný koutek, který poskytuje žákovi klid a minimalizuje rušivé podněty."
+  },
+  {
+    "id": "po_sim_59",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vybavit koutek vhodným nábytkem a pomůckami (např. pohodlná židle, pracovní stůl, police na pomůcky, tlumicí paravány, relaxační prvky)."
+  },
+  {
+    "id": "po_sim_60",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umístit koutek tak, aby byl mimo hlavní komunikační a pohybové trasy ve třídě, ideálně v části s menší hlučností a vizuálním ruchem."
+  },
+  {
+    "id": "po_sim_61",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umožnit žákovi využívat koutek k soustředěné práci, relaxaci či seberegulaci podle předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_62",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Pravidelně s žákem hodnotit, jak koutek naplňuje jeho potřeby, a upravovat jeho vybavení nebo režim využívání podle zkušeností."
+  },
+  {
+    "id": "po_sim_63",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vyhradit v rámci třídy pracovní místo pro individuální práci žáka nebo pro práci v malé skupině, umístěné tak, aby minimalizovalo rušivé podněty."
+  },
+  {
+    "id": "po_sim_64",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Zařídit další pracovní místo s charakterem procvičovacím či obohacovacím, vybavené vhodnými výukovými programy a pomůckami (např. stůl s počítačem, tabletem, didaktickými hrami, odbornou literaturou)."
+  },
+  {
+    "id": "po_sim_65",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vytvořit nabídku digitálních a tištěných materiálů, které umožní žákovi procvičovat nebo rozšiřovat učivo podle jeho úrovně a zájmů."
+  },
+  {
+    "id": "po_sim_66",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Nastavit pravidla pro využívání obohacovacího místa, včetně časového omezení a způsobu střídání žáků, pokud jej využívá více osob."
+  },
+  {
+    "id": "po_sim_67",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Podporovat žáka v samostatném plánování, kdy a jak obohacovací místo využije, a reflektovat s ním přínos této práce."
+  },
+  {
+    "id": "po_sim_68",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nabízet žákovi možnost volby pracovního místa ve třídě (např. u stolu, na koberci, v koutku pro čtení, u okna)."
+  },
+  {
+    "id": "po_sim_69",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Umožnit žákovi pracovat i na přiměřených stanovištích mimo třídu (např. školní knihovna, studovna, chodba s dohledem)."
+  },
+  {
+    "id": "po_sim_70",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nastavit jasná pravidla pro využívání různých stanovišť tak, aby byla zachována kontinuita výuky a nerušilo se prostředí třídy."
+  },
+  {
+    "id": "po_sim_71",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Umožnit žákovi v případě potřeby opustit třídu a přesunout se k práci do jiné, klidnější místnosti, aby mohl pracovat bez rušivých podnětů."
+  },
+  {
+    "id": "po_sim_72",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Vybrat vhodnou místnost (např. studovnu, knihovnu, volnou učebnu) a vybavit ji základními pomůckami pro samostatnou práci."
+  },
+  {
+    "id": "po_sim_73",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Nastavit jasná pravidla pro opuštění třídy a pobyt v jiné místnosti (např. zápis do sešitu docházky, určení času návratu, povolené činnosti)."
+  },
+  {
+    "id": "po_sim_74",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Zajistit dohled pedagoga nebo jiného pověřeného pracovníka, pokud to podmínky školy vyžadují."
+  },
+  {
+    "id": "po_sim_75",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Domluvit se se žákem na způsobu předávání výsledků práce vykonané mimo kmenovou třídu (např. odevzdání po návratu, sdílení přes online platformu)."
+  },
+  {
+    "id": "po_sim_76",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění."
+  },
+  {
+    "id": "po_sim_77",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra)."
+  },
+  {
+    "id": "po_sim_78",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky."
+  },
+  {
+    "id": "po_sim_79",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vysvětlit třídě smysl relaxačních přestávek a nastavit pravidla jejich využívání, aby byly vnímány jako přirozená součást výuky."
+  },
+  {
+    "id": "po_sim_80",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Přizpůsobit délku a formu relaxační přestávky aktuálním potřebám žáka (např. při náročné kognitivní činnosti nebo po delší prezentaci)."
+  },
+  {
+    "id": "po_sim_81",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Umožnit žákovi volbu pracovní pozice (sezení u stolu, na koberci, ve stoje) v rámci předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_82",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Nabízet možnost krátkého pohybu během práce (např. změna místa, protažení, práce ve stoje u flipchartu)."
+  },
+  {
+    "id": "po_sim_83",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Vytvářet prostředí, které respektuje individuální potřebu pohybu, a zároveň zajišťovat nerušený průběh výuky."
+  },
+  {
+    "id": "po_sim_84",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Umožnit žákovi krátkodobý odchod do relaxační zóny ve třídě nebo v jiném určeném prostoru, pokud potřebuje snížit stres či obnovit koncentraci."
+  },
+  {
+    "id": "po_sim_85",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Nastavit jasná pravidla pro využívání relaxační zóny (délka pobytu, respektování klidu, návrat do výuky)."
+  },
+  {
+    "id": "po_sim_86",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Vybavit relaxační zónu vhodnými podněty k uklidnění (např. polštáře, senzorické pomůcky, klidové čtení)."
+  },
+  {
+    "id": "po_sim_87",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Poskytnout žákovi možnost odpočinku v relaxačním koutku vždy, když projeví potřebu regenerace nebo zklidnění."
+  },
+  {
+    "id": "po_sim_88",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Vytvořit relaxační koutek vybavený jednoduchými a nerušícími pomůckami (např. polštáře, deka, antistresové hračky, klidné knihy)."
+  },
+  {
+    "id": "po_sim_89",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Stanovit pravidla pro využívání koutku (délka pobytu, zachování ticha, bezpečnost) a podpořit návrat žáka do výuky po odpočinku."
+  },
+  {
+    "id": "po_sim_90",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Umožňovat žákovi účast na vybraných hodinách ve vyšším ročníku v souladu s jeho zájmem a vzdělávacími potřebami."
+  },
+  {
+    "id": "po_sim_91",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobovat rozsah a frekvenci hostování tak, aby byla zachována motivace žáka a zároveň nebyla narušena jeho běžná výuka."
+  },
+  {
+    "id": "po_sim_92",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Podporovat reflexi zkušenosti (např. rozhovor s učitelem, sdílení ve třídě), aby žák dokázal využít získané poznatky ve vlastní práci."
+  },
+  {
+    "id": "po_sim_93",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "\"* Umožnit **akceleraci učiva** přizpůsobenou individuální úrovni schopností a znalostí žáka, aby mohl postupovat rychleji než běžný vzdělávací program."
+  },
+  {
+    "id": "po_sim_94",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobit obsah i tempo výuky tak, aby žák mohl dříve zvládnout klíčová témata a pokročit k náročnějším učivům."
+  },
+  {
+    "id": "po_sim_95",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Pravidelně vyhodnocovat pokrok a přizpůsobovat další kroky, aby akcelerace byla efektivní a žák nebyl přetěžován.\""
+  },
+  {
+    "id": "po_sim_96",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Umožnit zařazení dítěte do předškolní přípravy dříve, než je obvyklé, pokud projevuje známky nadání a připravenosti."
+  },
+  {
+    "id": "po_sim_97",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Přizpůsobit obsah a metody práce věku a schopnostem dítěte (např. kratší, pestřejší aktivity, individuální zadání)."
+  },
+  {
+    "id": "po_sim_98",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Poskytovat dítěti podporu při sociální adaptaci v heterogenní skupině (např. zapojení do kooperativních her, práce ve dvojici se starším dítětem)."
+  },
+  {
+    "id": "po_sim_99",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy)."
+  },
+  {
+    "id": "po_sim_100",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Zajistit náhradní formy plnění učiva (individuální zadání, online konzultace, pracovní listy)."
+  },
+  {
+    "id": "po_sim_101",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Podporovat komunikaci mezi žákem, rodiči a učiteli o průběhu a dopadech těchto aktivit na vzdělávací výsledky."
+  },
+  {
+    "id": "po_sim_102",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi plnit část školní docházky prostřednictvím online kurzů (např. CTM či jiné vzdělávací platformy)."
+  },
+  {
+    "id": "po_sim_103",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah online kurzů se školním vzdělávacím programem, aby se zajistila návaznost a kompatibilita učiva."
+  },
+  {
+    "id": "po_sim_104",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat reflexi a sdílení získaných znalostí ve třídě (např. formou prezentace, projektu, diskuse)."
+  },
+  {
+    "id": "po_sim_105",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi absolvovat část nebo celou hodinovou dotaci určitého předmětu v jiné instituci (např. jazyková škola, ZUŠ, sportovní klub)."
+  },
+  {
+    "id": "po_sim_106",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah výuky s externí institucí tak, aby byla zachována návaznost na školní vzdělávací program."
+  },
+  {
+    "id": "po_sim_107",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat přenos získaných dovedností zpět do školního prostředí (např. sdílení výstupů, prezentace, praktické ukázky)."
+  },
+  {
+    "id": "po_sim_108",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Umožnit žákovi plnění povinné školní docházky kombinovanou formou (část prezenčně, část distančně nebo individuálně)."
+  },
+  {
+    "id": "po_sim_109",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Přizpůsobit organizaci vzdělávání tak, aby zohledňovala zájmy, tempo a nadání žáka (např. online konzultace, projektové úkoly, samostatné studium)."
+  },
+  {
+    "id": "po_sim_110",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Nastavit systém průběžné kontroly a hodnocení práce žáka, který zajistí kontinuitu a kvalitu vzdělávacího procesu."
+  },
+  {
+    "id": "po_sim_111",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Umožnit žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného nebo vyššího stupně vzdělávání, které odpovídají jeho zájmům a vzdělávacím potřebám."
+  },
+  {
+    "id": "po_sim_112",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Vybrat stážové pracoviště ve spolupráci se žákem, rodiči a příslušnými pedagogy tak, aby přinášelo nové podněty a rozšiřovalo znalosti i dovednosti žáka."
+  },
+  {
+    "id": "po_sim_113",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Domluvit s hostitelskou institucí obsah stáže, rozsah, délku a formu zapojení žáka (např. účast na výuce, workshopech, projektech, laboratorní práci)."
+  },
+  {
+    "id": "po_sim_114",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Stanovit způsob zaznamenávání a vyhodnocování průběhu stáže (např. portfolio, reflexní deník, prezentace zkušeností po návratu)."
+  },
+  {
+    "id": "po_sim_115",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Podpořit žáka v přenosu získaných zkušeností do jeho dalšího vzdělávání, např. formou navazujících projektů nebo rozšiřujících úkolů ve škole."
+  },
+  {
+    "id": "po_sim_116",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Navazovat spolupráci se středními a vysokými školami, vědeckými institucemi či firmami a umožnit žákovi účast na stážích, projektech nebo workshopech."
+  },
+  {
+    "id": "po_sim_117",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Zprostředkovávat žákovi kontakt s odborníky z praxe formou exkurzí, přednášek, konzultací či mentorství."
+  },
+  {
+    "id": "po_sim_118",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Integrovat zkušenosti z těchto aktivit do školní práce (např. projektové výstupy, prezentace, aplikace získaných poznatků)."
+  },
+  {
+    "id": "po_sim_119",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Poskytovat žákovi možnost individuální přípravy k maturitní zkoušce bez povinné denní docházky na střední školu (formou samostudia či distanční výuky)."
+  },
+  {
+    "id": "po_sim_120",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Nabízet konzultace s vyučujícími nebo odborníky v jednotlivých předmětech k upřesnění studijního postupu a zodpovězení dotazů."
+  },
+  {
+    "id": "po_sim_121",
+    "sheetName": "1. Organizace výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Zajišťovat přístup k výukovým materiálům, online zdrojům a doporučené literatuře k samostatnému studiu."
+  },
+  {
+    "id": "po_sim_122",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "umožnot volbu práce ve skupině či samostatně"
+  },
+  {
+    "id": "po_sim_123",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v heterogenních skupinách s dif. zadáním či rozdělením rolí"
+  },
+  {
+    "id": "po_sim_124",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky"
+  },
+  {
+    "id": "po_sim_125",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu)."
+  },
+  {
+    "id": "po_sim_126",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření."
+  },
+  {
+    "id": "po_sim_127",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním."
+  },
+  {
+    "id": "po_sim_128",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích."
+  },
+  {
+    "id": "po_sim_129",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy."
+  },
+  {
+    "id": "po_sim_130",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit."
+  },
+  {
+    "id": "po_sim_131",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny)."
+  },
+  {
+    "id": "po_sim_132",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Nabízet prostor pro sdílení zájmů a zkušeností mimo rámec soutěží (diskusní kluby, čtenářské či vědecké semináře)."
+  },
+  {
+    "id": "po_sim_133",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty)."
+  },
+  {
+    "id": "po_sim_134",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zjišťovat aktuální zájmy a potřeby žáků prostřednictvím dotazníků, rozhovorů nebo třídních diskusí."
+  },
+  {
+    "id": "po_sim_135",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Na základě zjištěných preferencí organizovat školní kroužky a volnočasové aktivity, které rozvíjejí talenty žáků (např. programování, vědecké experimenty, umělecká tvorba, debatní klub)."
+  },
+  {
+    "id": "po_sim_136",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zajistit vedení kroužků pedagogem, externím odborníkem nebo zkušeným studentem, který má v dané oblasti potřebné znalosti a dovednosti."
+  },
+  {
+    "id": "po_sim_137",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Přizpůsobit obsah a formu kroužků úrovni schopností žáků, včetně možnosti diferenciace úkolů pro nadané účastníky."
+  },
+  {
+    "id": "po_sim_138",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Pravidelně vyhodnocovat zájem o kroužky a podle potřeby upravovat jejich náplň nebo otevírat nové, aby nabídka zůstala aktuální a motivující."
+  },
+  {
+    "id": "po_sim_139",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Přizpůsobovat tempo výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých možností."
+  },
+  {
+    "id": "po_sim_140",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat individuální zadání úloh, které zohledňují úroveň schopností a zájmy žáka (např. rozšiřující projekty, úkoly propojující více oborů, otevřené badatelské otázky)."
+  },
+  {
+    "id": "po_sim_141",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Nabízet pravidelné individuální konzultace k probíranému učivu, projektům či osobním vzdělávacím cílům žáka."
+  },
+  {
+    "id": "po_sim_142",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Vytvářet podmínky pro samostatnou práci žáka během části vyučovací hodiny (např. práce v učebním koutku, využití školní knihovny, práce na dlouhodobém projektu)."
+  },
+  {
+    "id": "po_sim_143",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat průběžnou zpětnou vazbu, která oceňuje nejen výsledky, ale i způsob myšlení, kreativitu a strategii řešení úloh."
+  },
+  {
+    "id": "po_sim_144",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Upravovat organizaci výuky tak, aby žák mohl využívat podpůrné materiály, pomůcky nebo digitální nástroje, které mu umožní pracovat efektivně a podle individuálního plánu."
+  },
+  {
+    "id": "po_sim_145",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Umožnit žákovi pracovat samostatně vlastním tempem, a to jak při rychlejším postupu, tak při potřebě delšího času na zpracování úkolu."
+  },
+  {
+    "id": "po_sim_146",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Nabízet otevřené úlohy s možností volby hloubky a rozsahu zpracování."
+  },
+  {
+    "id": "po_sim_147",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Poskytovat doplňující nebo rozšiřující aktivity pro žáky, kteří úkol dokončí dříve."
+  },
+  {
+    "id": "po_sim_148",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Zapisovat na začátku hodiny její strukturu na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce."
+  },
+  {
+    "id": "po_sim_149",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Uvádět u jednotlivých kroků časové vymezení, aby žáci mohli lépe plánovat své pracovní tempo."
+  },
+  {
+    "id": "po_sim_150",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Nabízet v rámci struktury možnosti volby (např. výběr z několika typů úloh, rozdílné formy výstupu, varianta samostatné či skupinové práce) a zapsat je přehledně na tabuli."
+  },
+  {
+    "id": "po_sim_151",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "V případě diferenciace označit úkoly podle úrovně obtížnosti nebo zaměření (např. základní, rozšiřující, výzvové), aby si žák mohl zvolit odpovídající variantu."
+  },
+  {
+    "id": "po_sim_152",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Po skončení jednotlivých částí hodiny strukturu společně se třídou revidovat a zhodnotit, jak se podařilo dodržet plán a časové rámce."
+  },
+  {
+    "id": "po_sim_153",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Slučovat vyučovací jednotky do delších tematických bloků, aby měl žák dostatek času ponořit se do učiva a pracovat na komplexnějších úkolech bez častého přerušování."
+  },
+  {
+    "id": "po_sim_154",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Plánovat delší časové celky pro projektovou, badatelskou nebo tvořivou činnost, která vyžaduje soustředění a kontinuitu (např. laboratorní práce, výzkumný projekt, umělecká tvorba)."
+  },
+  {
+    "id": "po_sim_155",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Střídat náročné kognitivní aktivity s odlehčujícími činnostmi (např. reflexe, krátké pohybové aktivity, diskuse) pro udržení pozornosti během delšího bloku."
+  },
+  {
+    "id": "po_sim_156",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Přizpůsobit organizaci přestávek tak, aby delší vyučovací celky nenarušovaly potřebu odpočinku a regenerace."
+  },
+  {
+    "id": "po_sim_157",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Využívat delší bloky k propojování učiva z různých předmětů a k mezioborovým projektům, které lépe odpovídají zájmům a schopnostem žáka s nadáním."
+  },
+  {
+    "id": "po_sim_158",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Zařazovat pravidelné bloky individuální práce se žákem, zaměřené na rozvoj jeho silných stránek, řešení aktuálních vzdělávacích potřeb a rozšiřování učiva nad rámec běžného programu."
+  },
+  {
+    "id": "po_sim_159",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využívat podporu asistenta pedagoga, speciálního pedagoga nebo jiného odborníka pro cílenou práci na specifických dovednostech (např. rozvoj tvůrčího psaní, řešení náročných matematických úloh, badatelské činnosti)."
+  },
+  {
+    "id": "po_sim_160",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Připravovat individuální zadání úkolů a projektů odpovídající schopnostem a zájmům žáka, včetně otevřených úloh s více možnými řešeními."
+  },
+  {
+    "id": "po_sim_161",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Poskytovat okamžitou a konkrétní zpětnou vazbu během individuální práce, která podporuje sebereflexi a plánování dalšího postupu."
+  },
+  {
+    "id": "po_sim_162",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Nastavit organizaci vyučování tak, aby byla individuální práce časově i prostorově nerušená (např. práce v klidovém koutku, v knihovně nebo v menší skupině mimo třídu)."
+  },
+  {
+    "id": "po_sim_163",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využít tandemovou výuku k hlubší diferenciaci či individuální práci s žákem (podle možností školy)"
+  },
+  {
+    "id": "po_sim_164",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Umožnit žákovi příchod do školy před oficiálním začátkem vyučování, aby mohl vstoupit do třídy v klidném prostředí bez nadměrného hluku a ruchu."
+  },
+  {
+    "id": "po_sim_165",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "V případě potřeby povolit pozdější příchod do školy, aby se žák vyhnul rannímu shonu a přeplněným společným prostorám."
+  },
+  {
+    "id": "po_sim_166",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Domluvit se s pedagogickým sborem a školními pracovníky na organizačním řešení (např. dohled v učebně, umožnění vstupu do knihovny či jiné klidové místnosti)."
+  },
+  {
+    "id": "po_sim_167",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Informovat žáka i jeho rodiče o dohodnutých pravidlech a časech příchodu tak, aby byla zachována kontinuita výuky."
+  },
+  {
+    "id": "po_sim_168",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Zajistit, aby měl žák po příchodu prostor na adaptaci před začátkem vyučování (např. krátké čtení, tiché hry, relaxační techniky)."
+  },
+  {
+    "id": "po_sim_169",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Umožnit žákovi odchod na oběd před hlavní skupinou, aby se vyhnul hluku, tlačenici a nadměrným sociálním podnětům."
+  },
+  {
+    "id": "po_sim_170",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nabídnout možnost oběda v klidnějších prostorách (např. menší jídelna, učebna, relaxační místnost) dle organizačních možností školy."
+  },
+  {
+    "id": "po_sim_171",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "V mateřské škole zařadit oběd pro dítě dříve než pro ostatní skupinu, aby se minimalizoval čas strávený v rušném prostředí."
+  },
+  {
+    "id": "po_sim_172",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Domluvit se s personálem jídelny a pedagogickým sborem na logistice (např. vyhrazení stolu, zajištění dohledu)."
+  },
+  {
+    "id": "po_sim_173",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nastavit jasná pravidla a rutinu, aby žák věděl, kdy a kam má na oběd odcházet, a předešlo se nedorozuměním."
+  },
+  {
+    "id": "po_sim_174",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Vyhradit žákovi stálé místo pro uložení osobních věcí (např. poličku, skříňku, box), které bude snadno přístupné a jasně označené."
+  },
+  {
+    "id": "po_sim_175",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Zajistit, aby úložné místo bylo v klidnější části třídy nebo šatny, čímž se sníží riziko ztráty či poškození věcí."
+  },
+  {
+    "id": "po_sim_176",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Nastavit pravidla pro ukládání a udržování pořádku na vyhrazeném místě, včetně pravidelné kontroly s žákem."
+  },
+  {
+    "id": "po_sim_177",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "V případě potřeby umožnit žákovi přístup k uloženým věcem i mimo běžné přestávky (např. při změně aktivit, před specializovanými činnostmi)."
+  },
+  {
+    "id": "po_sim_178",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Podpořit žáka v organizaci jeho pracovních a osobních pomůcek (např. použití přihrádek, popisek, barevného značení)."
+  },
+  {
+    "id": "po_sim_179",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vyhradit ve třídě nebo jiné vhodné místnosti samostatný koutek, který poskytuje žákovi klid a minimalizuje rušivé podněty."
+  },
+  {
+    "id": "po_sim_180",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vybavit koutek vhodným nábytkem a pomůckami (např. pohodlná židle, pracovní stůl, police na pomůcky, tlumicí paravány, relaxační prvky)."
+  },
+  {
+    "id": "po_sim_181",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umístit koutek tak, aby byl mimo hlavní komunikační a pohybové trasy ve třídě, ideálně v části s menší hlučností a vizuálním ruchem."
+  },
+  {
+    "id": "po_sim_182",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umožnit žákovi využívat koutek k soustředěné práci, relaxaci či seberegulaci podle předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_183",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Pravidelně s žákem hodnotit, jak koutek naplňuje jeho potřeby, a upravovat jeho vybavení nebo režim využívání podle zkušeností."
+  },
+  {
+    "id": "po_sim_184",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vyhradit v rámci třídy pracovní místo pro individuální práci žáka nebo pro práci v malé skupině, umístěné tak, aby minimalizovalo rušivé podněty."
+  },
+  {
+    "id": "po_sim_185",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Zařídit další pracovní místo s charakterem procvičovacím či obohacovacím, vybavené vhodnými výukovými programy a pomůckami (např. stůl s počítačem, tabletem, didaktickými hrami, odbornou literaturou)."
+  },
+  {
+    "id": "po_sim_186",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vytvořit nabídku digitálních a tištěných materiálů, které umožní žákovi procvičovat nebo rozšiřovat učivo podle jeho úrovně a zájmů."
+  },
+  {
+    "id": "po_sim_187",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Nastavit pravidla pro využívání obohacovacího místa, včetně časového omezení a způsobu střídání žáků, pokud jej využívá více osob."
+  },
+  {
+    "id": "po_sim_188",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Podporovat žáka v samostatném plánování, kdy a jak obohacovací místo využije, a reflektovat s ním přínos této práce."
+  },
+  {
+    "id": "po_sim_189",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nabízet žákovi možnost volby pracovního místa ve třídě (např. u stolu, na koberci, v koutku pro čtení, u okna)."
+  },
+  {
+    "id": "po_sim_190",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Umožnit žákovi pracovat i na přiměřených stanovištích mimo třídu (např. školní knihovna, studovna, chodba s dohledem)."
+  },
+  {
+    "id": "po_sim_191",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nastavit jasná pravidla pro využívání různých stanovišť tak, aby byla zachována kontinuita výuky a nerušilo se prostředí třídy."
+  },
+  {
+    "id": "po_sim_192",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Umožnit žákovi v případě potřeby opustit třídu a přesunout se k práci do jiné, klidnější místnosti, aby mohl pracovat bez rušivých podnětů."
+  },
+  {
+    "id": "po_sim_193",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Vybrat vhodnou místnost (např. studovnu, knihovnu, volnou učebnu) a vybavit ji základními pomůckami pro samostatnou práci."
+  },
+  {
+    "id": "po_sim_194",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Nastavit jasná pravidla pro opuštění třídy a pobyt v jiné místnosti (např. zápis do sešitu docházky, určení času návratu, povolené činnosti)."
+  },
+  {
+    "id": "po_sim_195",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Zajistit dohled pedagoga nebo jiného pověřeného pracovníka, pokud to podmínky školy vyžadují."
+  },
+  {
+    "id": "po_sim_196",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Domluvit se se žákem na způsobu předávání výsledků práce vykonané mimo kmenovou třídu (např. odevzdání po návratu, sdílení přes online platformu)."
+  },
+  {
+    "id": "po_sim_197",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění."
+  },
+  {
+    "id": "po_sim_198",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra)."
+  },
+  {
+    "id": "po_sim_199",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky."
+  },
+  {
+    "id": "po_sim_200",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vysvětlit třídě smysl relaxačních přestávek a nastavit pravidla jejich využívání, aby byly vnímány jako přirozená součást výuky."
+  },
+  {
+    "id": "po_sim_201",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Přizpůsobit délku a formu relaxační přestávky aktuálním potřebám žáka (např. při náročné kognitivní činnosti nebo po delší prezentaci)."
+  },
+  {
+    "id": "po_sim_202",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Umožnit žákovi volbu pracovní pozice (sezení u stolu, na koberci, ve stoje) v rámci předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_203",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Nabízet možnost krátkého pohybu během práce (např. změna místa, protažení, práce ve stoje u flipchartu)."
+  },
+  {
+    "id": "po_sim_204",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Vytvářet prostředí, které respektuje individuální potřebu pohybu, a zároveň zajišťovat nerušený průběh výuky."
+  },
+  {
+    "id": "po_sim_205",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Umožnit žákovi krátkodobý odchod do relaxační zóny ve třídě nebo v jiném určeném prostoru, pokud potřebuje snížit stres či obnovit koncentraci."
+  },
+  {
+    "id": "po_sim_206",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Nastavit jasná pravidla pro využívání relaxační zóny (délka pobytu, respektování klidu, návrat do výuky)."
+  },
+  {
+    "id": "po_sim_207",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Vybavit relaxační zónu vhodnými podněty k uklidnění (např. polštáře, senzorické pomůcky, klidové čtení)."
+  },
+  {
+    "id": "po_sim_208",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Poskytnout žákovi možnost odpočinku v relaxačním koutku vždy, když projeví potřebu regenerace nebo zklidnění."
+  },
+  {
+    "id": "po_sim_209",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Vytvořit relaxační koutek vybavený jednoduchými a nerušícími pomůckami (např. polštáře, deka, antistresové hračky, klidné knihy)."
+  },
+  {
+    "id": "po_sim_210",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Stanovit pravidla pro využívání koutku (délka pobytu, zachování ticha, bezpečnost) a podpořit návrat žáka do výuky po odpočinku."
+  },
+  {
+    "id": "po_sim_211",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Umožňovat žákovi účast na vybraných hodinách ve vyšším ročníku v souladu s jeho zájmem a vzdělávacími potřebami."
+  },
+  {
+    "id": "po_sim_212",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobovat rozsah a frekvenci hostování tak, aby byla zachována motivace žáka a zároveň nebyla narušena jeho běžná výuka."
+  },
+  {
+    "id": "po_sim_213",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Podporovat reflexi zkušenosti (např. rozhovor s učitelem, sdílení ve třídě), aby žák dokázal využít získané poznatky ve vlastní práci."
+  },
+  {
+    "id": "po_sim_214",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "\"* Umožnit **akceleraci učiva** přizpůsobenou individuální úrovni schopností a znalostí žáka, aby mohl postupovat rychleji než běžný vzdělávací program."
+  },
+  {
+    "id": "po_sim_215",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobit obsah i tempo výuky tak, aby žák mohl dříve zvládnout klíčová témata a pokročit k náročnějším učivům."
+  },
+  {
+    "id": "po_sim_216",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Pravidelně vyhodnocovat pokrok a přizpůsobovat další kroky, aby akcelerace byla efektivní a žák nebyl přetěžován.\""
+  },
+  {
+    "id": "po_sim_217",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Umožnit zařazení dítěte do předškolní přípravy dříve, než je obvyklé, pokud projevuje známky nadání a připravenosti."
+  },
+  {
+    "id": "po_sim_218",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Přizpůsobit obsah a metody práce věku a schopnostem dítěte (např. kratší, pestřejší aktivity, individuální zadání)."
+  },
+  {
+    "id": "po_sim_219",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Poskytovat dítěti podporu při sociální adaptaci v heterogenní skupině (např. zapojení do kooperativních her, práce ve dvojici se starším dítětem)."
+  },
+  {
+    "id": "po_sim_220",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy)."
+  },
+  {
+    "id": "po_sim_221",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Zajistit náhradní formy plnění učiva (individuální zadání, online konzultace, pracovní listy)."
+  },
+  {
+    "id": "po_sim_222",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Podporovat komunikaci mezi žákem, rodiči a učiteli o průběhu a dopadech těchto aktivit na vzdělávací výsledky."
+  },
+  {
+    "id": "po_sim_223",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi plnit část školní docházky prostřednictvím online kurzů (např. CTM či jiné vzdělávací platformy)."
+  },
+  {
+    "id": "po_sim_224",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah online kurzů se školním vzdělávacím programem, aby se zajistila návaznost a kompatibilita učiva."
+  },
+  {
+    "id": "po_sim_225",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat reflexi a sdílení získaných znalostí ve třídě (např. formou prezentace, projektu, diskuse)."
+  },
+  {
+    "id": "po_sim_226",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi absolvovat část nebo celou hodinovou dotaci určitého předmětu v jiné instituci (např. jazyková škola, ZUŠ, sportovní klub)."
+  },
+  {
+    "id": "po_sim_227",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah výuky s externí institucí tak, aby byla zachována návaznost na školní vzdělávací program."
+  },
+  {
+    "id": "po_sim_228",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat přenos získaných dovedností zpět do školního prostředí (např. sdílení výstupů, prezentace, praktické ukázky)."
+  },
+  {
+    "id": "po_sim_229",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Umožnit žákovi plnění povinné školní docházky kombinovanou formou (část prezenčně, část distančně nebo individuálně)."
+  },
+  {
+    "id": "po_sim_230",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Přizpůsobit organizaci vzdělávání tak, aby zohledňovala zájmy, tempo a nadání žáka (např. online konzultace, projektové úkoly, samostatné studium)."
+  },
+  {
+    "id": "po_sim_231",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Nastavit systém průběžné kontroly a hodnocení práce žáka, který zajistí kontinuitu a kvalitu vzdělávacího procesu."
+  },
+  {
+    "id": "po_sim_232",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Umožnit žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného nebo vyššího stupně vzdělávání, které odpovídají jeho zájmům a vzdělávacím potřebám."
+  },
+  {
+    "id": "po_sim_233",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Vybrat stážové pracoviště ve spolupráci se žákem, rodiči a příslušnými pedagogy tak, aby přinášelo nové podněty a rozšiřovalo znalosti i dovednosti žáka."
+  },
+  {
+    "id": "po_sim_234",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Domluvit s hostitelskou institucí obsah stáže, rozsah, délku a formu zapojení žáka (např. účast na výuce, workshopech, projektech, laboratorní práci)."
+  },
+  {
+    "id": "po_sim_235",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Stanovit způsob zaznamenávání a vyhodnocování průběhu stáže (např. portfolio, reflexní deník, prezentace zkušeností po návratu)."
+  },
+  {
+    "id": "po_sim_236",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Podpořit žáka v přenosu získaných zkušeností do jeho dalšího vzdělávání, např. formou navazujících projektů nebo rozšiřujících úkolů ve škole."
+  },
+  {
+    "id": "po_sim_237",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Navazovat spolupráci se středními a vysokými školami, vědeckými institucemi či firmami a umožnit žákovi účast na stážích, projektech nebo workshopech."
+  },
+  {
+    "id": "po_sim_238",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Zprostředkovávat žákovi kontakt s odborníky z praxe formou exkurzí, přednášek, konzultací či mentorství."
+  },
+  {
+    "id": "po_sim_239",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Integrovat zkušenosti z těchto aktivit do školní práce (např. projektové výstupy, prezentace, aplikace získaných poznatků)."
+  },
+  {
+    "id": "po_sim_240",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Poskytovat žákovi možnost individuální přípravy k maturitní zkoušce bez povinné denní docházky na střední školu (formou samostudia či distanční výuky)."
+  },
+  {
+    "id": "po_sim_241",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Nabízet konzultace s vyučujícími nebo odborníky v jednotlivých předmětech k upřesnění studijního postupu a zodpovězení dotazů."
+  },
+  {
+    "id": "po_sim_242",
+    "sheetName": "2. Metody výuky",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Zajišťovat přístup k výukovým materiálům, online zdrojům a doporučené literatuře k samostatnému studiu."
+  },
+  {
+    "id": "po_sim_243",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "umožnot volbu práce ve skupině či samostatně"
+  },
+  {
+    "id": "po_sim_244",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v heterogenních skupinách s dif. zadáním či rozdělením rolí"
+  },
+  {
+    "id": "po_sim_245",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Nezařazeno",
+    "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "krok": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky"
+  },
+  {
+    "id": "po_sim_246",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu)."
+  },
+  {
+    "id": "po_sim_247",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření."
+  },
+  {
+    "id": "po_sim_248",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "krok": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním."
+  },
+  {
+    "id": "po_sim_249",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích."
+  },
+  {
+    "id": "po_sim_250",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy."
+  },
+  {
+    "id": "po_sim_251",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "krok": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit."
+  },
+  {
+    "id": "po_sim_252",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny)."
+  },
+  {
+    "id": "po_sim_253",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Nabízet prostor pro sdílení zájmů a zkušeností mimo rámec soutěží (diskusní kluby, čtenářské či vědecké semináře)."
+  },
+  {
+    "id": "po_sim_254",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Organizovat neformální setkávání žáků v rámci školy s učiteli případně odborníky, podporovat sociální interakci a rozvoj společných zájmů prostřednictvím aktivit a projektů.",
+    "krok": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty)."
+  },
+  {
+    "id": "po_sim_255",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zjišťovat aktuální zájmy a potřeby žáků prostřednictvím dotazníků, rozhovorů nebo třídních diskusí."
+  },
+  {
+    "id": "po_sim_256",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Na základě zjištěných preferencí organizovat školní kroužky a volnočasové aktivity, které rozvíjejí talenty žáků (např. programování, vědecké experimenty, umělecká tvorba, debatní klub)."
+  },
+  {
+    "id": "po_sim_257",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Zajistit vedení kroužků pedagogem, externím odborníkem nebo zkušeným studentem, který má v dané oblasti potřebné znalosti a dovednosti."
+  },
+  {
+    "id": "po_sim_258",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Přizpůsobit obsah a formu kroužků úrovni schopností žáků, včetně možnosti diferenciace úkolů pro nadané účastníky."
+  },
+  {
+    "id": "po_sim_259",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro setkávání v souladném prostředí",
+    "opatreni": "Při vytváření nabídky kroužků zohledňovat podle možností školy také aktuálních zájmy a potřeby žáků.",
+    "krok": "Pravidelně vyhodnocovat zájem o kroužky a podle potřeby upravovat jejich náplň nebo otevírat nové, aby nabídka zůstala aktuální a motivující."
+  },
+  {
+    "id": "po_sim_260",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Přizpůsobovat tempo výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých možností."
+  },
+  {
+    "id": "po_sim_261",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat individuální zadání úloh, které zohledňují úroveň schopností a zájmy žáka (např. rozšiřující projekty, úkoly propojující více oborů, otevřené badatelské otázky)."
+  },
+  {
+    "id": "po_sim_262",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Nabízet pravidelné individuální konzultace k probíranému učivu, projektům či osobním vzdělávacím cílům žáka."
+  },
+  {
+    "id": "po_sim_263",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Vytvářet podmínky pro samostatnou práci žáka během části vyučovací hodiny (např. práce v učebním koutku, využití školní knihovny, práce na dlouhodobém projektu)."
+  },
+  {
+    "id": "po_sim_264",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Poskytovat průběžnou zpětnou vazbu, která oceňuje nejen výsledky, ale i způsob myšlení, kreativitu a strategii řešení úloh."
+  },
+  {
+    "id": "po_sim_265",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Upravovat organizaci výuky tak, aby žák mohl využívat podpůrné materiály, pomůcky nebo digitální nástroje, které mu umožní pracovat efektivně a podle individuálního plánu."
+  },
+  {
+    "id": "po_sim_266",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Umožnit žákovi pracovat samostatně vlastním tempem, a to jak při rychlejším postupu, tak při potřebě delšího času na zpracování úkolu."
+  },
+  {
+    "id": "po_sim_267",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Nabízet otevřené úlohy s možností volby hloubky a rozsahu zpracování."
+  },
+  {
+    "id": "po_sim_268",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka a nabídkou doplňujících aktivit pro rychleji postupující žáky (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)",
+    "krok": "Poskytovat doplňující nebo rozšiřující aktivity pro žáky, kteří úkol dokončí dříve."
+  },
+  {
+    "id": "po_sim_269",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Zapisovat na začátku hodiny její strukturu na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce."
+  },
+  {
+    "id": "po_sim_270",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Uvádět u jednotlivých kroků časové vymezení, aby žáci mohli lépe plánovat své pracovní tempo."
+  },
+  {
+    "id": "po_sim_271",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Nabízet v rámci struktury možnosti volby (např. výběr z několika typů úloh, rozdílné formy výstupu, varianta samostatné či skupinové práce) a zapsat je přehledně na tabuli."
+  },
+  {
+    "id": "po_sim_272",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "V případě diferenciace označit úkoly podle úrovně obtížnosti nebo zaměření (např. základní, rozšiřující, výzvové), aby si žák mohl zvolit odpovídající variantu."
+  },
+  {
+    "id": "po_sim_273",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Po skončení jednotlivých částí hodiny strukturu společně se třídou revidovat a zhodnotit, jak se podařilo dodržet plán a časové rámce."
+  },
+  {
+    "id": "po_sim_274",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Slučovat vyučovací jednotky do delších tematických bloků, aby měl žák dostatek času ponořit se do učiva a pracovat na komplexnějších úkolech bez častého přerušování."
+  },
+  {
+    "id": "po_sim_275",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Plánovat delší časové celky pro projektovou, badatelskou nebo tvořivou činnost, která vyžaduje soustředění a kontinuitu (např. laboratorní práce, výzkumný projekt, umělecká tvorba)."
+  },
+  {
+    "id": "po_sim_276",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Střídat náročné kognitivní aktivity s odlehčujícími činnostmi (např. reflexe, krátké pohybové aktivity, diskuse) pro udržení pozornosti během delšího bloku."
+  },
+  {
+    "id": "po_sim_277",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Přizpůsobit organizaci přestávek tak, aby delší vyučovací celky nenarušovaly potřebu odpočinku a regenerace."
+  },
+  {
+    "id": "po_sim_278",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Slučovat vyučovací jednotky do delších bloků a tím umožnit soustředěnou práci na komplexních a mezioborových úkolech a podpořit kontinuitu učení (zohlednit potřebu odpočinku a střídání aktivit).",
+    "krok": "Využívat delší bloky k propojování učiva z různých předmětů a k mezioborovým projektům, které lépe odpovídají zájmům a schopnostem žáka s nadáním."
+  },
+  {
+    "id": "po_sim_279",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Zařazovat pravidelné bloky individuální práce se žákem, zaměřené na rozvoj jeho silných stránek, řešení aktuálních vzdělávacích potřeb a rozšiřování učiva nad rámec běžného programu."
+  },
+  {
+    "id": "po_sim_280",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využívat podporu asistenta pedagoga, speciálního pedagoga nebo jiného odborníka pro cílenou práci na specifických dovednostech (např. rozvoj tvůrčího psaní, řešení náročných matematických úloh, badatelské činnosti)."
+  },
+  {
+    "id": "po_sim_281",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Připravovat individuální zadání úkolů a projektů odpovídající schopnostem a zájmům žáka, včetně otevřených úloh s více možnými řešeními."
+  },
+  {
+    "id": "po_sim_282",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Poskytovat okamžitou a konkrétní zpětnou vazbu během individuální práce, která podporuje sebereflexi a plánování dalšího postupu."
+  },
+  {
+    "id": "po_sim_283",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Nastavit organizaci vyučování tak, aby byla individuální práce časově i prostorově nerušená (např. práce v klidovém koutku, v knihovně nebo v menší skupině mimo třídu)."
+  },
+  {
+    "id": "po_sim_284",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Zařazovat do výuky pravidelnou práci s pedagogem ve skupince žáků nebo individuální, využívat podporu AP.",
+    "krok": "Využít tandemovou výuku k hlubší diferenciaci či individuální práci s žákem (podle možností školy)"
+  },
+  {
+    "id": "po_sim_285",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Umožnit žákovi příchod do školy před oficiálním začátkem vyučování, aby mohl vstoupit do třídy v klidném prostředí bez nadměrného hluku a ruchu."
+  },
+  {
+    "id": "po_sim_286",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "V případě potřeby povolit pozdější příchod do školy, aby se žák vyhnul rannímu shonu a přeplněným společným prostorám."
+  },
+  {
+    "id": "po_sim_287",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Domluvit se s pedagogickým sborem a školními pracovníky na organizačním řešení (např. dohled v učebně, umožnění vstupu do knihovny či jiné klidové místnosti)."
+  },
+  {
+    "id": "po_sim_288",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Informovat žáka i jeho rodiče o dohodnutých pravidlech a časech příchodu tak, aby byla zachována kontinuita výuky."
+  },
+  {
+    "id": "po_sim_289",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější či pozdější příchod do školy  Zajistit organizační podmínky pro klidný vstup do vyučování za účelem eliminace hluku a chaosu,.",
+    "krok": "Zajistit, aby měl žák po příchodu prostor na adaptaci před začátkem vyučování (např. krátké čtení, tiché hry, relaxační techniky)."
+  },
+  {
+    "id": "po_sim_290",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Umožnit žákovi odchod na oběd před hlavní skupinou, aby se vyhnul hluku, tlačenici a nadměrným sociálním podnětům."
+  },
+  {
+    "id": "po_sim_291",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nabídnout možnost oběda v klidnějších prostorách (např. menší jídelna, učebna, relaxační místnost) dle organizačních možností školy."
+  },
+  {
+    "id": "po_sim_292",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "V mateřské škole zařadit oběd pro dítě dříve než pro ostatní skupinu, aby se minimalizoval čas strávený v rušném prostředí."
+  },
+  {
+    "id": "po_sim_293",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Domluvit se s personálem jídelny a pedagogickým sborem na logistice (např. vyhrazení stolu, zajištění dohledu)."
+  },
+  {
+    "id": "po_sim_294",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro individuální  odchody a příchody",
+    "opatreni": "Umožnit žákovi dřívější nebo pozdnější odchod na oběd nebo stravování v jiných prostorách a nastavit jasná organizační pravidla.",
+    "krok": "Nastavit jasná pravidla a rutinu, aby žák věděl, kdy a kam má na oběd odcházet, a předešlo se nedorozuměním."
+  },
+  {
+    "id": "po_sim_295",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Vyhradit žákovi stálé místo pro uložení osobních věcí (např. poličku, skříňku, box), které bude snadno přístupné a jasně označené."
+  },
+  {
+    "id": "po_sim_296",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Zajistit, aby úložné místo bylo v klidnější části třídy nebo šatny, čímž se sníží riziko ztráty či poškození věcí."
+  },
+  {
+    "id": "po_sim_297",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Nastavit pravidla pro ukládání a udržování pořádku na vyhrazeném místě, včetně pravidelné kontroly s žákem."
+  },
+  {
+    "id": "po_sim_298",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "V případě potřeby umožnit žákovi přístup k uloženým věcem i mimo běžné přestávky (např. při změně aktivit, před specializovanými činnostmi)."
+  },
+  {
+    "id": "po_sim_299",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "K zajištění bezpečného osobního prostoru vyhradit žákovi označené místo pro ukládání osobních věcí, zajistit k němu snadný přístup a podporovat žáka v udržování pořádku a organizaci pomůcek.",
+    "krok": "Podpořit žáka v organizaci jeho pracovních a osobních pomůcek (např. použití přihrádek, popisek, barevného značení)."
+  },
+  {
+    "id": "po_sim_300",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vyhradit ve třídě nebo jiné vhodné místnosti samostatný koutek, který poskytuje žákovi klid a minimalizuje rušivé podněty."
+  },
+  {
+    "id": "po_sim_301",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Vybavit koutek vhodným nábytkem a pomůckami (např. pohodlná židle, pracovní stůl, police na pomůcky, tlumicí paravány, relaxační prvky)."
+  },
+  {
+    "id": "po_sim_302",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umístit koutek tak, aby byl mimo hlavní komunikační a pohybové trasy ve třídě, ideálně v části s menší hlučností a vizuálním ruchem."
+  },
+  {
+    "id": "po_sim_303",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Umožnit žákovi využívat koutek k soustředěné práci, relaxaci či seberegulaci podle předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_304",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Nabídnout žákovi samostatný koutek minimalizující rušivé podněty, umožnit jeho využívání k soustředěné práci či relaxaci podle stanovených pravidel.",
+    "krok": "Pravidelně s žákem hodnotit, jak koutek naplňuje jeho potřeby, a upravovat jeho vybavení nebo režim využívání podle zkušeností."
+  },
+  {
+    "id": "po_sim_305",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vyhradit v rámci třídy pracovní místo pro individuální práci žáka nebo pro práci v malé skupině, umístěné tak, aby minimalizovalo rušivé podněty."
+  },
+  {
+    "id": "po_sim_306",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Zařídit další pracovní místo s charakterem procvičovacím či obohacovacím, vybavené vhodnými výukovými programy a pomůckami (např. stůl s počítačem, tabletem, didaktickými hrami, odbornou literaturou)."
+  },
+  {
+    "id": "po_sim_307",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Vytvořit nabídku digitálních a tištěných materiálů, které umožní žákovi procvičovat nebo rozšiřovat učivo podle jeho úrovně a zájmů."
+  },
+  {
+    "id": "po_sim_308",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Nastavit pravidla pro využívání obohacovacího místa, včetně časového omezení a způsobu střídání žáků, pokud jej využívá více osob."
+  },
+  {
+    "id": "po_sim_309",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Vytvořit ve třídě obohacující stanoviště pro individuální nebo skupinovou práci žáků k rozšiřování učiva podle potřeb a zájmů.",
+    "krok": "Podporovat žáka v samostatném plánování, kdy a jak obohacovací místo využije, a reflektovat s ním přínos této práce."
+  },
+  {
+    "id": "po_sim_310",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nabízet žákovi možnost volby pracovního místa ve třídě (např. u stolu, na koberci, v koutku pro čtení, u okna)."
+  },
+  {
+    "id": "po_sim_311",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Umožnit žákovi pracovat i na přiměřených stanovištích mimo třídu (např. školní knihovna, studovna, chodba s dohledem)."
+  },
+  {
+    "id": "po_sim_312",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi volbu pracovního místa ve třídě i na vhodných stanovištích mimo ni s nastavenými pravidly využití.",
+    "krok": "* Nastavit jasná pravidla pro využívání různých stanovišť tak, aby byla zachována kontinuita výuky a nerušilo se prostředí třídy."
+  },
+  {
+    "id": "po_sim_313",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Umožnit žákovi v případě potřeby opustit třídu a přesunout se k práci do jiné, klidnější místnosti, aby mohl pracovat bez rušivých podnětů."
+  },
+  {
+    "id": "po_sim_314",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Vybrat vhodnou místnost (např. studovnu, knihovnu, volnou učebnu) a vybavit ji základními pomůckami pro samostatnou práci."
+  },
+  {
+    "id": "po_sim_315",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Nastavit jasná pravidla pro opuštění třídy a pobyt v jiné místnosti (např. zápis do sešitu docházky, určení času návratu, povolené činnosti)."
+  },
+  {
+    "id": "po_sim_316",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Zajistit dohled pedagoga nebo jiného pověřeného pracovníka, pokud to podmínky školy vyžadují."
+  },
+  {
+    "id": "po_sim_317",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro uspořádní pracovního místa",
+    "opatreni": "Umožnit žákovi/skupině žáků v případě potřeby pracovat v jiné místnosti mimo třídu, nastavit jasná pravidla pro nerušenou práci.",
+    "krok": "Domluvit se se žákem na způsobu předávání výsledků práce vykonané mimo kmenovou třídu (např. odevzdání po návratu, sdílení přes online platformu)."
+  },
+  {
+    "id": "po_sim_318",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění."
+  },
+  {
+    "id": "po_sim_319",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra)."
+  },
+  {
+    "id": "po_sim_320",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky."
+  },
+  {
+    "id": "po_sim_321",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Vysvětlit třídě smysl relaxačních přestávek a nastavit pravidla jejich využívání, aby byly vnímány jako přirozená součást výuky."
+  },
+  {
+    "id": "po_sim_322",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Zařazovat do výuky krátké relaxační přestávky s možností volby vhodné aktivity jako prevenci přetížení.",
+    "krok": "Přizpůsobit délku a formu relaxační přestávky aktuálním potřebám žáka (např. při náročné kognitivní činnosti nebo po delší prezentaci)."
+  },
+  {
+    "id": "po_sim_323",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Umožnit žákovi volbu pracovní pozice (sezení u stolu, na koberci, ve stoje) v rámci předem stanovených pravidel."
+  },
+  {
+    "id": "po_sim_324",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Nabízet možnost krátkého pohybu během práce (např. změna místa, protažení, práce ve stoje u flipchartu)."
+  },
+  {
+    "id": "po_sim_325",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi volbu pracovní pozice a přiměřený pohyb během práce při zachování pravidel, tím podpořit jeho soustředění a komfort bez narušení výuky.",
+    "krok": "Vytvářet prostředí, které respektuje individuální potřebu pohybu, a zároveň zajišťovat nerušený průběh výuky."
+  },
+  {
+    "id": "po_sim_326",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Umožnit žákovi krátkodobý odchod do relaxační zóny ve třídě nebo v jiném určeném prostoru, pokud potřebuje snížit stres či obnovit koncentraci."
+  },
+  {
+    "id": "po_sim_327",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Nastavit jasná pravidla pro využívání relaxační zóny (délka pobytu, respektování klidu, návrat do výuky)."
+  },
+  {
+    "id": "po_sim_328",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Umožnit žákovi krátkodobě využít relaxační zónu ve třídě, vybavit ji vhodnými pomůckami a nastavit pravidla, aby sloužila k obnovení koncentrace a snížení stresu.",
+    "krok": "Vybavit relaxační zónu vhodnými podněty k uklidnění (např. polštáře, senzorické pomůcky, klidové čtení)."
+  },
+  {
+    "id": "po_sim_329",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Poskytnout žákovi možnost odpočinku v relaxačním koutku vždy, když projeví potřebu regenerace nebo zklidnění."
+  },
+  {
+    "id": "po_sim_330",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Vytvořit relaxační koutek vybavený jednoduchými a nerušícími pomůckami (např. polštáře, deka, antistresové hračky, klidné knihy)."
+  },
+  {
+    "id": "po_sim_331",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro relaxaci",
+    "opatreni": "Poskytnout žákovi možnost odpočinku v relaxačním koutku mimo třídu vybaveném uklidňujícími pomůckami a nastavit pravidla jeho využívání tak, aby podpořil regeneraci a plynulý návrat do výuky.",
+    "krok": "* Stanovit pravidla pro využívání koutku (délka pobytu, zachování ticha, bezpečnost) a podpořit návrat žáka do výuky po odpočinku."
+  },
+  {
+    "id": "po_sim_332",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Umožňovat žákovi účast na vybraných hodinách ve vyšším ročníku v souladu s jeho zájmem a vzdělávacími potřebami."
+  },
+  {
+    "id": "po_sim_333",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobovat rozsah a frekvenci hostování tak, aby byla zachována motivace žáka a zároveň nebyla narušena jeho běžná výuka."
+  },
+  {
+    "id": "po_sim_334",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Podporovat reflexi zkušenosti (např. rozhovor s učitelem, sdílení ve třídě), aby žák dokázal využít získané poznatky ve vlastní práci."
+  },
+  {
+    "id": "po_sim_335",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "\"* Umožnit **akceleraci učiva** přizpůsobenou individuální úrovni schopností a znalostí žáka, aby mohl postupovat rychleji než běžný vzdělávací program."
+  },
+  {
+    "id": "po_sim_336",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Přizpůsobit obsah i tempo výuky tak, aby žák mohl dříve zvládnout klíčová témata a pokročit k náročnějším učivům."
+  },
+  {
+    "id": "po_sim_337",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit žákovi účast na vybraných hodinách ve vyšším ročníku podle jeho zájmů a potřeb, podporovat reflexi získaných zkušeností pro obohacení vlastní práce.",
+    "krok": "* Pravidelně vyhodnocovat pokrok a přizpůsobovat další kroky, aby akcelerace byla efektivní a žák nebyl přetěžován.\""
+  },
+  {
+    "id": "po_sim_338",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Umožnit zařazení dítěte do předškolní přípravy dříve, než je obvyklé, pokud projevuje známky nadání a připravenosti."
+  },
+  {
+    "id": "po_sim_339",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Přizpůsobit obsah a metody práce věku a schopnostem dítěte (např. kratší, pestřejší aktivity, individuální zadání)."
+  },
+  {
+    "id": "po_sim_340",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro akceleraci",
+    "opatreni": "Nabídnout a organizačně zajistit dítěti zařazení do předškolní přípravy v nižším věku při projevech nadání a připravenosti, přizpůsobit obsah a metody jeho schopnostem a podpořit sociální adaptaci.",
+    "krok": "Poskytovat dítěti podporu při sociální adaptaci v heterogenní skupině (např. zapojení do kooperativních her, práce ve dvojici se starším dítětem)."
+  },
+  {
+    "id": "po_sim_341",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy)."
+  },
+  {
+    "id": "po_sim_342",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Zajistit náhradní formy plnění učiva (individuální zadání, online konzultace, pracovní listy)."
+  },
+  {
+    "id": "po_sim_343",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi vyšší absenci z důvodu účasti na mimoškolních aktivitách, zajistit náhradní formy plnění učiva a podporovat komunikaci mezi žákem, rodiči a učiteli o dopadech těchto aktivit na vzdělávání.",
+    "krok": "Podporovat komunikaci mezi žákem, rodiči a učiteli o průběhu a dopadech těchto aktivit na vzdělávací výsledky."
+  },
+  {
+    "id": "po_sim_344",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi plnit část školní docházky prostřednictvím online kurzů (např. CTM či jiné vzdělávací platformy)."
+  },
+  {
+    "id": "po_sim_345",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah online kurzů se školním vzdělávacím programem, aby se zajistila návaznost a kompatibilita učiva."
+  },
+  {
+    "id": "po_sim_346",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnit část docházky prostřednictvím online kurzů podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat reflexi a sdílení získaných znalostí ve třídě (např. formou prezentace, projektu, diskuse)."
+  },
+  {
+    "id": "po_sim_347",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Umožnit žákovi absolvovat část nebo celou hodinovou dotaci určitého předmětu v jiné instituci (např. jazyková škola, ZUŠ, sportovní klub)."
+  },
+  {
+    "id": "po_sim_348",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Koordinovat obsah výuky s externí institucí tak, aby byla zachována návaznost na školní vzdělávací program."
+  },
+  {
+    "id": "po_sim_349",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi absolvovat část nebo celou výuku předmětu/předmětů v jiném školním zařízení nebo instituci (např. jazyková škola, ZUŠ), nastavit systém průběžné kontroly a hodnocení, podporovat reflexi získaných znalostí.",
+    "krok": "Podporovat přenos získaných dovedností zpět do školního prostředí (např. sdílení výstupů, prezentace, praktické ukázky)."
+  },
+  {
+    "id": "po_sim_350",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Umožnit žákovi plnění povinné školní docházky kombinovanou formou (část prezenčně, část distančně nebo individuálně)."
+  },
+  {
+    "id": "po_sim_351",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Přizpůsobit organizaci vzdělávání tak, aby zohledňovala zájmy, tempo a nadání žáka (např. online konzultace, projektové úkoly, samostatné studium)."
+  },
+  {
+    "id": "po_sim_352",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi plnění docházky kombinovanou formou s propojením prezenční, distanční a individuální výuky, přizpůsobit organizaci jeho potřebám a nastavit systém průběžné kontroly a hodnocení.",
+    "krok": "Nastavit systém průběžné kontroly a hodnocení práce žáka, který zajistí kontinuitu a kvalitu vzdělávacího procesu."
+  },
+  {
+    "id": "po_sim_353",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Umožnit žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného nebo vyššího stupně vzdělávání, které odpovídají jeho zájmům a vzdělávacím potřebám."
+  },
+  {
+    "id": "po_sim_354",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Vybrat stážové pracoviště ve spolupráci se žákem, rodiči a příslušnými pedagogy tak, aby přinášelo nové podněty a rozšiřovalo znalosti i dovednosti žáka."
+  },
+  {
+    "id": "po_sim_355",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Domluvit s hostitelskou institucí obsah stáže, rozsah, délku a formu zapojení žáka (např. účast na výuce, workshopech, projektech, laboratorní práci)."
+  },
+  {
+    "id": "po_sim_356",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Stanovit způsob zaznamenávání a vyhodnocování průběhu stáže (např. portfolio, reflexní deník, prezentace zkušeností po návratu)."
+  },
+  {
+    "id": "po_sim_357",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit (otevřít cestu) žákovi absolvovat stáže na školách a vzdělávacích zařízeních stejného či vyššího stupně, domluvit jejich obsah a organizaci s institucí i rodiči a podpořit přenos získaných zkušeností do dalšího vzdělávání.",
+    "krok": "Podpořit žáka v přenosu získaných zkušeností do jeho dalšího vzdělávání, např. formou navazujících projektů nebo rozšiřujících úkolů ve škole."
+  },
+  {
+    "id": "po_sim_358",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Navazovat spolupráci se středními a vysokými školami, vědeckými institucemi či firmami a umožnit žákovi účast na stážích, projektech nebo workshopech."
+  },
+  {
+    "id": "po_sim_359",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Zprostředkovávat žákovi kontakt s odborníky z praxe formou exkurzí, přednášek, konzultací či mentorství."
+  },
+  {
+    "id": "po_sim_360",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Navazovat spolupráci s vysokými školami, institucemi a firmami, umožnit žákovi účast na stážích či projektech a začleňovat získané zkušenosti do školní práce.",
+    "krok": "Integrovat zkušenosti z těchto aktivit do školní práce (např. projektové výstupy, prezentace, aplikace získaných poznatků)."
+  },
+  {
+    "id": "po_sim_361",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Poskytovat žákovi možnost individuální přípravy k maturitní zkoušce bez povinné denní docházky na střední školu (formou samostudia či distanční výuky)."
+  },
+  {
+    "id": "po_sim_362",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Nabízet konzultace s vyučujícími nebo odborníky v jednotlivých předmětech k upřesnění studijního postupu a zodpovězení dotazů."
+  },
+  {
+    "id": "po_sim_363",
+    "sheetName": "3. Hodnocení žáka",
+    "oblast": "Podmínky pro jiné plnění docházky v některých předmětech",
+    "opatreni": "Umožnit žákovi připravovat se k maturitní zkoušce bez povinné denní docházky prostřednictvím samostudia či distanční výuky, s podporou konzultací a zajištěním přístupu k potřebným studijním materiálům.",
+    "krok": "Zajišťovat přístup k výukovým materiálům, online zdrojům a doporučené literatuře k samostatnému studiu."
+  }
+];
+    </script>
+</body>
+</html>

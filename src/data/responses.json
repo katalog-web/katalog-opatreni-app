@@ -1,0 +1,1004 @@
+[
+  {
+    "measureId": "po_1",
+    "title": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu .",
+    "choice": "PREDSTAVIM_SI",
+    "timestamp": "2026-03-19T15:50:30.079Z"
+  },
+  {
+    "measureId": "po_2",
+    "title": "Organizovat pracovní skupiny nebo vytahované skupiny z ročníku nebo z více ročníků podle vzdělávacích a sociálních potřeb žáků.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T15:50:33.452Z"
+  },
+  {
+    "measureId": "po_3",
+    "title": "Organizovat  příležitosti pro setkávání nadaných žáků z různých ročníků, podporovat jejich spolupráci na projektech a seminářích, vzájemné učení prostřednictvím společných aktivit či mentoringu.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T15:50:36.490Z"
+  },
+  {
+    "measureId": "po_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:41:33.097Z"
+  },
+  {
+    "measureId": "po_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "PREDSTAVIM_SI",
+    "timestamp": "2026-03-19T16:41:33.943Z"
+  },
+  {
+    "measureId": "po_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "NEPREDSTAVIM_SI",
+    "timestamp": "2026-03-19T16:41:34.774Z"
+  },
+  {
+    "measureId": "po_1",
+    "title": "umožnot volbu práce ve skupině či samostatně",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:52:16.778Z"
+  },
+  {
+    "measureId": "po_2",
+    "title": "práce v heterogenních skupinách s dif. zadáním či rozdělením rolí",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:52:19.377Z"
+  },
+  {
+    "measureId": "po_3",
+    "title": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:52:21.273Z"
+  },
+  {
+    "measureId": "po_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:52:23.351Z"
+  },
+  {
+    "measureId": "po_1",
+    "title": "umožnot volbu práce ve skupině či samostatně",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:14.726Z"
+  },
+  {
+    "measureId": "po_2",
+    "title": "práce v heterogenních skupinách s dif. zadáním či rozdělením rolí",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:57:15.711Z"
+  },
+  {
+    "measureId": "po_3",
+    "title": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:17.298Z"
+  },
+  {
+    "measureId": "po_43",
+    "title": "Umožnit žákovi příchod do školy před oficiálním začátkem vyučování, aby mohl vstoupit do třídy v klidném prostředí bez nadměrného hluku a ruchu.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:20.549Z"
+  },
+  {
+    "measureId": "po_44",
+    "title": "V případě potřeby povolit pozdější příchod do školy, aby se žák vyhnul rannímu shonu a přeplněným společným prostorám.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:21.752Z"
+  },
+  {
+    "measureId": "po_45",
+    "title": "Domluvit se s pedagogickým sborem a školními pracovníky na organizačním řešení (např. dohled v učebně, umožnění vstupu do knihovny či jiné klidové místnosti).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:24.049Z"
+  },
+  {
+    "measureId": "po_48",
+    "title": "Umožnit žákovi odchod na oběd před hlavní skupinou, aby se vyhnul hluku, tlačenici a nadměrným sociálním podnětům.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:26.596Z"
+  },
+  {
+    "measureId": "po_50",
+    "title": "V mateřské škole zařadit oběd pro dítě dříve než pro ostatní skupinu, aby se minimalizoval čas strávený v rušném prostředí.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:28.539Z"
+  },
+  {
+    "measureId": "po_52",
+    "title": "Nastavit jasná pravidla a rutinu, aby žák věděl, kdy a kam má na oběd odcházet, a předešlo se nedorozuměním.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:30.385Z"
+  },
+  {
+    "measureId": "po_51",
+    "title": "Domluvit se s personálem jídelny a pedagogickým sborem na logistice (např. vyhrazení stolu, zajištění dohledu).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:57:32.190Z"
+  },
+  {
+    "measureId": "po_90",
+    "title": "* Umožňovat žákovi účast na vybraných hodinách ve vyšším ročníku v souladu s jeho zájmem a vzdělávacími potřebami.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:57:37.095Z"
+  },
+  {
+    "measureId": "po_91",
+    "title": "* Přizpůsobovat rozsah a frekvenci hostování tak, aby byla zachována motivace žáka a zároveň nebyla narušena jeho běžná výuka.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:57:38.656Z"
+  },
+  {
+    "measureId": "po_92",
+    "title": "* Podporovat reflexi zkušenosti (např. rozhovor s učitelem, sdílení ve třídě), aby žák dokázal využít získané poznatky ve vlastní práci.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T16:57:40.513Z"
+  },
+  {
+    "measureId": "po_96",
+    "title": "Umožnit zařazení dítěte do předškolní přípravy dříve, než je obvyklé, pokud projevuje známky nadání a připravenosti.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:42.998Z"
+  },
+  {
+    "measureId": "po_98",
+    "title": "Poskytovat dítěti podporu při sociální adaptaci v heterogenní skupině (např. zapojení do kooperativních her, práce ve dvojici se starším dítětem).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T16:57:45.033Z"
+  },
+  {
+    "measureId": "po_sim_297",
+    "title": "Nastavit pravidla pro ukládání a udržování pořádku na vyhrazeném místě, včetně pravidelné kontroly s žákem.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:05:20.264Z"
+  },
+  {
+    "measureId": "po_sim_187",
+    "title": "Nastavit pravidla pro využívání obohacovacího místa, včetně časového omezení a způsobu střídání žáků, pokud jej využívá více osob.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:05:39.559Z"
+  },
+  {
+    "measureId": "po_sim_188",
+    "title": "Podporovat žáka v samostatném plánování, kdy a jak obohacovací místo využije, a reflektovat s ním přínos této práce.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:05:40.408Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:05:48.155Z"
+  },
+  {
+    "measureId": "po_sim_6",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:05:49.757Z"
+  },
+  {
+    "measureId": "po_sim_54",
+    "title": "Zajistit, aby úložné místo bylo v klidnější části třídy nebo šatny, čímž se sníží riziko ztráty či poškození věcí.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:05:55.602Z"
+  },
+  {
+    "measureId": "po_sim_55",
+    "title": "Nastavit pravidla pro ukládání a udržování pořádku na vyhrazeném místě, včetně pravidelné kontroly s žákem.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:05:57.749Z"
+  },
+  {
+    "measureId": "po_sim_99",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:08:56.702Z"
+  },
+  {
+    "measureId": "po_sim_100",
+    "title": "Zajistit náhradní formy plnění učiva (individuální zadání, online konzultace, pracovní listy).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:08:57.675Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:16:52.110Z"
+  },
+  {
+    "measureId": "po_sim_7",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:16:54.071Z"
+  },
+  {
+    "measureId": "po_sim_9",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:16:55.482Z"
+  },
+  {
+    "measureId": "po_sim_9",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:16:56.237Z"
+  },
+  {
+    "measureId": "po_sim_10",
+    "title": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:16:57.875Z"
+  },
+  {
+    "measureId": "po_sim_12",
+    "title": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:16:59.343Z"
+  },
+  {
+    "measureId": "po_sim_13",
+    "title": "Zjišťovat aktuální zájmy a potřeby žáků prostřednictvím dotazníků, rozhovorů nebo třídních diskusí.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:00.596Z"
+  },
+  {
+    "measureId": "po_sim_15",
+    "title": "Zajistit vedení kroužků pedagogem, externím odborníkem nebo zkušeným studentem, který má v dané oblasti potřebné znalosti a dovednosti.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:01.973Z"
+  },
+  {
+    "measureId": "po_sim_17",
+    "title": "Pravidelně vyhodnocovat zájem o kroužky a podle potřeby upravovat jejich náplň nebo otevírat nové, aby nabídka zůstala aktuální a motivující.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:04.028Z"
+  },
+  {
+    "measureId": "po_sim_76",
+    "title": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:06.713Z"
+  },
+  {
+    "measureId": "po_sim_78",
+    "title": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:08.998Z"
+  },
+  {
+    "measureId": "po_sim_81",
+    "title": "Umožnit žákovi volbu pracovní pozice (sezení u stolu, na koberci, ve stoje) v rámci předem stanovených pravidel.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:17:12.090Z"
+  },
+  {
+    "measureId": "po_sim_126",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:17:19.002Z"
+  },
+  {
+    "measureId": "po_sim_128",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:17:20.379Z"
+  },
+  {
+    "measureId": "po_sim_131",
+    "title": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:21.768Z"
+  },
+  {
+    "measureId": "po_sim_133",
+    "title": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:23.951Z"
+  },
+  {
+    "measureId": "po_sim_247",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:17:30.197Z"
+  },
+  {
+    "measureId": "po_sim_249",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:17:31.478Z"
+  },
+  {
+    "measureId": "po_sim_252",
+    "title": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:17:33.092Z"
+  },
+  {
+    "measureId": "po_sim_76",
+    "title": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:18:32.981Z"
+  },
+  {
+    "measureId": "po_sim_77",
+    "title": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:18:34.437Z"
+  },
+  {
+    "measureId": "po_sim_78",
+    "title": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:18:35.415Z"
+  },
+  {
+    "measureId": "po_sim_80",
+    "title": "Přizpůsobit délku a formu relaxační přestávky aktuálním potřebám žáka (např. při náročné kognitivní činnosti nebo po delší prezentaci).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:18:37.181Z"
+  },
+  {
+    "measureId": "po_sim_81",
+    "title": "Umožnit žákovi volbu pracovní pozice (sezení u stolu, na koberci, ve stoje) v rámci předem stanovených pravidel.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:18:38.580Z"
+  },
+  {
+    "measureId": "po_sim_84",
+    "title": "Umožnit žákovi krátkodobý odchod do relaxační zóny ve třídě nebo v jiném určeném prostoru, pokud potřebuje snížit stres či obnovit koncentraci.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:18:40.859Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:19:15.518Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:19:16.396Z"
+  },
+  {
+    "measureId": "po_sim_6",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:19:17.736Z"
+  },
+  {
+    "measureId": "po_sim_8",
+    "title": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:19:21.303Z"
+  },
+  {
+    "measureId": "po_sim_7",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T17:19:22.284Z"
+  },
+  {
+    "measureId": "po_sim_9",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:19:23.366Z"
+  },
+  {
+    "measureId": "po_sim_11",
+    "title": "Nabízet prostor pro sdílení zájmů a zkušeností mimo rámec soutěží (diskusní kluby, čtenářské či vědecké semináře).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T17:19:25.366Z"
+  },
+  {
+    "measureId": "po_sim_99",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:18:00.324Z"
+  },
+  {
+    "measureId": "po_sim_99",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:18:01.295Z"
+  },
+  {
+    "measureId": "po_sim_100",
+    "title": "Zajistit náhradní formy plnění učiva (individuální zadání, online konzultace, pracovní listy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:18:03.236Z"
+  },
+  {
+    "measureId": "po_sim_101",
+    "title": "Podporovat komunikaci mezi žákem, rodiči a učiteli o průběhu a dopadech těchto aktivit na vzdělávací výsledky.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:18:04.407Z"
+  },
+  {
+    "measureId": "po_sim_108",
+    "title": "Umožnit žákovi plnění povinné školní docházky kombinovanou formou (část prezenčně, část distančně nebo individuálně).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:18:07.603Z"
+  },
+  {
+    "measureId": "po_sim_110",
+    "title": "Nastavit systém průběžné kontroly a hodnocení práce žáka, který zajistí kontinuitu a kvalitu vzdělávacího procesu.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:18:09.977Z"
+  },
+  {
+    "measureId": "po_sim_112",
+    "title": "Vybrat stážové pracoviště ve spolupráci se žákem, rodiči a příslušnými pedagogy tak, aby přinášelo nové podněty a rozšiřovalo znalosti i dovednosti žáka.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:18:13.215Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:05.607Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:22:07.216Z"
+  },
+  {
+    "measureId": "po_sim_10",
+    "title": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:22:10.091Z"
+  },
+  {
+    "measureId": "po_sim_14",
+    "title": "Na základě zjištěných preferencí organizovat školní kroužky a volnočasové aktivity, které rozvíjejí talenty žáků (např. programování, vědecké experimenty, umělecká tvorba, debatní klub).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:12.152Z"
+  },
+  {
+    "measureId": "po_sim_125",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:18.986Z"
+  },
+  {
+    "measureId": "po_sim_126",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:22:20.071Z"
+  },
+  {
+    "measureId": "po_sim_128",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:22.550Z"
+  },
+  {
+    "measureId": "po_sim_246",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:22:26.708Z"
+  },
+  {
+    "measureId": "po_sim_248",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:28.343Z"
+  },
+  {
+    "measureId": "po_sim_251",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:22:30.556Z"
+  },
+  {
+    "measureId": "po_sim_43",
+    "title": "Umožnit žákovi příchod do školy před oficiálním začátkem vyučování, aby mohl vstoupit do třídy v klidném prostředí bez nadměrného hluku a ruchu.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:25:04.609Z"
+  },
+  {
+    "measureId": "po_sim_45",
+    "title": "Domluvit se s pedagogickým sborem a školními pracovníky na organizačním řešení (např. dohled v učebně, umožnění vstupu do knihovny či jiné klidové místnosti).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:25:07.007Z"
+  },
+  {
+    "measureId": "po_sim_44",
+    "title": "V případě potřeby povolit pozdější příchod do školy, aby se žák vyhnul rannímu shonu a přeplněným společným prostorám.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:07.900Z"
+  },
+  {
+    "measureId": "po_sim_18",
+    "title": "Přizpůsobovat tempo výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých možností.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:25:11.263Z"
+  },
+  {
+    "measureId": "po_sim_19",
+    "title": "Poskytovat individuální zadání úloh, které zohledňují úroveň schopností a zájmy žáka (např. rozšiřující projekty, úkoly propojující více oborů, otevřené badatelské otázky).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:13.079Z"
+  },
+  {
+    "measureId": "po_sim_246",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:25:18.268Z"
+  },
+  {
+    "measureId": "po_sim_247",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:19.648Z"
+  },
+  {
+    "measureId": "po_sim_249",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:21.955Z"
+  },
+  {
+    "measureId": "po_sim_250",
+    "title": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:23.390Z"
+  },
+  {
+    "measureId": "po_sim_251",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:25:25.119Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:31:27.860Z"
+  },
+  {
+    "measureId": "po_sim_6",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:31:30.264Z"
+  },
+  {
+    "measureId": "po_sim_18",
+    "title": "Přizpůsobovat tempo výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých možností.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:32:50.989Z"
+  },
+  {
+    "measureId": "po_sim_19",
+    "title": "Poskytovat individuální zadání úloh, které zohledňují úroveň schopností a zájmy žáka (např. rozšiřující projekty, úkoly propojující více oborů, otevřené badatelské otázky).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:32:52.192Z"
+  },
+  {
+    "measureId": "po_sim_22",
+    "title": "Poskytovat průběžnou zpětnou vazbu, která oceňuje nejen výsledky, ale i způsob myšlení, kreativitu a strategii řešení úloh.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:32:55.326Z"
+  },
+  {
+    "measureId": "po_sim_24",
+    "title": "Umožnit žákovi pracovat samostatně vlastním tempem, a to jak při rychlejším postupu, tak při potřebě delšího času na zpracování úkolu.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:32:58.205Z"
+  },
+  {
+    "measureId": "po_sim_27",
+    "title": "Zapisovat na začátku hodiny její strukturu na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:33:03.954Z"
+  },
+  {
+    "measureId": "po_sim_28",
+    "title": "Uvádět u jednotlivých kroků časové vymezení, aby žáci mohli lépe plánovat své pracovní tempo.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:33:05.624Z"
+  },
+  {
+    "measureId": "po_sim_1",
+    "title": "umožnot volbu práce ve skupině či samostatně",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:38:46.281Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:39:37.642Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:39:39.041Z"
+  },
+  {
+    "measureId": "po_sim_6",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:39:40.343Z"
+  },
+  {
+    "measureId": "po_sim_7",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:39:42.562Z"
+  },
+  {
+    "measureId": "po_sim_76",
+    "title": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:46:44.162Z"
+  },
+  {
+    "measureId": "po_sim_77",
+    "title": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T19:46:45.705Z"
+  },
+  {
+    "measureId": "po_sim_78",
+    "title": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T19:46:47.175Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:06:59.530Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T20:07:00.825Z"
+  },
+  {
+    "measureId": "po_sim_6",
+    "title": "Podporovat spolupráci žáků uvnitř skupin, včetně sdílení strategií a prezentace výsledků ostatním.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:07:02.071Z"
+  },
+  {
+    "measureId": "po_sim_7",
+    "title": "Vytvářet meziročníkové skupiny žáků s nadáním pro společnou práci na projektech, soutěžích nebo odborných seminářích.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:07:03.574Z"
+  },
+  {
+    "measureId": "po_sim_8",
+    "title": "Organizovat pravidelná setkávání (např. klub nadaných žáků, tematické dílny), kde mohou sdílet zkušenosti a rozvíjet své zájmy.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:07:04.554Z"
+  },
+  {
+    "measureId": "po_sim_9",
+    "title": "Podporovat spolupráci starších a mladších žáků formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:07:06.407Z"
+  },
+  {
+    "measureId": "po_sim_10",
+    "title": "Organizovat pravidelná setkání v bezpečném a podporujícím prostředí (např. tematické kroužky, workshopy, projektové dny).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T20:07:08.046Z"
+  },
+  {
+    "measureId": "po_sim_11",
+    "title": "Nabízet prostor pro sdílení zájmů a zkušeností mimo rámec soutěží (diskusní kluby, čtenářské či vědecké semináře).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T20:07:09.729Z"
+  },
+  {
+    "measureId": "po_sim_12",
+    "title": "Podporovat neformální spolupráci žáků (společné exkurze, zájmové aktivity, meziročníkové projekty).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:07:11.161Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-19T20:59:53.175Z"
+  },
+  {
+    "measureId": "po_sim_5",
+    "title": "Nabízet skupinám diferencované úkoly s různou mírou obtížnosti nebo možnostmi rozšíření.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-19T20:59:53.861Z"
+  },
+  {
+    "measureId": "po_sim_90",
+    "title": "* Umožňovat žákovi účast na vybraných hodinách ve vyšším ročníku v souladu s jeho zájmem a vzdělávacími potřebami.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:54:14.967Z"
+  },
+  {
+    "measureId": "po_sim_96",
+    "title": "Umožnit zařazení dítěte do předškolní přípravy dříve, než je obvyklé, pokud projevuje známky nadání a připravenosti.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:54:37.811Z"
+  },
+  {
+    "measureId": "po_sim_3",
+    "title": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:54:46.798Z"
+  },
+  {
+    "measureId": "po_sim_95",
+    "title": "* Pravidelně vyhodnocovat pokrok a přizpůsobovat další kroky, aby akcelerace byla efektivní a žák nebyl přetěžován.\"",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:54:49.773Z"
+  },
+  {
+    "measureId": "po_sim_95",
+    "title": "* Pravidelně vyhodnocovat pokrok a přizpůsobovat další kroky, aby akcelerace byla efektivní a žák nebyl přetěžován.\"",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-20T07:54:51.388Z"
+  },
+  {
+    "measureId": "po_sim_76",
+    "title": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:57:22.840Z"
+  },
+  {
+    "measureId": "po_sim_77",
+    "title": "Nabídnout žákovi možnost zvolit si během přestávky aktivitu, která mu pomáhá uvolnit se (např. protažení, dechové cvičení, krátká procházka po třídě, tichá hudba, pohybová hra).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-03-20T07:57:24.301Z"
+  },
+  {
+    "measureId": "po_sim_78",
+    "title": "Vytvořit ve třídě klidové místo s relaxačními pomůckami (např. antistresové míčky, ždímací hračky, puzzle, jednoduché logické úlohy) pro využití během přestávky.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:57:25.533Z"
+  },
+  {
+    "measureId": "po_sim_79",
+    "title": "Vysvětlit třídě smysl relaxačních přestávek a nastavit pravidla jejich využívání, aby byly vnímány jako přirozená součást výuky.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:57:27.548Z"
+  },
+  {
+    "measureId": "po_sim_80",
+    "title": "Přizpůsobit délku a formu relaxační přestávky aktuálním potřebám žáka (např. při náročné kognitivní činnosti nebo po delší prezentaci).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T07:57:28.704Z"
+  },
+  {
+    "measureId": "po_sim_1",
+    "title": "umožnot volbu práce ve skupině či samostatně",
+    "choice": "POUZIJU",
+    "timestamp": "2026-03-20T08:18:06.104Z"
+  },
+  {
+    "measureId": "po_sim_4",
+    "title": "Organizovat pracovní skupiny podle vzdělávacích potřeb žáků (např. rychlejší tempo práce, hlubší propracování tématu).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T14:59:17.482Z"
+  },
+  {
+    "measureId": "po_sim_1",
+    "title": "umožnot volbu práce ve skupině či samostatně",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:23:05.171Z"
+  },
+  {
+    "measureId": "po_sim_99",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:32:37.290Z"
+  },
+  {
+    "measureId": "po_sim_121",
+    "title": "Zajišťovat přístup k výukovým materiálům, online zdrojům a doporučené literatuře k samostatnému studiu.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:33:20.922Z"
+  },
+  {
+    "measureId": "po_sim_120",
+    "title": "Nabízet konzultace s vyučujícími nebo odborníky v jednotlivých předmětech k upřesnění studijního postupu a zodpovězení dotazů.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:33:22.108Z"
+  },
+  {
+    "measureId": "po_sim_119",
+    "title": "Poskytovat žákovi možnost individuální přípravy k maturitní zkoušce bez povinné denní docházky na střední školu (formou samostudia či distanční výuky).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:33:23.663Z"
+  },
+  {
+    "measureId": "po_sim_118",
+    "title": "Integrovat zkušenosti z těchto aktivit do školní práce (např. projektové výstupy, prezentace, aplikace získaných poznatků).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T20:33:25.851Z"
+  },
+  {
+    "measureId": "po_sim_117",
+    "title": "Zprostředkovávat žákovi kontakt s odborníky z praxe formou exkurzí, přednášek, konzultací či mentorství.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T20:33:27.385Z"
+  },
+  {
+    "measureId": "imp_117",
+    "title": "Pravidelně reflektovat jejich využití a podporovat uvědomění získaných dovedností",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:55:51.981Z"
+  },
+  {
+    "measureId": "imp_17",
+    "title": "Podporovat spolupráci starších a mladších žáků z různých škol formou mentoringu či tandemových aktivit.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:58:44.881Z"
+  },
+  {
+    "measureId": "imp_18",
+    "title": "Upravovat organizaci výuky tak, aby žák měl prostor pro hlubší zpracování učiva nebo rychlejší postup podle svých potřeb.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T20:58:47.600Z"
+  },
+  {
+    "measureId": "imp_37",
+    "title": "Zařazovat pravidelné bloky individuální práce se žákem, zaměřené na rozvoj jeho silných stránek, řešení aktuálních vzdělávacích potřeb a rozšiřování učiva nad rámec běžného programu.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:59:02.186Z"
+  },
+  {
+    "measureId": "imp_36",
+    "title": "Využívat delší bloky k propojování učiva z různých předmětů a k mezioborovým projektům, které lépe odpovídají zájmům a schopnostem žáka s nadáním.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T20:59:03.731Z"
+  },
+  {
+    "measureId": "imp_1",
+    "title": "žák ví, že má možnost volby práce ve skupině či samostatně v určitých situacích, pedagog takové situace vědomě navozuje",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:05:51.240Z"
+  },
+  {
+    "measureId": "imp_1",
+    "title": "Žák ví, že má možnost volby práce ve skupině či samostatně v určitých situacích, pedagog takové situace vědomě navozuje",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:10:38.482Z"
+  },
+  {
+    "measureId": "imp_71",
+    "title": "Zařazovat do výuky krátké relaxační přestávky (1–5 minut) v předem stanovených intervalech, aby žák mohl obnovit pozornost a soustředění.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:11:46.112Z"
+  },
+  {
+    "measureId": "imp_167",
+    "title": "Kombinovat používání hluchátek s dalšími strategiemi podpory soustředění a zvládání smyslových podnětů.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:12:34.012Z"
+  },
+  {
+    "measureId": "imp_168",
+    "title": "Monitorovat, jak hluchátka ovlivňují výkon a pohodu žáka, a podle potřeby upravovat jejich používání.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:12:35.162Z"
+  },
+  {
+    "measureId": "imp_93",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:13:30.424Z"
+  },
+  {
+    "measureId": "imp_93",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:36:04.816Z"
+  },
+  {
+    "measureId": "imp_93",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:36:06.498Z"
+  },
+  {
+    "measureId": "imp_94",
+    "title": "Zajistit alternativní  formy plnění výstupů (individuální zadání, projekt, konzultace).",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:36:08.247Z"
+  },
+  {
+    "measureId": "imp_98",
+    "title": "Podporovat reflexi a podle možností přenos získaných dovedností zpět do školního prostředí (např. prezentace, praktické ukázky).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:36:10.748Z"
+  },
+  {
+    "measureId": "imp_119",
+    "title": "Poskytovat žákům přístup k rozmanitému výběru knih a encyklopedií, které podporují rozvoj jejich všeobecného rozhledu a zájmu o různé oblasti poznání.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:38:48.235Z"
+  },
+  {
+    "measureId": "imp_120",
+    "title": "Zařazovat do výuky a volného času  literaturu pokrývající široké spektrum témat – přírodní vědy, historie, umění, technika, kultura aj.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:38:50.674Z"
+  },
+  {
+    "measureId": "imp_122",
+    "title": "Vytvářet ve škole i mimo ni čtenářská centra či koutky, které lákají k samostatnému čtení a objevování nových témat.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:38:52.823Z"
+  },
+  {
+    "measureId": "imp_93",
+    "title": "Umožnit žákovi vyšší míru omluvené absence v případě účasti na rozvíjejících aktivitách (soutěže, olympiády, kurzy, workshopy).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:40:16.322Z"
+  },
+  {
+    "measureId": "imp_108",
+    "title": "Zprostředkovávat žákovi kontakt s odborníky z praxe formou exkurzí, přednášek, konzultací či mentorství.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:40:22.055Z"
+  },
+  {
+    "measureId": "imp_1",
+    "title": "Žák ví, že má možnost volby práce ve skupině či samostatně v určitých situacích, pedagog takové situace vědomě navozuje",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:44:26.554Z"
+  },
+  {
+    "measureId": "imp_2",
+    "title": "Práce v heterogenních skupinách s diferencovaným zadáním či rozdělením rolí",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:44:28.469Z"
+  },
+  {
+    "measureId": "imp_163",
+    "title": "Hluchátka, stolní přepážka, paraván, lavice pro jednoho",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:55:35.526Z"
+  },
+  {
+    "measureId": "imp_164",
+    "title": "Poskytnout žákovi hluchátka (sluchové chrániče) k redukci hluku během samostatné práce nebo odpočinku, aby se snížilo rušení a zvýšila koncentrace.",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:55:37.909Z"
+  },
+  {
+    "measureId": "imp_165",
+    "title": "Vysvětlit žákovi účel používání hluchátek a nastavit pravidla jejich využívání tak, aby bylo efektivní a bezpečné (např. doba nošení, vhodné situace).",
+    "choice": "POUZIJU",
+    "timestamp": "2026-04-03T21:55:40.029Z"
+  },
+  {
+    "measureId": "imp_166",
+    "title": "Zajistit hygienické podmínky a pravidelnou údržbu hluchátek, případně nabídnout individuálně přizpůsobené sluchové chrániče.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:55:42.457Z"
+  },
+  {
+    "measureId": "imp_167",
+    "title": "Kombinovat používání hluchátek s dalšími strategiemi podpory soustředění a zvládání smyslových podnětů.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:55:44.894Z"
+  },
+  {
+    "measureId": "imp_168",
+    "title": "Monitorovat, jak hluchátka ovlivňují výkon a pohodu žáka, a podle potřeby upravovat jejich používání.",
+    "choice": "NECHAM_NA_SPZ",
+    "timestamp": "2026-04-03T21:55:46.627Z"
+  }
+]
