@@ -1,38 +1,45 @@
-[debug] [2026-07-09T13:08:35.785Z] ----------------------------------------------------------------------
-[debug] [2026-07-09T13:08:35.790Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\bin\firebase.js projects:list
-[debug] [2026-07-09T13:08:35.791Z] CLI Version:   15.15.0
-[debug] [2026-07-09T13:08:35.791Z] Platform:      win32
-[debug] [2026-07-09T13:08:35.791Z] Node Version:  v24.13.1
-[debug] [2026-07-09T13:08:35.791Z] Time:          Thu Jul 09 2026 15:08:35 GMT+0200 (středoevropský letní čas)
-[debug] [2026-07-09T13:08:35.792Z] ----------------------------------------------------------------------
+[debug] [2026-07-09T13:23:51.554Z] ----------------------------------------------------------------------
+[debug] [2026-07-09T13:23:51.557Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-07-09T13:23:51.557Z] CLI Version:   15.15.0
+[debug] [2026-07-09T13:23:51.558Z] Platform:      win32
+[debug] [2026-07-09T13:23:51.558Z] Node Version:  v24.13.1
+[debug] [2026-07-09T13:23:51.558Z] Time:          Thu Jul 09 2026 15:23:51 GMT+0200 (středoevropský letní čas)
+[debug] [2026-07-09T13:23:51.558Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2026-07-09T13:08:35.796Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
-[debug] [2026-07-09T13:08:36.045Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2026-07-09T13:08:36.045Z] > authorizing via signed-in user (katalog@afres.cz)
-[debug] [2026-07-09T13:08:36.048Z] Checked if tokens are valid: false, expires at: 1775483729867
-[debug] [2026-07-09T13:08:36.049Z] Checked if tokens are valid: false, expires at: 1775483729867
-[debug] [2026-07-09T13:08:36.049Z] > refreshing access token with scopes: []
-[debug] [2026-07-09T13:08:36.050Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2026-07-09T13:08:36.051Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2026-07-09T13:08:38.639Z] *** [apiv2] error from fetch(https://www.googleapis.com/oauth2/v3/token, {"headers":{},"method":"POST","body":{"_overheadLength":545,"_valueLength":212,"_valuesToMeasure":[],"writable":false,"readable":true,"dataSize":0,"maxDataSize":2097152,"pauseStreams":true,"_released":true,"_streams":[],"_currentStream":null,"_insideLoop":false,"_pendingNext":false,"_boundary":"--------------------------adce1574b758ea01b30502a7","_events":{},"_eventsCount":1}}): FetchError: request to https://www.googleapis.com/oauth2/v3/token failed, reason: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+[debug] [2026-07-09T13:23:52.982Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-09T13:23:52.983Z] > authorizing via signed-in user (katalog@afres.cz)
+[debug] [2026-07-09T13:23:52.983Z] [iam] checking project katalog-91cde for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-07-09T13:23:52.984Z] Checked if tokens are valid: false, expires at: 1775483729867
+[debug] [2026-07-09T13:23:52.984Z] Checked if tokens are valid: false, expires at: 1775483729867
+[debug] [2026-07-09T13:23:52.985Z] > refreshing access token with scopes: []
+[debug] [2026-07-09T13:23:52.987Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-07-09T13:23:52.987Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-07-09T13:23:53.483Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-07-09T13:23:53.484Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
 [error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
 
 For CI servers and headless environments, generate a new token with firebase login:ci
-[debug] [2026-07-09T13:08:38.640Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
 
 For CI servers and headless environments, generate a new token with firebase login:ci
-[debug] [2026-07-09T13:08:38.642Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+[debug] [2026-07-09T13:23:53.487Z] [iam] error while checking permissions, command may fail: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
 
 For CI servers and headless environments, generate a new token with firebase login:ci
-    at invalidCredentialError (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\auth.js:177:12)
-    at refreshTokens (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\auth.js:590:15)
-    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    at async getAccessToken (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\apiv2.js:52:18)
-    at async Client.addAuthHeader (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\apiv2.js:182:21)
-    at async Client.request (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\apiv2.js:129:34)
-    at async getProjectPage (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\management\projects.js:287:17)
-    at async getFirebaseProjectPage (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\management\projects.js:304:23)
-    at async listFirebaseProjects (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\management\projects.js:333:29)
-    at async Command.actionFn (C:\Users\Pryclova\.gemini\antigravity\scratch\katalog-opatreni-app\node_modules\firebase-tools\lib\commands\projects-list.js:51:20)
+[debug] [2026-07-09T13:23:53.488Z] Checked if tokens are valid: false, expires at: 1775483729867
+[debug] [2026-07-09T13:23:53.489Z] Checked if tokens are valid: false, expires at: 1775483729867
+[debug] [2026-07-09T13:23:53.489Z] > refreshing access token with scopes: []
+[debug] [2026-07-09T13:23:53.489Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-07-09T13:23:53.490Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-07-09T13:23:53.705Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-07-09T13:23:53.705Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-07-09T13:23:53.708Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
 [error] 
-[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[error] Error: Assertion failed: resolving hosting target of a site with no site name or target name. This should have caused an error earlier

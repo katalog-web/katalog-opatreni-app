@@ -5,6 +5,9 @@ const nextConfig: import('next').NextConfig = {
   },
   // Přidat trailing slash pro Hostinger
   trailingSlash: true,
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
 };
 
 export default nextConfig;
