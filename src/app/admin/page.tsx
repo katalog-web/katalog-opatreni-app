@@ -16,6 +16,7 @@ interface PdfLog {
   role?: string;
   schoolType?: string;
   studentCount?: string;
+  purpose?: string;
   pouzijuCount: number;
   spzCount: number;
   timestamp: string;
