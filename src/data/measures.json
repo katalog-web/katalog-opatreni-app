@@ -4,21 +4,21 @@
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro setkávání v souladném prostředí",
     "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu.",
-    "krok": "Žák ví, že má možnost volby práce ve skupině či samostatně v určitých situacích, pedagog takové situace vědomě navozuje"
+    "krok": "žák ví, že má možnost volby práce ve skupině nebo samostatné práce v určitých situacích, pedagog takové situace vědomě navozuje"
   },
   {
     "id": "imp_2",
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro setkávání v souladném prostředí",
     "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu.",
-    "krok": "Práce v heterogenních skupinách s diferencovaným zadáním či rozdělením rolí"
+    "krok": "práce v heterogenních skupinách s diferencovaným zadáním či rozdělením rolí"
   },
   {
     "id": "imp_3",
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro setkávání v souladném prostředí",
     "opatreni": "Organizovat výuku v různých formách - samostatná práce, párová práce, práce ve skupinách, umožnit žákovi volbu.",
-    "krok": "Práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky"
+    "krok": "práce v homogenní skupině podle úrovně (vytvářet příležitost pro práci v souladném prostředí s možností rychleji  tvořit, rozvíjet a sdílet myšlenky"
   },
   {
     "id": "imp_4",
@@ -168,6 +168,13 @@
     "krok": "Nabízet pravidelné individuální konzultace k probíranému učivu, projektům či osobním vzdělávacím cílům žáka."
   },
   {
+    "id": "imp_169",
+    "sheetName": "I.1 Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci  podle potřeb žáka - zadávat úlohy podle úrovně schopností, podle zájmů s možností volby rozsahu, zařadit pravidelnou zpětnou vazbu.",
+    "krok": "Kombinovat akademickou podporu s rozvojem studijních dovedností, sebeorganizace a motivaci k učení"
+  },
+  {
     "id": "imp_25",
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
@@ -179,6 +186,13 @@
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
     "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka.",
+    "krok": "Umožnit flexibilitu v časovém rámci plnění úkolů, například nabídnout volbu mezi různými termíny odevzdání, aby si žák mohl lépe organizovat čas podle vlastních potřeb"
+  },
+  {
+    "id": "imp_170",
+    "sheetName": "I.1 Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vytvořit podmínky pro samostatnou práci úpravou časové dotace (prodloužení/zkrácení) pro zpracování úkolů podle potřeb žáka.",
     "krok": "Připravit stálou i aktuální nabídku doplňujících nebo rozšiřujících aktivity pro žáky, kteří úkol dokončí dříve (vyšší úroveň myšlení, hlubší vhled, rozvoj kreativity, podpora růstového myšlení, metakognice apod)"
   },
   {
@@ -186,21 +200,21 @@
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
     "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
-    "krok": "Zapisovat na začátku hodiny její strukturu na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce."
+    "krok": "Zapisovat strukturu hodiny na tabuli včetně jednotlivých kroků, aby žáci měli jasný přehled o průběhu práce."
   },
   {
     "id": "imp_28",
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
     "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
-    "krok": "Uvádět u jednotlivých kroků časové vymezení, aby žáci mohli lépe plánovat své pracovní tempo."
+    "krok": "Uvádět u jednotlivých kroků časové vymezení, aby žák sám mohl lépe plánovat své pracovní tempo"
   },
   {
     "id": "imp_29",
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
     "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
-    "krok": "Zapsat přehledně možnosti volby v rámci struktury úkolů"
+    "krok": "Ve struktuře hodiny vytvářet úkoly s možností volbya přehledně je zapsat."
   },
   {
     "id": "imp_30",
@@ -214,7 +228,14 @@
     "sheetName": "I.1 Organizace výuky",
     "oblast": "Podmínky pro individuální a rozvíjející práci",
     "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
-    "krok": "Po skončení jednotlivých částí hodiny strukturu společně se třídou revidovat a zhodnotit, jak se podařilo dodržet plán a časové rámce."
+    "krok": "Po skončení hodiny strukturu společně se třídou revidovat a zhodnotit, jak se podařilo dodržet plán a časové rámce."
+  },
+  {
+    "id": "imp_171",
+    "sheetName": "I.1 Organizace výuky",
+    "oblast": "Podmínky pro individuální a rozvíjející práci",
+    "opatreni": "Vizualizovat strukturu hodiny s časovým vymezením, možnostmi volby a diferencovanými úkoly, umožnit sledovat, plánovat a reflektovat průběh práce. (např. na tabuli, na lavici)",
+    "krok": "Používat barevné kódy, piktogramy nebo symboly pro snadnější rozlišení vyučovacích předmětů, činností či priorit, což zvyšuje přehlednost a snižuje úzkost."
   },
   {
     "id": "imp_32",
@@ -1131,41 +1152,13 @@
     "sheetName": "I.4 Pomůcky",
     "oblast": "Pomůcky k zajištění soustředěné práce",
     "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Hluchátka, stolní přepážka, paraván, lavice pro jednoho"
+    "krok": "Zajistit stolní přepážky, paravány, lavice pro jednoho"
   },
   {
     "id": "imp_164",
     "sheetName": "I.4 Pomůcky",
     "oblast": "Pomůcky k zajištění soustředěné práce",
     "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Poskytnout žákovi hluchátka (sluchové chrániče) k redukci hluku během samostatné práce nebo odpočinku, aby se snížilo rušení a zvýšila koncentrace."
-  },
-  {
-    "id": "imp_165",
-    "sheetName": "I.4 Pomůcky",
-    "oblast": "Pomůcky k zajištění soustředěné práce",
-    "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Vysvětlit žákovi účel používání hluchátek a nastavit pravidla jejich využívání tak, aby bylo efektivní a bezpečné (např. doba nošení, vhodné situace)."
-  },
-  {
-    "id": "imp_166",
-    "sheetName": "I.4 Pomůcky",
-    "oblast": "Pomůcky k zajištění soustředěné práce",
-    "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Zajistit hygienické podmínky a pravidelnou údržbu hluchátek, případně nabídnout individuálně přizpůsobené sluchové chrániče."
-  },
-  {
-    "id": "imp_167",
-    "sheetName": "I.4 Pomůcky",
-    "oblast": "Pomůcky k zajištění soustředěné práce",
-    "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Kombinovat používání hluchátek s dalšími strategiemi podpory soustředění a zvládání smyslových podnětů."
-  },
-  {
-    "id": "imp_168",
-    "sheetName": "I.4 Pomůcky",
-    "oblast": "Pomůcky k zajištění soustředěné práce",
-    "opatreni": "Nabídnout pomůcky k zajištění soustředěné práce",
-    "krok": "Monitorovat, jak hluchátka ovlivňují výkon a pohodu žáka, a podle potřeby upravovat jejich používání."
+    "krok": "Poskytnout žákovi hluchátka k redukci hluku během samostatné práce, aby se snížilo rušení a zvýšila koncentrace, nebo během odpočinku."
   }
 ]

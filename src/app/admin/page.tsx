@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp } from 'lucide-react';
+import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download } from 'lucide-react';
 import { PasswordGate } from '@/components/PasswordGate';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, deleteDoc, doc, where, limit } from 'firebase/firestore';
 import measuresData from '@/data/measures.json';
+import * as XLSX from 'xlsx';
 
 interface PdfLog {
   id: string; // Firestore document ID
@@ -25,6 +26,113 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<PdfLog[]>([]);
   const [loginLogs, setLoginLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeAdminTab, setActiveAdminTab] = useState<'users' | 'history'>('users');
+  const [exportSuccess, setExportSuccess] = useState(false);
+
+  // Consolidated unique users list
+  const uniqueUsers = useMemo(() => {
+    const usersMap: Record<string, {
+      email: string;
+      loginCount: number;
+      lastLogin: string | null;
+      generatedPdf: boolean;
+      purposes: string[];
+      pdfLogs: PdfLog[];
+    }> = {};
+
+    // Process logins
+    loginLogs.forEach(ll => {
+      const email = ll.email?.trim().toLowerCase();
+      if (!email) return;
+      if (!usersMap[email]) {
+        usersMap[email] = {
+          email: ll.email, // Keep original casing
+          loginCount: 0,
+          lastLogin: null,
+          generatedPdf: false,
+          purposes: [],
+          pdfLogs: []
+        };
+      }
+      usersMap[email].loginCount++;
+      if (!usersMap[email].lastLogin || new Date(ll.timestamp) > new Date(usersMap[email].lastLogin!)) {
+        usersMap[email].lastLogin = ll.timestamp;
+      }
+    });
+
+    // Process PDF logs
+    logs.forEach(log => {
+      const email = log.email?.trim().toLowerCase();
+      if (!email) return;
+      if (!usersMap[email]) {
+        usersMap[email] = {
+          email: log.email,
+          loginCount: 0,
+          lastLogin: null,
+          generatedPdf: false,
+          purposes: [],
+          pdfLogs: []
+        };
+      }
+      usersMap[email].generatedPdf = true;
+      usersMap[email].pdfLogs.push(log);
+      if (log.purpose && !usersMap[email].purposes.includes(log.purpose)) {
+        usersMap[email].purposes.push(log.purpose);
+      }
+    });
+
+    return Object.values(usersMap).sort((a, b) => {
+      const aTime = Math.max(
+        a.lastLogin ? new Date(a.lastLogin).getTime() : 0,
+        a.pdfLogs.length > 0 ? new Date(a.pdfLogs[0].timestamp).getTime() : 0
+      );
+      const bTime = Math.max(
+        b.lastLogin ? new Date(b.lastLogin).getTime() : 0,
+        b.pdfLogs.length > 0 ? new Date(b.pdfLogs[0].timestamp).getTime() : 0
+      );
+      return bTime - aTime;
+    });
+  }, [logs, loginLogs]);
+
+  const handleExportExcel = () => {
+    setExportSuccess(true);
+    try {
+      // Create worksheet data
+      const data = uniqueUsers.map(u => ({
+        'Uživatel (E-mail)': u.email,
+        'Počet přihlášení': u.loginCount,
+        'Poslední přihlášení': u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('cs-CZ') + ' ' + new Date(u.lastLogin).toLocaleTimeString('cs-CZ') : '',
+        'Vygeneroval PDF': u.generatedPdf ? 'Ano' : 'Ne',
+        'Počet vygenerovaných PDF': u.pdfLogs.length,
+        'Účely práce': u.purposes.join(', ')
+      }));
+      
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      
+      // Adjust column widths automatically
+      const wscols = [
+        { wch: 30 }, // email
+        { wch: 15 }, // logins
+        { wch: 22 }, // last login
+        { wch: 15 }, // generated
+        { wch: 25 }, // pdf count
+        { wch: 40 }  // purposes
+      ];
+      worksheet['!cols'] = wscols;
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Uživatelé a přístupy');
+      
+      // Save to file
+      XLSX.writeFile(workbook, 'katalog_uzivatele_pristupy.xlsx');
+    } catch (err) {
+      console.error('Export to excel failed:', err);
+    } finally {
+      setTimeout(() => setExportSuccess(false), 1500);
+    }
+  };
 
   // Výpočet agregovaných statistik logů
   const measureStats = useMemo(() => {
@@ -282,45 +390,157 @@ export default function AdminPage() {
       </div>
 
       <div className="mt-16">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 text-indigo-600" />
-            Přístupy do katalogu
-          </h2>
-          {loginLogs.length > 0 && (
-            <span className="text-xs font-bold bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full">
-              {loginLogs.length} záznamů
-            </span>
-          )}
+            <h2 className="text-2xl font-bold text-slate-800">
+              Uživatelé a přístupy
+            </h2>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleExportExcel}
+              disabled={uniqueUsers.length === 0}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl transition-all border ${
+                exportSuccess 
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm'
+              }`}
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exportSuccess ? 'Ukládám...' : 'Exportovat do Excelu'}
+            </button>
+            <div className="bg-slate-100 p-1 rounded-xl flex gap-1 text-xs font-bold">
+              <button
+                onClick={() => setActiveAdminTab('users')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  activeAdminTab === 'users' 
+                    ? 'bg-white text-slate-800 shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Přehled uživatelů ({uniqueUsers.length})
+              </button>
+              <button
+                onClick={() => setActiveAdminTab('history')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  activeAdminTab === 'history' 
+                    ? 'bg-white text-slate-800 shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Historie přihlášení ({loginLogs.length})
+              </button>
+            </div>
+          </div>
         </div>
         
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          {loginLogs.length === 0 ? (
-            <div className="p-8 text-center">
-              <User className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-              <p className="text-slate-400 font-medium">Žádné záznamy o přihlášení.</p>
-              <p className="text-slate-400 text-sm mt-1">Jakmile se někdo přihlásí, zobrazí se zde.</p>
-            </div>
+          {activeAdminTab === 'users' ? (
+            uniqueUsers.length === 0 ? (
+              <div className="p-8 text-center">
+                <User className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                <p className="text-slate-400 font-medium">Žádní uživatelé k zobrazení.</p>
+              </div>
+            ) : (
+              <div className="overflow-auto max-h-[450px] relative pr-2">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      <th className="p-4 pl-6 bg-slate-50 sticky top-0 z-10">Uživatel (E-mail)</th>
+                      <th className="p-4 bg-slate-50 sticky top-0 z-10">Aktivita</th>
+                      <th className="p-4 text-center bg-slate-50 sticky top-0 z-10">Vygeneroval PDF</th>
+                      <th className="p-4 bg-slate-50 sticky top-0 z-10">Účel práce</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-sm">
+                    {uniqueUsers.map((u, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 pl-6 font-bold text-slate-800 break-all max-w-[200px]">
+                          {u.email}
+                        </td>
+                        <td className="p-4 text-slate-600">
+                          <span className="font-bold text-indigo-600">{u.loginCount}x</span> přihlášen
+                          {u.lastLogin && (
+                            <span className="block text-xs text-slate-400 mt-0.5">
+                              Naposledy: {new Date(u.lastLogin).toLocaleDateString('cs-CZ')}
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          {u.generatedPdf ? (
+                            <div className="flex flex-col items-center gap-1.5 justify-center">
+                              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                Ano ({u.pdfLogs.length}x)
+                              </span>
+                              <div className="flex flex-wrap gap-1 justify-center mt-1">
+                                {u.pdfLogs.map((pl, plIdx) => (
+                                  <Link
+                                    key={pl.id}
+                                    href={`/admin/detail?id=${pl.id}`}
+                                    className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded transition-colors"
+                                  >
+                                    Detail {u.pdfLogs.length > 1 ? `#${u.pdfLogs.length - plIdx}` : ''}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">
+                              <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                              Ne
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-slate-600 max-w-[250px]">
+                          {u.purposes.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {u.purposes.map((p, pIdx) => (
+                                <span key={pIdx} className="inline-block bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-md max-w-full truncate" title={p}>
+                                  {p}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-xs italic">nevyplněno</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           ) : (
-            <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto pr-2">
-              {loginLogs.map((ll, idx) => (
-                <div key={idx} className="px-5 py-4 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                      <User className="w-4 h-4 text-indigo-400" />
+            loginLogs.length === 0 ? (
+              <div className="p-8 text-center">
+                <User className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                <p className="text-slate-400 font-medium">Žádné záznamy o přihlášení.</p>
+                <p className="text-slate-400 text-sm mt-1">Jakmile se někdo přihlásí, zobrazí se zde.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto pr-2">
+                {loginLogs.map((ll, idx) => (
+                  <div key={idx} className="px-5 py-4 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-indigo-400" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{ll.email}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">přihlášení do katalogu</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-800">{ll.email}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">přihlášení do katalogu</p>
+                    <div className="text-sm text-slate-400 text-right flex-shrink-0">
+                      <p className="font-medium">{new Date(ll.timestamp).toLocaleDateString('cs-CZ')}</p>
+                      <p className="text-xs">{new Date(ll.timestamp).toLocaleTimeString('cs-CZ')}</p>
                     </div>
                   </div>
-                  <div className="text-sm text-slate-400 text-right flex-shrink-0">
-                    <p className="font-medium">{new Date(ll.timestamp).toLocaleDateString('cs-CZ')}</p>
-                    <p className="text-xs">{new Date(ll.timestamp).toLocaleTimeString('cs-CZ')}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>

@@ -21,6 +21,7 @@ export default function Home() {
   const [measures, setMeasures] = useState<Measure[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedAreas, setExpandedAreas] = useState<Record<string, boolean>>({});
+  const [expandedMeasures, setExpandedMeasures] = useState<Record<string, boolean>>({});
   const [userChoices, setUserChoices] = useState<Record<string, Choice>>({});
   const [activeTab, setActiveTab] = useState<string>('');
   
@@ -72,6 +73,16 @@ export default function Home() {
       ...prev,
       [areaName]: !prev[areaName]
     }));
+  };
+
+  const toggleOpatreni = (opatreniKey: string) => {
+    setExpandedMeasures(prev => {
+      const isCurrentlyExpanded = prev[opatreniKey] !== false;
+      return {
+        ...prev,
+        [opatreniKey]: !isCurrentlyExpanded
+      };
+    });
   };
 
   useEffect(() => {
@@ -316,7 +327,7 @@ export default function Home() {
                 const theme = colors[idx % colors.length];
                 
                 return (
-                <div key={oblast} className={`pl-0 md:pl-6 border-l-0 md:border-l-4 ${theme.border}`}>
+                <div id={`oblast-${oblast.replace(/\s+/g, '-')}`} key={oblast} className={`pl-0 md:pl-6 border-l-0 md:border-l-4 ${theme.border}`}>
                   <button 
                     onClick={() => toggleArea(oblast)}
                     className={`flex justify-between items-center w-full text-left group mb-4 ${theme.hoverBg} p-3 md:-ml-3 rounded-xl transition-colors focus:outline-none focus:ring-2 ${theme.ring}`}
@@ -329,16 +340,28 @@ export default function Home() {
                   
                   {expandedAreas[oblast] && (
                     <div className="pt-4 border-t border-slate-100">
-                      {Object.keys(groupedSheets[activeTab][oblast]).map(opatreni => (
-                        <div key={opatreni} className="mt-2 mb-10">
-                          <div className="bg-slate-50/80 rounded-xl p-4 mb-4 border border-slate-100">
-                            <h4 className="text-lg md:text-xl font-bold text-brand-navy/80 leading-snug">
-                              {opatreni}
-                            </h4>
-                          </div>
-                          
-                          <div className="flex flex-col gap-4 pl-0 md:pl-6">
-                            {groupedSheets[activeTab][oblast][opatreni].map((krok: Measure) => (
+                      {Object.keys(groupedSheets[activeTab][oblast]).map(opatreni => {
+                        const opatreniKey = `${activeTab}-${oblast}-${opatreni}`;
+                        const isOpatreniExpanded = expandedMeasures[opatreniKey] !== false;
+                        
+                        return (
+                          <div key={opatreni} className="mt-2 mb-10">
+                            <button
+                              onClick={() => toggleOpatreni(opatreniKey)}
+                              className="flex justify-between items-center w-full text-left bg-slate-50/80 hover:bg-slate-100/80 rounded-xl p-4 mb-4 border border-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green/30 print:bg-transparent print:border-none print:p-0 print:mb-2"
+                            >
+                              <h4 className="text-lg md:text-xl font-bold text-brand-navy/80 leading-snug pr-4">
+                                {opatreni}
+                              </h4>
+                              <ChevronDown 
+                                className={`w-5 h-5 text-brand-navy/50 transition-transform duration-300 no-print ${
+                                  isOpatreniExpanded ? 'rotate-180' : ''
+                                }`} 
+                              />
+                            </button>
+                            
+                            <div className={`flex flex-col gap-4 pl-0 md:pl-6 ${isOpatreniExpanded ? 'block' : 'hidden'}`}>
+                              {groupedSheets[activeTab][oblast][opatreni].map((krok: Measure) => (
                                 <MeasureCard
                                   key={krok.id}
                                   id={krok.id}
@@ -346,10 +369,26 @@ export default function Home() {
                                   choice={userChoices[krok.id] || null}
                                   onChoiceSelect={handleChoiceSelect}
                                 />
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
+                      
+                      {/* Tlačítko pro sbalení celé oblasti na konci */}
+                      <div className="flex justify-center mt-6 pt-4 border-t border-slate-100 no-print">
+                        <button
+                          onClick={() => {
+                            toggleArea(oblast);
+                            const el = document.getElementById(`oblast-${oblast.replace(/\s+/g, '-')}`);
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-dashed ${theme.border} ${theme.text} ${theme.hoverBg} transition-all duration-200 text-sm font-bold focus:outline-none focus:ring-2 ${theme.ring}`}
+                        >
+                          <ChevronDown className="w-4 h-4 rotate-180" />
+                          <span>Sbalit celou oblast</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
