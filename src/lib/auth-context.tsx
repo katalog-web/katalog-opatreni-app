@@ -10,7 +10,7 @@ import {
   updateProfile,
   User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 
 interface AuthContextValue {
@@ -44,6 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // běžný uživatel viděl seznam všech administrátorů.
           const myEmail = firebaseUser.email?.toLowerCase();
           if (myEmail) {
+            // Souhrnná (anonymní) statistika pro administraci — jen že tenhle UID appku
+            // navštívil, žádná osobní/dětská data. Best-effort, přihlášení tím neblokujeme.
+            setDoc(
+              doc(db, 'config', 'stats'),
+              { visitedUserIds: arrayUnion(firebaseUser.uid) },
+              { merge: true }
+            ).catch((err) => console.error('Nepodařilo se zaevidovat návštěvu do statistik:', err));
+
             const adminSnap = await getDoc(doc(db, 'config', 'admins', 'members', myEmail));
             const admin = adminSnap.exists();
             setIsAdmin(admin);

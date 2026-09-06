@@ -9,7 +9,7 @@ import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { MeasureCard, Choice } from '@/components/MeasureCard';
 import { ChevronDown, CheckCircle2, HelpCircle, FileDown, Loader2, User, Search, X, BookOpen } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth-context';
 import { buildSummaryPdfFromElement, base64ByteSize } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
@@ -190,6 +190,19 @@ export default function Home() {
           notes: userNotes,
           searchText,
         });
+
+        // Souhrnná (anonymní) statistika pro administraci — jen počty a UID, žádná
+        // data o dítěti. Best-effort, stažení PDF tím nikdy neblokujeme.
+        setDoc(
+          doc(db, 'config', 'stats'),
+          {
+            generatedUserIds: arrayUnion(user.uid),
+            totalDocumentsGenerated: increment(1),
+            totalPouzijuChoicesSum: increment(pouzijuC),
+            lastGeneratedAt: serverTimestamp(),
+          },
+          { merge: true }
+        ).catch((err) => console.error('Nepodařilo se zaevidovat generování do statistik:', err));
       }
     } catch (err) {
       console.error('Nepodařilo se uložit dokument do dashboardu:', err);

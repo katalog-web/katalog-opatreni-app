@@ -8,7 +8,7 @@ import { Header } from '@/components/Header';
 import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
+import { collection, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
 import measuresData from '@/data/measures.json';
 import * as XLSX from 'xlsx';
 
@@ -24,6 +24,14 @@ interface PdfLog {
   spzCount: number;
   timestamp: string;
   choices?: Record<string, string>;
+}
+
+interface AppStats {
+  visitedUserIds: string[];
+  generatedUserIds: string[];
+  totalDocumentsGenerated: number;
+  totalPouzijuChoicesSum: number;
+  lastGeneratedAt: string | null; // ISO string
 }
 
 interface FeedbackItem {
@@ -453,6 +461,32 @@ export default function AdminPage() {
 
   useEffect(() => { if (isAdmin) fetchLogs(); }, [isAdmin]);
 
+  // Souhrnné statistiky používání appky (config/stats) — nahrazují starší karty
+  // postavené na pdf_logs/login_logs, do kterých nová appka už nezapisuje.
+  const [appStats, setAppStats] = useState<AppStats | null>(null);
+
+  const fetchAppStats = async () => {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'stats'));
+      if (!snap.exists()) {
+        setAppStats({ visitedUserIds: [], generatedUserIds: [], totalDocumentsGenerated: 0, totalPouzijuChoicesSum: 0, lastGeneratedAt: null });
+        return;
+      }
+      const data = snap.data();
+      setAppStats({
+        visitedUserIds: (data.visitedUserIds as string[]) ?? [],
+        generatedUserIds: (data.generatedUserIds as string[]) ?? [],
+        totalDocumentsGenerated: (data.totalDocumentsGenerated as number) ?? 0,
+        totalPouzijuChoicesSum: (data.totalPouzijuChoicesSum as number) ?? 0,
+        lastGeneratedAt: data.lastGeneratedAt?.toDate ? data.lastGeneratedAt.toDate().toISOString() : null,
+      });
+    } catch (err) {
+      console.error('Nepodařilo se načíst statistiky:', err);
+    }
+  };
+
+  useEffect(() => { if (isAdmin) fetchAppStats(); }, [isAdmin]);
+
   const handleDelete = async (docId: string) => {
     if (!confirm('Opravdu chcete tento záznam smazat?')) return;
 
@@ -481,27 +515,36 @@ export default function AdminPage() {
         </p>
       </div>
 
-      {/* Statistiky */}
+      {/* Statistiky — postavené na config/stats (souhrnná, anonymní čísla), ne na
+          starších pdf_logs/login_logs, do kterých už nová appka nezapisuje. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         <div className="bg-brand-navy/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
-          <p className="text-4xl font-extrabold text-brand-navy">{logs.length}</p>
-          <p className="text-sm font-medium text-brand-navy/50 mt-1">Celkem PDF</p>
+          <p className="text-4xl font-extrabold text-brand-navy">
+            {appStats ? appStats.visitedUserIds.length : '–'}
+          </p>
+          <p className="text-sm font-medium text-brand-navy/50 mt-1">Unikátních uživatelů</p>
         </div>
         <div className="bg-brand-green/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
           <p className="text-4xl font-extrabold text-brand-green">
-            {new Set(logs.map(l => l.email)).size}
+            {appStats ? appStats.generatedUserIds.length : '–'}
           </p>
-          <p className="text-sm font-medium text-brand-navy/50 mt-1">Unikátních e-mailů</p>
+          <p className="text-sm font-medium text-brand-navy/50 mt-1">Vygenerovalo PDF</p>
         </div>
         <div className="bg-brand-orange/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
-          <p className="text-4xl font-extrabold text-brand-orange">{loginLogs.length}</p>
-          <p className="text-sm font-medium text-brand-navy/50 mt-1">Přihlášení</p>
+          <p className="text-4xl font-extrabold text-brand-orange">
+            {appStats && appStats.totalDocumentsGenerated > 0
+              ? (appStats.totalPouzijuChoicesSum / appStats.totalDocumentsGenerated).toFixed(1)
+              : '–'}
+          </p>
+          <p className="text-sm font-medium text-brand-navy/50 mt-1">Průměr opatření do PO1 / dítě</p>
         </div>
         <div className="bg-brand-navy/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
-          <p className="text-4xl font-extrabold text-brand-navy">
-            {logs.length > 0 ? new Date(logs[0].timestamp).toLocaleDateString('cs-CZ') : '–'}
+          <p className="text-2xl font-extrabold text-brand-navy">
+            {appStats?.lastGeneratedAt
+              ? `${new Date(appStats.lastGeneratedAt).toLocaleDateString('cs-CZ')} ${new Date(appStats.lastGeneratedAt).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}`
+              : '–'}
           </p>
-          <p className="text-sm font-medium text-brand-navy/50 mt-1">Poslední aktivita</p>
+          <p className="text-sm font-medium text-brand-navy/50 mt-1">Naposledy vygenerováno</p>
         </div>
       </div>
 

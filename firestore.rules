@@ -62,6 +62,20 @@ service cloud.firestore {
       allow list, delete: if isAdmin();
     }
 
+    // Souhrnné (anonymní) statistiky používání appky pro administraci — žádná data
+    // o dětech, jen počty a seznamy UID (ne e-maily), aby to nešlo zneužít ke
+    // sledování konkrétních lidí běžným uživatelem. Číst smí jen administrátor,
+    // zapisovat (jen tato konkrétní pole) smí kdokoliv přihlášený — appka sem
+    // sama přičítá při návštěvě/vygenerování PDF.
+    match /config/stats {
+      allow get: if isAdmin();
+      allow write: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'visitedUserIds', 'generatedUserIds', 'totalDocumentsGenerated',
+             'totalPouzijuChoicesSum', 'lastGeneratedAt'
+           ]);
+    }
+
     // Zpětná vazba z widgetu (nahlášení problému / komentář) — kdokoliv přihlášený smí
     // přidat, ale číst a mazat smí jen administrátoři.
     match /feedback/{feedbackId} {
