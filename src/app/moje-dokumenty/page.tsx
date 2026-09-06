@@ -65,8 +65,11 @@ function DashboardContent() {
             pdfBase64: (data.pdfBase64 as string) ?? '',
             childNumber: data.childNumber,
             childAge: data.childAge,
+            childAgeYears: data.childAgeYears,
+            childAgeMonths: data.childAgeMonths,
             childGender: data.childGender,
             childGrade: data.childGrade,
+            childNeeds: data.childNeeds,
             role: data.role,
             schoolType: data.schoolType,
             studentCount: data.studentCount,
@@ -74,6 +77,7 @@ function DashboardContent() {
             pouzijuCount: (data.pouzijuCount as number) ?? 0,
             spzCount: (data.spzCount as number) ?? 0,
             choices: data.choices,
+            notes: data.notes,
             searchText: data.searchText,
           } as DocumentRecord;
         })
@@ -148,6 +152,36 @@ function DashboardContent() {
     downloadBase64Pdf(docItem.pdfBase64, `${safeName}.pdf`);
   };
 
+  // Znovu otevře katalog předvyplněný podle tohoto dokumentu (dotazník i vybraná
+  // opatření), ať lze pokračovat v práci na tomtéž dítěti. Přepíše aktuální
+  // rozpracovaný list v katalogu, proto se nejdřív ptá — vygenerování nového PDF
+  // z obnoveného stavu pak založí další (novější) verzi, ne přepis té staré.
+  const handleOpenInCatalog = (docItem: DocumentRecord) => {
+    const proceed = window.confirm(
+      'Katalog se otevře předvyplněný podle tohoto dokumentu. Případný aktuálně rozpracovaný list (u jiného dítěte) se tím přepíše. Chcete pokračovat?'
+    );
+    if (!proceed) return;
+
+    try {
+      localStorage.setItem('katalog_user_choices', JSON.stringify(docItem.choices || {}));
+      localStorage.setItem('katalog_user_notes', JSON.stringify(docItem.notes || {}));
+      localStorage.setItem('katalog_child_number', docItem.childNumber || '');
+      localStorage.setItem('katalog_child_age_years', docItem.childAgeYears || '');
+      localStorage.setItem('katalog_child_age_months', docItem.childAgeMonths || '');
+      localStorage.setItem('katalog_child_gender', docItem.childGender || '');
+      localStorage.setItem('katalog_child_grade', docItem.childGrade || '');
+      localStorage.setItem('katalog_child_needs', docItem.childNeeds || '');
+      localStorage.setItem('katalog_role', docItem.role || '');
+      localStorage.setItem('katalog_school_type', docItem.schoolType || '');
+      localStorage.setItem('katalog_student_count', docItem.studentCount || '');
+      localStorage.setItem('katalog_purpose', docItem.purpose || '');
+    } catch (err) {
+      console.warn('Nepodařilo se obnovit rozpracovaný stav:', err);
+    }
+
+    window.location.href = '/';
+  };
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 md:py-16">
       <div className="mb-10">
@@ -187,6 +221,7 @@ function DashboardContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onDownload={handleDownload}
+          onOpenInCatalog={handleOpenInCatalog}
           onMove={handleMove}
           onDelete={handleDelete}
         />

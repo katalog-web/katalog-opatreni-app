@@ -175,6 +175,8 @@ export default function Home() {
           pdfBase64,
           childNumber,
           childAge,
+          childAgeYears,
+          childAgeMonths,
           childGender,
           childGrade,
           childNeeds,

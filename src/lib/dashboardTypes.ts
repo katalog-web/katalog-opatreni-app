@@ -14,8 +14,11 @@ export interface DocumentRecord {
   pdfBase64: string;
   childNumber?: string;
   childAge?: string;
+  childAgeYears?: string;
+  childAgeMonths?: string;
   childGender?: string;
   childGrade?: string;
+  childNeeds?: string;
   role?: string;
   schoolType?: string;
   studentCount?: string;

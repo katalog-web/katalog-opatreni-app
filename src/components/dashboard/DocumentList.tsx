@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Download, Trash2, FolderInput, CheckCircle2, HelpCircle } from 'lucide-react';
+import { Search, Download, Trash2, FolderInput, CheckCircle2, HelpCircle, FolderOpen } from 'lucide-react';
 import type { DocumentRecord, FolderRecord } from '@/lib/dashboardTypes';
 
 interface DocumentListProps {
@@ -10,6 +10,7 @@ interface DocumentListProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onDownload: (doc: DocumentRecord) => void;
+  onOpenInCatalog: (doc: DocumentRecord) => void;
   onMove: (docId: string, folderId: string | null) => void;
   onDelete: (docId: string) => void;
 }
@@ -20,7 +21,7 @@ function formatDate(ts: number | null): string {
   return `${d.toLocaleDateString('cs-CZ')} ${d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
-export function DocumentList({ documents, folders, searchQuery, onSearchChange, onDownload, onMove, onDelete }: DocumentListProps) {
+export function DocumentList({ documents, folders, searchQuery, onSearchChange, onDownload, onOpenInCatalog, onMove, onDelete }: DocumentListProps) {
   const [openMoveMenuId, setOpenMoveMenuId] = useState<string | null>(null);
 
   return (
@@ -77,6 +78,14 @@ export function DocumentList({ documents, folders, searchQuery, onSearchChange, 
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0 relative">
+                <button
+                  onClick={() => onOpenInCatalog(docItem)}
+                  title="Pokračovat v katalogu (předvyplní dotazník i vybraná opatření)"
+                  className="p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
+                >
+                  <FolderOpen className="w-5 h-5" />
+                </button>
+
                 <button
                   onClick={() => onDownload(docItem)}
                   title="Stáhnout PDF"
