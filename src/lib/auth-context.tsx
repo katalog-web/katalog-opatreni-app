@@ -66,8 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (!admin && !approved) {
               // Zaevidovat/aktualizovat žádost o schválení, ať ji administrátor vidí
               // v seznamu čekajících — best-effort, přihlášení kvůli tomu neblokujeme.
+              const pendingDocRef = doc(db, 'config', 'pending_users', 'members', myEmail);
+              const pendingSnap = await getDoc(pendingDocRef);
+              const uzZadal = pendingSnap.exists();
+
               setDoc(
-                doc(db, 'config', 'pending_users', 'members', myEmail),
+                pendingDocRef,
                 {
                   name: firebaseUser.displayName || null,
                   email: firebaseUser.email,
@@ -75,6 +79,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 },
                 { merge: true }
               ).catch((err) => console.error('Nepodařilo se zaevidovat žádost o schválení:', err));
+
+              // Push upozornění administrátorce přes ntfy.sh — bez účtu/OAuth, jen
+              // POST na "kanál" (topic). Posílá se jen při PRVNÍ žádosti daného
+              // e-mailu, ne při každém dalším přihlášení, dokud čeká na schválení.
+              if (!uzZadal) {
+                fetch('https://ntfy.sh/katalog-afres-zadosti-c25fb60ab1', {
+                  method: 'POST',
+                  body:
+                    'Nová žádost o přístup do Katalogu podpůrných opatření: ' +
+                    (firebaseUser.displayName || '(bez jména)') +
+                    ' <' + firebaseUser.email + '>',
+                }).catch((err) => console.error('Nepodařilo se odeslat upozornění:', err));
+              }
             }
           } else {
             setIsAdmin(false);
