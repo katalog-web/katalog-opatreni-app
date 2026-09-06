@@ -173,6 +173,10 @@ export default function Home() {
           createdAt: serverTimestamp(),
           folderId: null,
           pdfBase64,
+          // Umožňuje administrátorovi (na jeho vlastní žádost) dohledat, komu
+          // dokument patří, když prochází Uložené dokumenty v administraci —
+          // samotné uid v cestě dokumentu k tomu nestačí.
+          ownerEmail: teacherEmail,
           childNumber,
           childAge,
           childAgeYears,

@@ -2,15 +2,17 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check } from 'lucide-react';
+import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check, Search, FileText } from 'lucide-react';
 import { AuthGate } from '@/components/AuthGate';
 import { Header } from '@/components/Header';
 import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
+import { collection, collectionGroup, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
 import measuresData from '@/data/measures.json';
 import * as XLSX from 'xlsx';
+import { downloadBase64Pdf } from '@/lib/generateSummaryPdf';
+import type { DocumentRecord } from '@/lib/dashboardTypes';
 
 interface PdfLog {
   id: string; // Firestore document ID
@@ -487,6 +489,65 @@ export default function AdminPage() {
 
   useEffect(() => { if (isAdmin) fetchAppStats(); }, [isAdmin]);
 
+  // Uložené dokumenty (PDF) všech uživatelů — na výslovnou žádost administrátorky,
+  // aby mohla dohledat a stáhnout stejná PDF, která si uživatelé uložili ve
+  // vlastních účtech. Firestore pravidla to adminovi povolují (firestore.rules,
+  // users/{uid}/documents), appka je čte přes collectionGroup napříč všemi uživateli.
+  const [allDocuments, setAllDocuments] = useState<DocumentRecord[]>([]);
+  const [isDocsLoading, setIsDocsLoading] = useState(false);
+  const [docsSearchQuery, setDocsSearchQuery] = useState('');
+
+  const fetchAllDocuments = async () => {
+    setIsDocsLoading(true);
+    try {
+      const snap = await getDocs(collectionGroup(db, 'documents'));
+      const docs: DocumentRecord[] = snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          title: (data.title as string) ?? 'Bez názvu',
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().getTime() : null,
+          folderId: null,
+          pdfBase64: (data.pdfBase64 as string) ?? '',
+          ownerEmail: data.ownerEmail,
+          childNumber: data.childNumber,
+          childAge: data.childAge,
+          role: data.role,
+          schoolType: data.schoolType,
+          purpose: data.purpose,
+          pouzijuCount: (data.pouzijuCount as number) ?? 0,
+          spzCount: (data.spzCount as number) ?? 0,
+          searchText: data.searchText,
+        } as DocumentRecord;
+      });
+      docs.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+      setAllDocuments(docs);
+    } catch (err) {
+      console.error('Nepodařilo se načíst uložené dokumenty:', err);
+    } finally {
+      setIsDocsLoading(false);
+    }
+  };
+
+  useEffect(() => { if (isAdmin) fetchAllDocuments(); }, [isAdmin]);
+
+  const filteredAllDocuments = useMemo(() => {
+    const q = docsSearchQuery.trim().toLowerCase();
+    if (!q) return allDocuments;
+    return allDocuments.filter(
+      (d) =>
+        (d.searchText || '').toLowerCase().includes(q) ||
+        (d.ownerEmail || '').toLowerCase().includes(q) ||
+        d.title.toLowerCase().includes(q)
+    );
+  }, [allDocuments, docsSearchQuery]);
+
+  const handleDownloadDocument = (docItem: DocumentRecord) => {
+    if (!docItem.pdfBase64) return;
+    const safeName = docItem.title.replace(/[^\p{L}\p{N}._-]+/gu, '_');
+    downloadBase64Pdf(docItem.pdfBase64, `${safeName}.pdf`);
+  };
+
   const handleDelete = async (docId: string) => {
     if (!confirm('Opravdu chcete tento záznam smazat?')) return;
 
@@ -546,6 +607,89 @@ export default function AdminPage() {
           </p>
           <p className="text-sm font-medium text-brand-navy/50 mt-1">Naposledy vygenerováno</p>
         </div>
+      </div>
+
+      {/* Uložené dokumenty (PDF) všech uživatelů — administrátorka je smí dohledat
+          a stáhnout stejně, jako je vidí uživatel ve vlastním účtě. */}
+      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+        <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
+          <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
+            <FileText className="w-5 h-5 text-brand-navy" />
+            Uložené dokumenty
+            <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{allDocuments.length}</span>
+          </h2>
+          <button
+            onClick={fetchAllDocuments}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Obnovit
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-brand-surface/20">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-navy/30" />
+            <input
+              value={docsSearchQuery}
+              onChange={(e) => setDocsSearchQuery(e.target.value)}
+              placeholder="Hledat podle e-mailu, role, školy, účelu…"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all text-brand-navy font-medium text-sm"
+            />
+          </div>
+        </div>
+
+        {isDocsLoading ? (
+          <div className="p-12 text-center text-brand-navy/50 animate-pulse">Načítám data...</div>
+        ) : filteredAllDocuments.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-brand-navy/40 font-medium">
+              {docsSearchQuery ? 'Žádný dokument neodpovídá hledání.' : 'Zatím zde nejsou žádné uložené dokumenty.'}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
+            {filteredAllDocuments.map((docItem) => (
+              <div key={docItem.id} className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-1">
+                    <span className="font-bold text-brand-navy truncate">{docItem.title}</span>
+                    {docItem.ownerEmail && (
+                      <span className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
+                        <Mail className="w-3.5 h-3.5" />
+                        {docItem.ownerEmail}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-navy/40">
+                    {docItem.createdAt && <span>{new Date(docItem.createdAt).toLocaleString('cs-CZ')}</span>}
+                    {docItem.role && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.role}</span>}
+                    {docItem.schoolType && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.schoolType}</span>}
+                    <span className="flex items-center gap-1 text-brand-green font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {docItem.pouzijuCount}
+                    </span>
+                    <span className="flex items-center gap-1 text-brand-orange font-bold">
+                      <HelpCircle className="w-3.5 h-3.5" /> {docItem.spzCount}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDownloadDocument(docItem)}
+                  disabled={!docItem.pdfBase64}
+                  title="Stáhnout PDF"
+                  className="flex-shrink-0 p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
+                >
+                  <Download className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {allDocuments.some((d) => !d.ownerEmail) && (
+          <p className="text-xs text-brand-navy/40 px-6 py-4 border-t border-brand-surface/20">
+            U dokumentů uložených před zavedením téhle funkce appka e-mail vlastníka nezná — u nich se zobrazí jen ostatní údaje.
+          </p>
+        )}
       </div>
 
       {/* Zpětná vazba od uživatelů aplikace (widget vpravo dole) */}

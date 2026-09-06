@@ -90,6 +90,9 @@ service cloud.firestore {
       }
       match /documents/{documentId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Administrátor smí (na vlastní žádost) číst uložené dokumenty i ostatních
+        // uživatelů — appka to využívá v administraci k dohledání a stažení PDF.
+        allow read: if isAdmin();
       }
     }
   }
