@@ -124,7 +124,7 @@ export default function DetailPageClient() {
             </span>
             <span className="text-brand-orange flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
-              Nutné doporučení ŠPZ ({log.spzCount})
+              Předat ŠPZ ({log.spzCount})
             </span>
           </div>
           <div className="w-full h-5 rounded-full overflow-hidden flex bg-brand-bg shadow-inner">
@@ -199,7 +199,7 @@ export default function DetailPageClient() {
           <div className={log.pouzijuCount > 0 ? "mt-12 pt-10 border-t-2 border-brand-surface/20" : ""}>
             <h3 className="text-xl font-bold text-brand-orange mb-8 flex items-center gap-3 border-b-2 border-brand-orange/20 pb-4">
               <HelpCircle className="w-8 h-8 text-brand-orange" />
-              Kroky vyžadující nutné doporučení ŠPZ
+              Kroky předané ŠPZ
             </h3>
             <div className="space-y-10">
               {Object.keys(groupedSheets).map(sheet => {

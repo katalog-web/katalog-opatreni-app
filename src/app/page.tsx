@@ -203,21 +203,16 @@ export default function Home() {
     setIsGeneratingPdf(false);
   };
 
-  // Oblast je ve výchozím stavu rozbalená (dokud ji uživatel sám nesbalí) — proto
-  // "výchozí true, dokud není explicitně false" stejně jako u opatření níže.
+  // Oblast i podskupina opatření jsou ve výchozím stavu SBALENÉ (dokud je uživatel
+  // sám nerozbalí) — celý list se tak otevře jako přehledný seznam nadpisů k rozkliknutí.
   const toggleArea = (areaName: string) => {
-    setExpandedAreas(prev => {
-      const isCurrentlyExpanded = prev[areaName] !== false;
-      return {
-        ...prev,
-        [areaName]: !isCurrentlyExpanded
-      };
-    });
+    setExpandedAreas(prev => ({
+      ...prev,
+      [areaName]: !prev[areaName]
+    }));
   };
 
-  // Podskupina opatření je naopak ve výchozím stavu SBALENÁ (dokud ji uživatel
-  // sám nerozbalí) — takže výchozí zobrazení je: oblast rozbalená, ale jednotlivá
-  // opatření v ní čekají na rozkliknutí. Proto "výchozí false, dokud není explicitně true".
+  // Stejné "výchozí false, dokud není explicitně true" jako u oblasti výše.
   const toggleOpatreni = (opatreniKey: string) => {
     setExpandedMeasures(prev => {
       const isCurrentlyExpanded = prev[opatreniKey] === true;
@@ -496,7 +491,7 @@ export default function Home() {
                   </Link>.
                 </li>
                 <li>
-                  U každého kroku si zvolte vhodná opatření pro dítě — a to ve dvou rovinách: rozhodněte, co <strong className="text-brand-green font-semibold">zvládnete sami ve škole</strong> (Použiju v PO1), a co už je nutné nechat na <strong className="text-brand-orange font-semibold">doporučení ŠPZ</strong>.
+                  U každého kroku si zvolte vhodná opatření pro dítě — a to ve dvou rovinách: rozhodněte, co <strong className="text-brand-green font-semibold">zvládnete sami ve škole</strong> (Použiju v PO1), a co už je potřeba <strong className="text-brand-orange font-semibold">předat ŠPZ</strong>.
                 </li>
                 <li>
                   Na konci stránky najdete <strong className="text-brand-navy font-semibold">souhrn</strong> — stáhněte a uložte si ho jako PDF mezi své vygenerované dokumenty. Najdete ho pak v sekci{' '}
@@ -813,7 +808,7 @@ export default function Home() {
                   { border: 'border-brand-green', text: 'text-brand-green', hoverBg: 'hover:bg-brand-green/10', ring: 'focus:ring-brand-green/30' },
                 ];
                 const theme = colors[idx % colors.length];
-                const isAreaExpanded = normalizedQuery ? true : expandedAreas[oblast] !== false;
+                const isAreaExpanded = normalizedQuery ? true : expandedAreas[oblast] === true;
                 const OblastIcon = getOblastIcon(oblast);
 
                 return (
@@ -1051,7 +1046,7 @@ export default function Home() {
             <div className="mt-12 pt-10 border-t-4 border-brand-surface/10">
               <h3 className="text-xl font-bold text-brand-orange mb-8 flex items-center gap-3 border-b-2 border-brand-orange/20 pb-4">
                 <HelpCircle className="w-8 h-8 text-brand-orange" />
-                Kroky vyžadující nutné doporučení ŠPZ
+                Kroky předané ŠPZ
               </h3>
               <div className="space-y-10">
                 {Object.keys(groupedSheets).map(sheet => {
@@ -1125,7 +1120,7 @@ export default function Home() {
                )}
                {!isDotaznikMissing && Object.keys(userChoices).length === 0 && (
                  <p className="mb-4 text-brand-orange font-semibold text-sm bg-brand-orange/10 px-4 py-2.5 rounded-lg border border-brand-orange/30">
-                   Zatím jste nevybrali žádné opatření — projděte prosím oblasti výše a u aspoň jednoho kroku zvolte „Použiju v PO1" nebo „Nutné doporučení ŠPZ".
+                   Zatím jste nevybrali žádné opatření — projděte prosím oblasti výše a u aspoň jednoho kroku zvolte „Použiju v PO1" nebo „Předat ŠPZ".
                  </p>
                )}
                <div className="flex flex-col md:flex-row gap-6 items-center mt-2">

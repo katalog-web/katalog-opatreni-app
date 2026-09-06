@@ -120,7 +120,7 @@ export function MeasureCard({ id, title, description, choice = null, note = '', 
               }`}
           >
             <HelpCircle className={`w-5 h-5 ${choice === 'NECHAM_NA_SPZ' ? 'text-brand-orange' : 'text-slate-400 group-hover:text-brand-orange'}`} />
-            <span>Nutné doporučení ŠPZ</span>
+            <span>Předat ŠPZ</span>
           </button>
         </div>
 
