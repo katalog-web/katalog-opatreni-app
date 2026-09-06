@@ -103,6 +103,7 @@ export default function Home() {
   const [childAgeMonths, setChildAgeMonths] = useState('');
   const [childGender, setChildGender] = useState('');
   const [childGrade, setChildGrade] = useState('');
+  const [childNeeds, setChildNeeds] = useState('');
   const [role, setRole] = useState('');
   const [schoolType, setSchoolType] = useState('');
   const [studentCount, setStudentCount] = useState('');
@@ -162,7 +163,7 @@ export default function Home() {
           ? `Dítě č. ${childNumber} - ${new Date().toLocaleDateString('cs-CZ')}`
           : `Souhrn ${new Date().toLocaleDateString('cs-CZ')} ${new Date().toLocaleTimeString('cs-CZ')}`;
         const childAge = formatChildAge(childAgeYears, childAgeMonths);
-        const searchText = [title, childNumber, childAge, childGender, childGrade, teacherEmail, role, schoolType, studentCount, purpose]
+        const searchText = [title, childNumber, childAge, childGender, childGrade, childNeeds, teacherEmail, role, schoolType, studentCount, purpose]
           .filter(Boolean)
           .join(' ')
           .toLowerCase();
@@ -176,6 +177,7 @@ export default function Home() {
           childAge,
           childGender,
           childGrade,
+          childNeeds,
           role,
           schoolType,
           studentCount,
@@ -248,6 +250,8 @@ export default function Home() {
       if (savedChildGender) setChildGender(savedChildGender);
       const savedChildGrade = localStorage.getItem('katalog_child_grade');
       if (savedChildGrade) setChildGrade(savedChildGrade);
+      const savedChildNeeds = localStorage.getItem('katalog_child_needs');
+      if (savedChildNeeds) setChildNeeds(savedChildNeeds);
       const savedRole = localStorage.getItem('katalog_role');
       if (savedRole) setRole(savedRole);
       const savedSchoolType = localStorage.getItem('katalog_school_type');
@@ -317,13 +321,14 @@ export default function Home() {
       localStorage.setItem('katalog_child_age_months', childAgeMonths);
       localStorage.setItem('katalog_child_gender', childGender);
       localStorage.setItem('katalog_child_grade', childGrade);
+      localStorage.setItem('katalog_child_needs', childNeeds);
       localStorage.setItem('katalog_role', role);
       localStorage.setItem('katalog_school_type', schoolType);
       localStorage.setItem('katalog_student_count', studentCount);
       localStorage.setItem('katalog_purpose', purpose);
       localStorage.setItem('katalog_guide_open', String(isGuideOpen));
     }
-  }, [userChoices, userNotes, childNumber, childAgeYears, childAgeMonths, childGender, childGrade, role, schoolType, studentCount, purpose, isGuideOpen, isLoading]);
+  }, [userChoices, userNotes, childNumber, childAgeYears, childAgeMonths, childGender, childGrade, childNeeds, role, schoolType, studentCount, purpose, isGuideOpen, isLoading]);
 
   const handleReset = () => {
     if (window.confirm('Opravdu chcete zcela vymazat Váš aktuální postup a začít znovu s čistým listem?')) {
@@ -334,6 +339,7 @@ export default function Home() {
       setChildAgeMonths('');
       setChildGender('');
       setChildGrade('');
+      setChildNeeds('');
       setRole('');
       setSchoolType('');
       setStudentCount('');
@@ -648,6 +654,17 @@ export default function Home() {
                 <option value="Seznámení s katalogem">Seznámení s katalogem</option>
               </select>
             </div>
+
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-xs font-semibold text-brand-navy/50 uppercase tracking-wide ml-1">Projevy a potřeby dítěte</label>
+              <textarea
+                value={childNeeds}
+                onChange={(e) => setChildNeeds(e.target.value)}
+                rows={4}
+                placeholder="Zde napište, jak se dítě projevuje a jaké má potřeby."
+                className="w-full px-5 py-3.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all placeholder:text-brand-navy/30 text-brand-navy font-medium resize-y"
+              />
+            </div>
           </div>
         </div>
 
@@ -686,27 +703,34 @@ export default function Home() {
                   <span className="text-[11px] sm:text-xs font-semibold leading-tight text-center">{label}</span>
                 </button>
 
-              {/* Hover menu — rychlý přechod na konkrétní oblast bez nutnosti listovat */}
+              {/* Hover menu — rychlý přechod na konkrétní oblast bez nutnosti listovat.
+                  Pozn.: obal má "pt-2" (padding, počítá se do jeho vlastní plochy),
+                  ne "mt-2" (margin, prázdná mezera MIMO element) — díky tomu je celá
+                  cesta od tlačítka k nabídce pořád uvnitř tohoto potomka, takže myš
+                  po cestě dolů "nevypadne" na prvek pod ním (např. vyhledávací pole)
+                  a nezpůsobí předčasný onMouseLeave dřív, než myš na nabídku doputuje. */}
               {hoveredSheet === sheetName && (
-                <div className="absolute left-0 top-full mt-2 z-20 bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 py-2 min-w-[280px] max-h-80 overflow-y-auto">
-                  {Object.keys(groupedSheets[sheetName]).map(oblast => {
-                    const OblastIcon = getOblastIcon(oblast);
-                    return (
-                      <button
-                        key={oblast}
-                        onClick={() => {
-                          setActiveTab(sheetName);
-                          setExpandedAreas(prev => ({ ...prev, [oblast]: true }));
-                          setPendingScrollOblast(oblast);
-                          setHoveredSheet(null);
-                        }}
-                        className="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-bold text-brand-navy/70 hover:bg-brand-bg hover:text-brand-navy transition-colors"
-                      >
-                        <OblastIcon className="w-4 h-4 flex-shrink-0 opacity-60" />
-                        <span>{oblast}</span>
-                      </button>
-                    );
-                  })}
+                <div className="absolute left-0 top-full pt-2 z-20 min-w-[280px]">
+                  <div className="bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 py-2 max-h-80 overflow-y-auto">
+                    {Object.keys(groupedSheets[sheetName]).map(oblast => {
+                      const OblastIcon = getOblastIcon(oblast);
+                      return (
+                        <button
+                          key={oblast}
+                          onClick={() => {
+                            setActiveTab(sheetName);
+                            setExpandedAreas(prev => ({ ...prev, [oblast]: true }));
+                            setPendingScrollOblast(oblast);
+                            setHoveredSheet(null);
+                          }}
+                          className="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-bold text-brand-navy/70 hover:bg-brand-bg hover:text-brand-navy transition-colors"
+                        >
+                          <OblastIcon className="w-4 h-4 flex-shrink-0 opacity-60" />
+                          <span>{oblast}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -901,7 +925,7 @@ export default function Home() {
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-8 border-b border-brand-surface/20 pb-6 tracking-tight">
             Váš souhrn vybraných opatření
           </h2>
-          {(childNumber || childAgeYears || childGender || childGrade || role || schoolType || studentCount || purpose) && (
+          {(childNumber || childAgeYears || childGender || childGrade || childNeeds || role || schoolType || studentCount || purpose) && (
             <div className="mb-10 p-6 bg-brand-bg/50 rounded-xl border border-brand-surface/30 grid grid-cols-1 md:grid-cols-2 gap-4">
               {childNumber && (
                 <p className="text-base sm:text-lg text-brand-navy/60 font-medium md:col-span-2">
@@ -942,6 +966,12 @@ export default function Home() {
                 <p className="text-base sm:text-lg text-brand-navy/60 font-medium">
                   Účel práce: <span className="text-brand-navy font-bold">{purpose}</span>
                 </p>
+              )}
+              {childNeeds && (
+                <div className="text-base sm:text-lg text-brand-navy/60 font-medium md:col-span-2">
+                  Projevy a potřeby dítěte:
+                  <p className="text-brand-navy font-bold mt-1 whitespace-pre-wrap">{childNeeds}</p>
+                </div>
               )}
             </div>
           )}
