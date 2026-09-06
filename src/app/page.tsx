@@ -201,16 +201,24 @@ export default function Home() {
     setIsGeneratingPdf(false);
   };
 
+  // Oblast je ve výchozím stavu rozbalená (dokud ji uživatel sám nesbalí) — proto
+  // "výchozí true, dokud není explicitně false" stejně jako u opatření níže.
   const toggleArea = (areaName: string) => {
-    setExpandedAreas(prev => ({
-      ...prev,
-      [areaName]: !prev[areaName]
-    }));
+    setExpandedAreas(prev => {
+      const isCurrentlyExpanded = prev[areaName] !== false;
+      return {
+        ...prev,
+        [areaName]: !isCurrentlyExpanded
+      };
+    });
   };
 
+  // Podskupina opatření je naopak ve výchozím stavu SBALENÁ (dokud ji uživatel
+  // sám nerozbalí) — takže výchozí zobrazení je: oblast rozbalená, ale jednotlivá
+  // opatření v ní čekají na rozkliknutí. Proto "výchozí false, dokud není explicitně true".
   const toggleOpatreni = (opatreniKey: string) => {
     setExpandedMeasures(prev => {
-      const isCurrentlyExpanded = prev[opatreniKey] !== false;
+      const isCurrentlyExpanded = prev[opatreniKey] === true;
       return {
         ...prev,
         [opatreniKey]: !isCurrentlyExpanded
@@ -781,7 +789,7 @@ export default function Home() {
                   { border: 'border-brand-green', text: 'text-brand-green', hoverBg: 'hover:bg-brand-green/10', ring: 'focus:ring-brand-green/30' },
                 ];
                 const theme = colors[idx % colors.length];
-                const isAreaExpanded = normalizedQuery ? true : expandedAreas[oblast];
+                const isAreaExpanded = normalizedQuery ? true : expandedAreas[oblast] !== false;
                 const OblastIcon = getOblastIcon(oblast);
 
                 return (
@@ -801,7 +809,7 @@ export default function Home() {
                     <div className="pt-4 border-t border-brand-surface/30">
                       {Object.keys(filteredActiveSheet[oblast]).map(opatreni => {
                         const opatreniKey = `${activeTab}-${oblast}-${opatreni}`;
-                        const isOpatreniExpanded = normalizedQuery ? true : expandedMeasures[opatreniKey] !== false;
+                        const isOpatreniExpanded = normalizedQuery ? true : expandedMeasures[opatreniKey] === true;
 
                         return (
                           <div key={opatreni} className="mt-2 mb-10">
