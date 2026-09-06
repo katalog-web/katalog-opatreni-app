@@ -945,7 +945,7 @@ export default function Home() {
             Váš souhrn vybraných opatření
           </h2>
           {(childNumber || childAgeYears || childGender || childGrade || childNeeds || role || schoolType || studentCount || purpose) && (
-            <div className="mb-10 p-6 bg-brand-bg/50 rounded-xl border border-brand-surface/30 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div data-pdf-block className="mb-10 p-6 bg-brand-bg/50 rounded-xl border border-brand-surface/30 grid grid-cols-1 md:grid-cols-2 gap-4">
               {childNumber && (
                 <p className="text-base sm:text-lg text-brand-navy/60 font-medium md:col-span-2">
                   Dítě č.: <span className="text-brand-navy font-bold border-b-2 border-brand-yellow pb-1">{childNumber}</span>
@@ -1033,7 +1033,7 @@ export default function Home() {
                                   const steps = groupedSheets[sheet][oblast][opatreni].filter((m: Measure) => userChoices[m.id] === 'POUZIJU');
                                   if (steps.length === 0) return null;
                                   return steps.map((m: Measure) => (
-                                    <li key={m.id} className="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex gap-3">
+                                    <li key={m.id} data-pdf-block className="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex gap-3">
                                       <div className="w-2 h-2 rounded-full bg-brand-green mt-2 flex-shrink-0"></div>
                                       <div>
                                         {opatreni !== '-' && opatreni !== m.krok && (
@@ -1103,7 +1103,7 @@ export default function Home() {
                                   const steps = groupedSheets[sheet][oblast][opatreni].filter((m: Measure) => userChoices[m.id] === 'NECHAM_NA_SPZ');
                                   if (steps.length === 0) return null;
                                   return steps.map((m: Measure) => (
-                                    <li key={m.id} className="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex gap-3">
+                                    <li key={m.id} data-pdf-block className="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex gap-3">
                                       <div className="w-2 h-2 rounded-full bg-brand-orange mt-2 flex-shrink-0"></div>
                                       <div>
                                         {opatreni !== '-' && opatreni !== m.krok && (

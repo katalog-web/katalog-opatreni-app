@@ -8,7 +8,7 @@ import { Header } from '@/components/Header';
 import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
-import { collection, collectionGroup, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
+import { collection, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
 import measuresData from '@/data/measures.json';
 import * as XLSX from 'xlsx';
 import { downloadBase64Pdf } from '@/lib/generateSummaryPdf';
@@ -492,7 +492,12 @@ export default function AdminPage() {
   // Uložené dokumenty (PDF) všech uživatelů — na výslovnou žádost administrátorky,
   // aby mohla dohledat a stáhnout stejná PDF, která si uživatelé uložili ve
   // vlastních účtech. Firestore pravidla to adminovi povolují (firestore.rules,
-  // users/{uid}/documents), appka je čte přes collectionGroup napříč všemi uživateli.
+  // users/{uid}/documents). Nečteme přes collectionGroup napříč všemi uživateli —
+  // Firestore takový plošný dotaz adminovi odmítl (Missing or insufficient
+  // permissions), i když by podle pravidel měl projít — místo toho appka projde
+  // jednotlivě uid uživatelů, které už eviduje v config/stats (visitedUserIds ∪
+  // generatedUserIds), a pro každé udělá běžný (ne collection-group) dotaz na
+  // konkrétní, známou cestu users/{uid}/documents, což appka pravidlo umožňuje bez potíží.
   const [allDocuments, setAllDocuments] = useState<DocumentRecord[]>([]);
   const [isDocsLoading, setIsDocsLoading] = useState(false);
   const [docsSearchQuery, setDocsSearchQuery] = useState('');
@@ -500,26 +505,38 @@ export default function AdminPage() {
   const fetchAllDocuments = async () => {
     setIsDocsLoading(true);
     try {
-      const snap = await getDocs(collectionGroup(db, 'documents'));
-      const docs: DocumentRecord[] = snap.docs.map((d) => {
-        const data = d.data();
-        return {
-          id: d.id,
-          title: (data.title as string) ?? 'Bez názvu',
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().getTime() : null,
-          folderId: null,
-          pdfBase64: (data.pdfBase64 as string) ?? '',
-          ownerEmail: data.ownerEmail,
-          childNumber: data.childNumber,
-          childAge: data.childAge,
-          role: data.role,
-          schoolType: data.schoolType,
-          purpose: data.purpose,
-          pouzijuCount: (data.pouzijuCount as number) ?? 0,
-          spzCount: (data.spzCount as number) ?? 0,
-          searchText: data.searchText,
-        } as DocumentRecord;
-      });
+      const statsSnap = await getDoc(doc(db, 'config', 'stats'));
+      const statsData = statsSnap.exists() ? statsSnap.data() : {};
+      const userIds = Array.from(
+        new Set([
+          ...((statsData.visitedUserIds as string[]) ?? []),
+          ...((statsData.generatedUserIds as string[]) ?? []),
+        ])
+      );
+
+      const docs: DocumentRecord[] = [];
+      for (const uid of userIds) {
+        const snap = await getDocs(collection(db, 'users', uid, 'documents'));
+        snap.docs.forEach((d) => {
+          const data = d.data();
+          docs.push({
+            id: d.id,
+            title: (data.title as string) ?? 'Bez názvu',
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().getTime() : null,
+            folderId: null,
+            pdfBase64: (data.pdfBase64 as string) ?? '',
+            ownerEmail: data.ownerEmail,
+            childNumber: data.childNumber,
+            childAge: data.childAge,
+            role: data.role,
+            schoolType: data.schoolType,
+            purpose: data.purpose,
+            pouzijuCount: (data.pouzijuCount as number) ?? 0,
+            spzCount: (data.spzCount as number) ?? 0,
+            searchText: data.searchText,
+          } as DocumentRecord);
+        });
+      }
       docs.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
       setAllDocuments(docs);
     } catch (err) {
@@ -576,6 +593,20 @@ export default function AdminPage() {
         </p>
       </div>
 
+      {/* Rychlá navigace mezi sekcemi — ať se po stránce nemusí jezdit celá,
+          drží se při scrollování pod pevnou horní lištou. */}
+      <nav className="sticky top-16 z-20 -mx-4 px-4 py-3 mb-10 bg-brand-bg/90 backdrop-blur border-b border-brand-surface/30">
+        <div className="flex flex-wrap gap-2 text-xs font-bold">
+          <a href="#sekce-dokumenty" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uložené dokumenty</a>
+          <a href="#sekce-zpetna-vazba" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Zpětná vazba</a>
+          <a href="#sekce-zadosti" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Žádosti o schválení</a>
+          <a href="#sekce-administratori" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Administrátoři</a>
+          <a href="#sekce-top-opatreni" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Top opatření</a>
+          <a href="#sekce-uzivatele-pristupy" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uživatelé a přístupy</a>
+          <a href="#sekce-prehled-pdf" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Přehled generovaných PDF</a>
+        </div>
+      </nav>
+
       {/* Statistiky — postavené na config/stats (souhrnná, anonymní čísla), ne na
           starších pdf_logs/login_logs, do kterých už nová appka nezapisuje. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
@@ -611,7 +642,7 @@ export default function AdminPage() {
 
       {/* Uložené dokumenty (PDF) všech uživatelů — administrátorka je smí dohledat
           a stáhnout stejně, jako je vidí uživatel ve vlastním účtě. */}
-      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+      <div id="sekce-dokumenty" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
         <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
             <FileText className="w-5 h-5 text-brand-navy" />
@@ -648,7 +679,7 @@ export default function AdminPage() {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
             {filteredAllDocuments.map((docItem) => (
               <div key={docItem.id} className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
                 <div className="flex-1 min-w-0">
@@ -693,7 +724,7 @@ export default function AdminPage() {
       </div>
 
       {/* Zpětná vazba od uživatelů aplikace (widget vpravo dole) */}
-      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+      <div id="sekce-zpetna-vazba" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
         <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
             <MessageCircle className="w-5 h-5 text-brand-navy" />
@@ -721,7 +752,7 @@ export default function AdminPage() {
             <p className="text-brand-navy/40 font-medium">Zatím žádná zpětná vazba.</p>
           </div>
         ) : (
-          <div className="divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
             {feedbackItems.map((item) => (
               <div key={item.id} className={`p-5 flex flex-col sm:flex-row sm:items-start gap-4 transition-colors ${item.resolved ? 'opacity-50' : 'hover:bg-brand-bg/60'}`}>
                 <div className="flex-1 min-w-0">
@@ -772,7 +803,7 @@ export default function AdminPage() {
       {/* Žádosti o schválení přístupu — appka pracuje s daty o dětech, takže nový
           uživatel appku neuvidí, dokud ho ručně neschválíte (nahrazuje dřív
           zvažovaný sdílený přístupový kód). */}
-      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+      <div id="sekce-zadosti" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
         <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
             <Hourglass className="w-5 h-5 text-brand-navy" />
@@ -787,7 +818,7 @@ export default function AdminPage() {
             <p className="text-brand-navy/40 font-medium">Žádné čekající žádosti.</p>
           </div>
         ) : (
-          <div className="divide-y divide-brand-surface/20">
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[420px] overflow-y-auto pr-2">
             {pendingUsers.map((pu) => (
               <div key={pu.email} className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                 <div className="flex-1 min-w-0">
@@ -825,7 +856,7 @@ export default function AdminPage() {
             <h3 className="text-xs font-bold text-brand-navy/40 uppercase tracking-wide mb-3">
               Schválení uživatelé ({approvedUsers.length})
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="custom-scrollbar flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-2">
               {approvedUsers.map((au) => (
                 <span
                   key={au.email}
@@ -852,7 +883,7 @@ export default function AdminPage() {
       </div>
 
       {/* Správa administrátorů */}
-      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+      <div id="sekce-administratori" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
         <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
             <ShieldCheck className="w-5 h-5 text-brand-navy" />
@@ -860,7 +891,7 @@ export default function AdminPage() {
           </h2>
         </div>
         <div className="p-6">
-          <div className="flex flex-wrap gap-2 mb-5">
+          <div className="custom-scrollbar flex flex-wrap gap-2 mb-5 max-h-40 overflow-y-auto pr-2">
             {adminEmails.length === 0 ? (
               <p className="text-brand-navy/40 text-sm italic">Načítám...</p>
             ) : (
@@ -912,14 +943,14 @@ export default function AdminPage() {
 
       {/* Top Opatření (Statistiky) */}
       {measureStats.length > 0 && (
-        <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12">
+        <div id="sekce-top-opatreni" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
           <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
             <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
               <TrendingUp className="w-5 h-5 text-brand-navy" />
               Nejčastěji vybíraná opatření
             </h2>
           </div>
-          <div className="divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
             {measureStats.map((stat: any, idx: number) => (
               <div key={stat.id} className="p-4 hover:bg-brand-bg/60 transition-colors flex items-start gap-4">
                 <div className="w-8 h-8 rounded-full bg-brand-bg text-brand-navy/60 font-bold flex items-center justify-center flex-shrink-0 mt-1 shadow-inner">
@@ -947,86 +978,8 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Tabulka logů */}
-      <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-brand-surface/30">
-          <h2 className="text-xl font-bold text-brand-navy">Přehled generovaných PDF</h2>
-          <button
-            onClick={fetchLogs}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Obnovit
-          </button>
-        </div>
-
-        {isLoading ? (
-          <div className="p-12 text-center text-brand-navy/50 animate-pulse">Načítám data...</div>
-        ) : logs.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-brand-navy/40 text-lg font-medium">Zatím zde nejsou žádné záznamy.</p>
-            <p className="text-brand-navy/40 text-sm mt-2">Jakmile si někdo vygeneruje PDF, zobrazí se zde.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
-            {logs.map((log, i) => (
-              <div key={i} className="p-5 hover:bg-brand-bg/60 transition-colors flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
-                    <div className="flex items-center gap-2 text-brand-navy font-bold">
-                      <Mail className="w-4 h-4" />
-                      <span className="truncate">{log.email}</span>
-                    </div>
-                    {log.role && (
-                      <div className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
-                        <User className="w-3.5 h-3.5" />
-                        {log.role}
-                      </div>
-                    )}
-                    {log.schoolType && (
-                      <div className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
-                        <School className="w-3.5 h-3.5" />
-                        {log.schoolType}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-brand-navy/40">
-                    <div className="flex items-center gap-1.5 ">
-                      <Clock className="w-3.5 h-3.5" />
-                      {new Date(log.timestamp).toLocaleString('cs-CZ')}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-brand-green" />
-                      <span className="text-brand-green font-bold">{log.pouzijuCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <HelpCircle className="w-3.5 h-3.5 text-brand-orange" />
-                      <span className="text-brand-orange font-bold">{log.spzCount}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/admin/detail?id=${log.id}`}
-                  className="px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/10 rounded-lg border border-transparent hover:border-brand-green/20 transition-all"
-                >
-                  Detail →
-                </Link>
-
-                <button
-                  onClick={() => handleDelete(log.id)}
-                  className="p-3 text-brand-navy/20 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                  title="Smazat záznam"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-16">
+      {/* Uživatelé a přístupy — přesunuto nahoru, appka to používá jako hlavní přehled */}
+      <div id="sekce-uzivatele-pristupy" className="mt-16 scroll-mt-20">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 text-brand-navy" />
@@ -1072,7 +1025,7 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden">
           {activeAdminTab === 'users' ? (
             uniqueUsers.length === 0 ? (
@@ -1081,7 +1034,7 @@ export default function AdminPage() {
                 <p className="text-brand-navy/40 font-medium">Žádní uživatelé k zobrazení.</p>
               </div>
             ) : (
-              <div className="overflow-auto max-h-[450px] relative pr-2">
+              <div className="custom-scrollbar overflow-auto max-h-[450px] relative pr-2">
                 <p className="sm:hidden text-xs font-semibold text-brand-navy/40 px-4 pt-3 pb-1">
                   ← Tabulka se na malé obrazovce posouvá vodorovně →
                 </p>
@@ -1161,7 +1114,7 @@ export default function AdminPage() {
                 <p className="text-brand-navy/40 text-sm mt-1">Jakmile se někdo přihlásí, zobrazí se zde.</p>
               </div>
             ) : (
-              <div className="divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
+              <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
                 {loginLogs.map((ll, idx) => (
                   <div key={idx} className="px-5 py-4 flex items-center justify-between hover:bg-brand-bg/60 transition-colors">
                     <div className="flex items-center gap-3">
@@ -1183,6 +1136,86 @@ export default function AdminPage() {
             )
           )}
         </div>
+      </div>
+
+      {/* Tabulka logů — starší přehled jednotlivých generování PDF (nahrazen výše
+          sekcí Uložené dokumenty a Uživatelé a přístupy), proto níž a méně nápadně. */}
+      <div id="sekce-prehled-pdf" className="mt-16 bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden scroll-mt-20">
+        <div className="flex items-center justify-between p-6 border-b border-brand-surface/30">
+          <h2 className="text-xl font-bold text-brand-navy">Přehled generovaných PDF</h2>
+          <button
+            onClick={fetchLogs}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Obnovit
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="p-12 text-center text-brand-navy/50 animate-pulse">Načítám data...</div>
+        ) : logs.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-brand-navy/40 text-lg font-medium">Zatím zde nejsou žádné záznamy.</p>
+            <p className="text-brand-navy/40 text-sm mt-2">Jakmile si někdo vygeneruje PDF, zobrazí se zde.</p>
+          </div>
+        ) : (
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
+            {logs.map((log, i) => (
+              <div key={i} className="p-5 hover:bg-brand-bg/60 transition-colors flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                    <div className="flex items-center gap-2 text-brand-navy font-bold">
+                      <Mail className="w-4 h-4" />
+                      <span className="truncate">{log.email}</span>
+                    </div>
+                    {log.role && (
+                      <div className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
+                        <User className="w-3.5 h-3.5" />
+                        {log.role}
+                      </div>
+                    )}
+                    {log.schoolType && (
+                      <div className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
+                        <School className="w-3.5 h-3.5" />
+                        {log.schoolType}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-brand-navy/40">
+                    <div className="flex items-center gap-1.5 ">
+                      <Clock className="w-3.5 h-3.5" />
+                      {new Date(log.timestamp).toLocaleString('cs-CZ')}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-brand-green" />
+                      <span className="text-brand-green font-bold">{log.pouzijuCount}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <HelpCircle className="w-3.5 h-3.5 text-brand-orange" />
+                      <span className="text-brand-orange font-bold">{log.spzCount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/admin/detail?id=${log.id}`}
+                  className="px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/10 rounded-lg border border-transparent hover:border-brand-green/20 transition-all"
+                >
+                  Detail →
+                </Link>
+
+                <button
+                  onClick={() => handleDelete(log.id)}
+                  className="p-3 text-brand-navy/20 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                  title="Smazat záznam"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
     </main>

@@ -14,6 +14,18 @@ const PDF_PAGE_HEIGHT_MM = 297;
  * snímku dostal celý obsah, ne jen viditelná část.
  */
 export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<jsPDF> {
+  // Atomické bloky (jednotlivý krok opatření, hlavička dotazníku) — řez stránky PDF
+  // do nich nikdy nesmí padnout doprostřed, jinak se text věty přeřízne napůl mezi
+  // dvě stránky. Měříme na živém DOM (ne na klonu), protože rozvržení #print-summary
+  // žádné vlastní scrollovací kontejnery nemá, takže odpovídá tomu, co zachytí html2canvas.
+  const containerRect = element.getBoundingClientRect();
+  const forbiddenRanges = Array.from(element.querySelectorAll<HTMLElement>('[data-pdf-block]'))
+    .map((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top - containerRect.top, bottom: r.bottom - containerRect.top };
+    })
+    .filter((r) => r.bottom > r.top);
+
   const canvas = await html2canvas(element, {
     scale: Math.min(2, window.devicePixelRatio || 1.5),
     useCORS: true,
@@ -29,20 +41,53 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
 
   const imgData = canvas.toDataURL('image/jpeg', 0.85);
   const imgWidthMm = PDF_PAGE_WIDTH_MM;
-  const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
+  const pxPerMm = canvas.width / imgWidthMm; // poměr canvas px ↔ mm, stejný pro obě osy
+  const imgHeightMm = canvas.height / pxPerMm;
+  const pageHeightPx = PDF_PAGE_HEIGHT_MM * pxPerMm;
+  const totalHeightPx = canvas.height;
+
+  // Zakázané pásy převedené z DOM souřadnic (CSS px) do canvas pixelů. Bloky vyšší
+  // než jedna celá stránka nejde rozumně ochránit (např. mimořádně dlouhá poznámka)
+  // — u těch necháváme původní chování, ať appka nikdy nezacyklí.
+  const domToCanvasScale = canvas.width / element.offsetWidth;
+  const forbiddenPx = forbiddenRanges
+    .map((r) => ({ top: r.top * domToCanvasScale, bottom: r.bottom * domToCanvasScale }))
+    .filter((r) => r.bottom - r.top < pageHeightPx);
+
+  /** Pokud by navržený řez stránky padl doprostřed nějakého atomického bloku,
+   * posune ho na jeho začátek — celý blok se pak zobrazí až na další stránce. */
+  function adjustBreak(candidatePx: number, pageTopPx: number): number {
+    for (const r of forbiddenPx) {
+      if (candidatePx > r.top && candidatePx < r.bottom) {
+        return r.top > pageTopPx ? r.top : candidatePx;
+      }
+    }
+    return candidatePx;
+  }
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  let heightLeft = imgHeightMm;
-  let position = 0;
-  doc.addImage(imgData, 'JPEG', 0, position, imgWidthMm, imgHeightMm);
-  heightLeft -= PDF_PAGE_HEIGHT_MM;
+  let cursorPx = 0;
+  let pageIndex = 0;
+  while (cursorPx < totalHeightPx) {
+    const naiveEndPx = Math.min(cursorPx + pageHeightPx, totalHeightPx);
+    let endPx = naiveEndPx >= totalHeightPx ? naiveEndPx : adjustBreak(naiveEndPx, cursorPx);
+    if (endPx <= cursorPx) endPx = naiveEndPx; // pojistka proti nekonečné smyčce
 
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeightMm;
-    doc.addPage();
-    doc.addImage(imgData, 'JPEG', 0, position, imgWidthMm, imgHeightMm);
-    heightLeft -= PDF_PAGE_HEIGHT_MM;
+    if (pageIndex > 0) doc.addPage();
+    const yOffsetMm = -cursorPx / pxPerMm;
+    doc.addImage(imgData, 'JPEG', 0, yOffsetMm, imgWidthMm, imgHeightMm);
+
+    // Když jsme řez posunuli výš kvůli ochraně bloku, zbytek téhle stránky (kde by
+    // se jinak zobrazil jen kousek toho bloku) přemalujeme bílou, ať zůstane prázdný.
+    const visibleHeightMm = (endPx - cursorPx) / pxPerMm;
+    if (visibleHeightMm < PDF_PAGE_HEIGHT_MM) {
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, visibleHeightMm, PDF_PAGE_WIDTH_MM, PDF_PAGE_HEIGHT_MM - visibleHeightMm, 'F');
+    }
+
+    cursorPx = endPx;
+    pageIndex += 1;
   }
 
   return doc;
