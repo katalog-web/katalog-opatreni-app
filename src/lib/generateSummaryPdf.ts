@@ -35,11 +35,12 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
 
   // Pevné (na obrazovce appky nezávislé) rozlišení snímku — dřív se používalo
   // window.devicePixelRatio, které je na běžných (ne-Retina) monitorech jen 1, což
-  // dělalo z textu na celou A4 stránku rozmazaný obrázek. Kvalita tisku/čtení PDF
-  // nemá s hustotou pixelů obrazovky nic společného, proto teď appka vždy vykresluje
-  // ve vyšším, pevném rozlišení.
+  // dělalo z textu na celou A4 stránku rozmazaný obrázek. Zkoušeli jsme i vyšší
+  // scale (2.2) s PNG, ale u delšího souhrnu to vygenerovalo PDF přes 60 MB —
+  // nepoužitelné k odeslání/uložení. 1.8 + kvalitní JPEG je rozumný kompromis:
+  // znatelně ostřejší než původní devicePixelRatio přístup, ale v přiměřené velikosti.
   const canvas = await html2canvas(element, {
-    scale: 2.2,
+    scale: 1.8,
     useCORS: true,
     backgroundColor: '#ffffff',
     ignoreElements: (el) => el.classList?.contains('no-print'),
@@ -51,9 +52,7 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     },
   });
 
-  // PNG místo JPEG — obsah je téměř výhradně text na plochém pozadí, kde PNG
-  // komprimuje dobře a bez ztrátových artefaktů, které by ostrost písma zhoršovaly.
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
   const pxPerMm = canvas.width / PRINTABLE_WIDTH_MM; // poměr canvas px ↔ mm, stejný pro obě osy
   const imgHeightMm = canvas.height / pxPerMm;
   const pageHeightPx = PRINTABLE_HEIGHT_MM * pxPerMm;
@@ -94,7 +93,7 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
 
     if (pageIndex > 0) doc.addPage();
     const yOffsetMm = PRINT_MARGIN_MM - cursorPx / pxPerMm;
-    doc.addImage(imgData, 'PNG', PRINT_MARGIN_MM, yOffsetMm, PRINTABLE_WIDTH_MM, imgHeightMm);
+    doc.addImage(imgData, 'JPEG', PRINT_MARGIN_MM, yOffsetMm, PRINTABLE_WIDTH_MM, imgHeightMm);
 
     // Horní okraj vždy přemalovat bílou — obrázek je jeden nepřerušený pás přes
     // všechny stránky, takže by se sem jinak "prosvítal" už zobrazený spodek
