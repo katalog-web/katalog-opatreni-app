@@ -61,9 +61,7 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     },
   });
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
   const pxPerMm = canvas.width / PRINTABLE_WIDTH_MM; // poměr canvas px ↔ mm, stejný pro obě osy
-  const imgHeightMm = canvas.height / pxPerMm;
   const pageHeightPx = PRINTABLE_HEIGHT_MM * pxPerMm;
   const totalHeightPx = canvas.height;
 
@@ -101,18 +99,23 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     if (endPx <= cursorPx) endPx = naiveEndPx; // pojistka proti nekonečné smyčce
 
     if (pageIndex > 0) doc.addPage();
-    const yOffsetMm = PRINT_MARGIN_MM - cursorPx / pxPerMm;
-    doc.addImage(imgData, 'JPEG', PRINT_MARGIN_MM, yOffsetMm, PRINTABLE_WIDTH_MM, imgHeightMm);
 
-    // Horní okraj vždy přemalovat bílou — obrázek je jeden nepřerušený pás přes
-    // všechny stránky, takže by se sem jinak "prosvítal" už zobrazený spodek
-    // předchozí stránky. Stejně tak spodní okraj a případný kousek chráněného
-    // bloku, co by jinak vyčníval přes navržený řez.
-    const visibleHeightMm = (endPx - cursorPx) / pxPerMm;
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, PDF_PAGE_WIDTH_MM, PRINT_MARGIN_MM, 'F');
-    const blankFromMm = PRINT_MARGIN_MM + visibleHeightMm;
-    doc.rect(0, blankFromMm, PDF_PAGE_WIDTH_MM, PDF_PAGE_HEIGHT_MM - blankFromMm, 'F');
+    // Pro každou stránku se z celkového snímku vyřízne jen její vlastní kousek do
+    // samostatného (menšího) obrázku — žádné "domalovávání bílou přes obrázek" jako
+    // dřív. To dřívější řešení umělo za určitých okolností nechat prosvítat/duplikovat
+    // kousek obsahu na švu dvou stránek; oříznutí na zdroji tohle riziko úplně odstraní.
+    const sliceHeightPx = Math.max(1, Math.round(endPx - cursorPx));
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = sliceHeightPx;
+    const sliceCtx = sliceCanvas.getContext('2d')!;
+    sliceCtx.fillStyle = '#ffffff';
+    sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+    sliceCtx.drawImage(canvas, 0, -cursorPx);
+    const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+
+    const sliceHeightMm = sliceHeightPx / pxPerMm;
+    doc.addImage(sliceImgData, 'JPEG', PRINT_MARGIN_MM, PRINT_MARGIN_MM, PRINTABLE_WIDTH_MM, sliceHeightMm);
 
     cursorPx = endPx;
     pageIndex += 1;
