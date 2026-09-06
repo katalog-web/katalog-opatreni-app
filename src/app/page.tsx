@@ -619,9 +619,14 @@ export default function Home() {
                 className="w-full px-5 py-3.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all text-brand-navy font-medium appearance-none bg-white"
               >
                 <option value="">Vyberte typ školy...</option>
-                <option value="ZŠ">Základní škola (ZŠ)</option>
                 <option value="MŠ">Mateřská škola (MŠ)</option>
-                <option value="ZŠ a MŠ">ZŠ a MŠ (spojená)</option>
+                <option value="1. stupeň ZŠ">1. stupeň ZŠ</option>
+                <option value="2. stupeň ZŠ">2. stupeň ZŠ</option>
+                <option value="Nižší stupeň víceletého gymnázia">Nižší stupeň víceletého gymnázia</option>
+                <option value="Gymnázium">Gymnázium</option>
+                <option value="SŠ">Střední škola (SŠ)</option>
+                <option value="SOŠ">Střední odborná škola (SOŠ)</option>
+                <option value="SOU">Střední odborné učiliště (SOU)</option>
                 <option value="Jiné">Jiné</option>
               </select>
             </div>
