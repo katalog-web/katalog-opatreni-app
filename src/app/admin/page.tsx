@@ -699,7 +699,12 @@ export default function AdminPage() {
           <p className="text-4xl font-extrabold text-brand-green">
             {appStats ? appStats.generatedUserIds.length : '–'}
           </p>
-          <p className="text-sm font-medium text-brand-navy/50 mt-1">Vygenerovalo PDF</p>
+          <p className="text-sm font-medium text-brand-navy/50 mt-1">Uživatelů vygenerovalo PDF</p>
+          {appStats && appStats.totalDocumentsGenerated > 0 && (
+            <p className="text-xs font-medium text-brand-navy/30 mt-0.5">
+              (celkem {appStats.totalDocumentsGenerated}× vygenerováno)
+            </p>
+          )}
         </div>
         <div className="bg-brand-orange/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
           <p className="text-4xl font-extrabold text-brand-orange">
