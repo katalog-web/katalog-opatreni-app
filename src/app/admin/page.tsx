@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
 import measuresData from '@/data/measures.json';
 import * as XLSX from 'xlsx';
-import { downloadBase64Pdf } from '@/lib/generateSummaryPdf';
+import { downloadBase64Pdf, loadDocumentPdfBase64 } from '@/lib/generateSummaryPdf';
 import type { DocumentRecord } from '@/lib/dashboardTypes';
 
 interface PdfLog {
@@ -524,7 +524,8 @@ export default function AdminPage() {
             title: (data.title as string) ?? 'Bez názvu',
             createdAt: data.createdAt?.toDate ? data.createdAt.toDate().getTime() : null,
             folderId: null,
-            pdfBase64: (data.pdfBase64 as string) ?? '',
+            pdfBase64: data.pdfBase64,
+            pdfChunkCount: data.pdfChunkCount,
             ownerEmail: data.ownerEmail,
             ownerUid: uid,
             childNumber: data.childNumber,
@@ -568,10 +569,12 @@ export default function AdminPage() {
     );
   }, [allDocuments, docsSearchQuery]);
 
-  const handleDownloadDocument = (docItem: DocumentRecord) => {
-    if (!docItem.pdfBase64) return;
+  const handleDownloadDocument = async (docItem: DocumentRecord) => {
+    if (!docItem.ownerUid) return;
+    const base64 = await loadDocumentPdfBase64(docItem.ownerUid, docItem.id, docItem);
+    if (!base64) return;
     const safeName = docItem.title.replace(/[^\p{L}\p{N}._-]+/gu, '_');
-    downloadBase64Pdf(docItem.pdfBase64, `${safeName}.pdf`);
+    downloadBase64Pdf(base64, `${safeName}.pdf`);
   };
 
   // Export všech uložených dokumentů (dotazník + zvolená opatření) do jednoho
@@ -803,7 +806,7 @@ export default function AdminPage() {
                   </Link>
                   <button
                     onClick={() => handleDownloadDocument(docItem)}
-                    disabled={!docItem.pdfBase64}
+                    disabled={!docItem.pdfBase64 && !docItem.pdfChunkCount}
                     title="Stáhnout PDF"
                     className="p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
                   >

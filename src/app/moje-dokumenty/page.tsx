@@ -17,6 +17,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   doc,
   serverTimestamp,
   Timestamp,
@@ -24,7 +25,7 @@ import {
 } from 'firebase/firestore';
 import { FolderSidebar } from '@/components/dashboard/FolderSidebar';
 import { DocumentList } from '@/components/dashboard/DocumentList';
-import { downloadBase64Pdf } from '@/lib/generateSummaryPdf';
+import { downloadBase64Pdf, loadDocumentPdfBase64 } from '@/lib/generateSummaryPdf';
 import type { DocumentRecord, FolderRecord, FolderSelection } from '@/lib/dashboardTypes';
 
 function toMillis(ts: unknown): number | null {
@@ -62,7 +63,8 @@ function DashboardContent() {
             title: (data.title as string) ?? 'Bez názvu',
             createdAt: toMillis(data.createdAt),
             folderId: (data.folderId as string | null) ?? null,
-            pdfBase64: (data.pdfBase64 as string) ?? '',
+            pdfBase64: data.pdfBase64,
+            pdfChunkCount: data.pdfChunkCount,
             childNumber: data.childNumber,
             childAge: data.childAge,
             childAgeYears: data.childAgeYears,
@@ -143,13 +145,20 @@ function DashboardContent() {
   };
 
   const handleDelete = async (docId: string) => {
-    await deleteDoc(doc(db, 'users', user.uid, 'documents', docId));
+    // Smazat i případné kousky PDF v podkolekci pdfChunks — jinak by po smazání
+    // hlavního dokumentu zůstaly osiřelé (Firestore podkolekce nemaže automaticky).
+    const chunkSnap = await getDocs(collection(db, 'users', user.uid, 'documents', docId, 'pdfChunks'));
+    const batch = writeBatch(db);
+    chunkSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(doc(db, 'users', user.uid, 'documents', docId));
+    await batch.commit();
   };
 
-  const handleDownload = (docItem: DocumentRecord) => {
-    if (!docItem.pdfBase64) return;
+  const handleDownload = async (docItem: DocumentRecord) => {
+    const base64 = await loadDocumentPdfBase64(user.uid, docItem.id, docItem);
+    if (!base64) return;
     const safeName = docItem.title.replace(/[^\p{L}\p{N}._-]+/gu, '_');
-    downloadBase64Pdf(docItem.pdfBase64, `${safeName}.pdf`);
+    downloadBase64Pdf(base64, `${safeName}.pdf`);
   };
 
   // Znovu otevře katalog předvyplněný podle tohoto dokumentu (dotazník i vybraná

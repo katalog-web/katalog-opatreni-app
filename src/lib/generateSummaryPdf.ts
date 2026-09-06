@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas-pro';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebase';
 
 const PDF_PAGE_WIDTH_MM = 210; // A4
 const PDF_PAGE_HEIGHT_MM = 297;
@@ -48,6 +50,13 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
       clonedDoc.querySelectorAll<HTMLElement>('.overflow-y-auto').forEach((el) => {
         el.style.maxHeight = 'none';
         el.style.overflow = 'visible';
+      });
+      // Barevné podbarvení (zelená/oranžová) je hezké na obrazovce, ale v PDF/tisku
+      // zbytečně spotřebovává barvu a působí méně formálně — pro export se nahrazuje
+      // neutrální bílou/šedou, na živém webu se appka nijak nemění (upravuje se jen klon).
+      clonedDoc.querySelectorAll<HTMLElement>('[data-pdf-plain-bg]').forEach((el) => {
+        el.style.backgroundColor = '#ffffff';
+        el.style.borderColor = '#e2e8f0';
       });
     },
   });
@@ -117,6 +126,44 @@ export function base64ByteSize(base64: string): number {
   const clean = base64.split(',').pop() ?? base64;
   const padding = clean.endsWith('==') ? 2 : clean.endsWith('=') ? 1 : 0;
   return Math.floor((clean.length * 3) / 4) - padding;
+}
+
+// Firestore má tvrdý limit ~1 MiB na jeden dokument. Appka běží jen na bezplatném
+// Spark plánu (žádné Firebase Storage), proto se delší PDF ukládá rozdělené na víc
+// menších dokumentů (viz users/{uid}/documents/{docId}/pdfChunks v page.tsx) místo
+// jednoho velkého pole — appka je pak sama za sebou zase poskládá.
+export const PDF_CHUNK_SIZE = 900_000; // znaků na kousek, bezpečně pod 1 MiB limitem
+
+/** Rozdělí base64 řetězec na kousky, které se každý vejdou do jednoho Firestore dokumentu. */
+export function splitBase64IntoChunks(base64: string): string[] {
+  const chunks: string[] = [];
+  for (let i = 0; i < base64.length; i += PDF_CHUNK_SIZE) {
+    chunks.push(base64.slice(i, i + PDF_CHUNK_SIZE));
+  }
+  return chunks.length > 0 ? chunks : [''];
+}
+
+/**
+ * Načte a poskládá base64 PDF pro uložený dokument dítěte. Novější dokumenty ho
+ * mají rozdělené na kousky v podkolekci `pdfChunks` (viz splitBase64IntoChunks
+ * výše) — tahle funkce je stáhne a spojí zpátky dohromady. Starší dokumenty, které
+ * mají pdfBase64 uložené přímo v hlavním dokumentu, vrátí beze změny (zpětná
+ * kompatibilita). Vrátí null, pokud dokument žádné PDF nemá.
+ */
+export async function loadDocumentPdfBase64(
+  ownerUid: string,
+  docId: string,
+  existing?: { pdfBase64?: string; pdfChunkCount?: number }
+): Promise<string | null> {
+  if (existing?.pdfBase64) return existing.pdfBase64;
+  if (!existing?.pdfChunkCount) return null;
+
+  const chunkSnaps = await Promise.all(
+    Array.from({ length: existing.pdfChunkCount }, (_, i) =>
+      getDoc(doc(db, 'users', ownerUid, 'documents', docId, 'pdfChunks', String(i)))
+    )
+  );
+  return chunkSnaps.map((snap) => (snap.exists() ? ((snap.data().data as string) ?? '') : '')).join('');
 }
 
 /** Spustí stažení PDF uloženého jako čistý base64 (bez "data:" prefixu) v prohlížeči. */

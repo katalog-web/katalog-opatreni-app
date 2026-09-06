@@ -11,7 +11,11 @@ export interface DocumentRecord {
   title: string;
   createdAt: number | null;
   folderId: string | null;
-  pdfBase64: string;
+  // Starší dokumenty mají PDF přímo tady (base64). Novější ho mají rozdělené na
+  // kousky v podkolekci pdfChunks (viz pdfChunkCount) — appka je při stažení
+  // sama poskládá, viz loadDocumentPdfBase64 v moje-dokumenty/admin stránkách.
+  pdfBase64?: string;
+  pdfChunkCount?: number;
   ownerEmail?: string;
   ownerUid?: string;
   childNumber?: string;

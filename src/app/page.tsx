@@ -9,9 +9,9 @@ import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { MeasureCard, Choice } from '@/components/MeasureCard';
 import { ChevronDown, CheckCircle2, HelpCircle, FileDown, Loader2, User, Search, X, BookOpen } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment } from 'firebase/firestore';
+import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment, writeBatch } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth-context';
-import { buildSummaryPdfFromElement, base64ByteSize } from '@/lib/generateSummaryPdf';
+import { buildSummaryPdfFromElement, splitBase64IntoChunks } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
 import measuresData from '@/data/measures.json';
 
@@ -22,9 +22,6 @@ interface Measure {
   opatreni: string;
   krok: string;
 }
-
-// Firestore limituje dokument na 1 MB; base64 přidává ~33 % režie navrch.
-const MAX_PDF_BASE64_BYTES = 900_000;
 
 // Rozdělí název listu ("I.2 Modifikace metod...") na číslo ("I.2") a popisek,
 // ať se v záložkách dají zobrazit na dvou oddělených, zarovnaných řádcích.
@@ -155,74 +152,81 @@ export default function Home() {
       const dataUri = pdfDoc.output('datauristring');
       const pdfBase64 = dataUri.split(',').pop() || '';
 
-      if (base64ByteSize(pdfBase64) > MAX_PDF_BASE64_BYTES) {
-        setSaveError('Souhrn je bohužel příliš velký na uložení do dashboardu. PDF si prosím stáhněte a uložte ručně.');
-      } else {
-        const docRef = doc(collection(db, 'users', user.uid, 'documents'));
-        const title = childNumber
-          ? `Dítě č. ${childNumber} - ${new Date().toLocaleDateString('cs-CZ')}`
-          : `Souhrn ${new Date().toLocaleDateString('cs-CZ')} ${new Date().toLocaleTimeString('cs-CZ')}`;
-        const childAge = formatChildAge(childAgeYears, childAgeMonths);
-        const searchText = [title, childNumber, childAge, childGender, childGrade, childNeeds, teacherEmail, role, schoolType, studentCount, purpose]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
+      const docRef = doc(collection(db, 'users', user.uid, 'documents'));
+      const title = childNumber
+        ? `Dítě č. ${childNumber} - ${new Date().toLocaleDateString('cs-CZ')}`
+        : `Souhrn ${new Date().toLocaleDateString('cs-CZ')} ${new Date().toLocaleTimeString('cs-CZ')}`;
+      const childAge = formatChildAge(childAgeYears, childAgeMonths);
+      const searchText = [title, childNumber, childAge, childGender, childGrade, childNeeds, teacherEmail, role, schoolType, studentCount, purpose]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-        await setDoc(docRef, {
-          title,
-          createdAt: serverTimestamp(),
-          folderId: null,
-          pdfBase64,
-          // Umožňuje administrátorovi (na jeho vlastní žádost) dohledat, komu
-          // dokument patří, když prochází Uložené dokumenty v administraci —
-          // samotné uid v cestě dokumentu k tomu nestačí.
-          ownerEmail: teacherEmail,
-          childNumber,
-          childAge,
-          childAgeYears,
-          childAgeMonths,
-          childGender,
-          childGrade,
-          childNeeds,
-          role,
-          schoolType,
-          studentCount,
-          purpose,
-          pouzijuCount: pouzijuC,
-          spzCount: spzC,
-          choices: userChoices,
-          notes: userNotes,
-          searchText,
-        });
+      // Appka běží jen na bezplatném Firebase Spark plánu (žádné Firebase Storage,
+      // to vyžaduje placený Blaze) a jeden Firestore dokument smí mít nejvýš ~1 MB —
+      // delší souhrn (hodně vybraných opatření) by to snadno přesáhl. PDF se proto
+      // ukládá rozdělené na menší kousky do podkolekce pdfChunks; appka je při
+      // stahování zase sama poskládá (viz moje-dokumenty a admin stránky).
+      const chunks = splitBase64IntoChunks(pdfBase64);
+      const batch = writeBatch(db);
+      batch.set(docRef, {
+        title,
+        createdAt: serverTimestamp(),
+        folderId: null,
+        pdfChunkCount: chunks.length,
+        // Umožňuje administrátorovi (na jeho vlastní žádost) dohledat, komu
+        // dokument patří, když prochází Uložené dokumenty v administraci —
+        // samotné uid v cestě dokumentu k tomu nestačí.
+        ownerEmail: teacherEmail,
+        childNumber,
+        childAge,
+        childAgeYears,
+        childAgeMonths,
+        childGender,
+        childGrade,
+        childNeeds,
+        role,
+        schoolType,
+        studentCount,
+        purpose,
+        pouzijuCount: pouzijuC,
+        spzCount: spzC,
+        choices: userChoices,
+        notes: userNotes,
+        searchText,
+      });
+      chunks.forEach((chunk, i) => {
+        batch.set(doc(db, 'users', user.uid, 'documents', docRef.id, 'pdfChunks', String(i)), { data: chunk });
+      });
+      await batch.commit();
 
-        // Souhrnná (anonymní) statistika pro administraci — jen počty a UID, žádná
-        // data o dítěti. Best-effort, stažení PDF tím nikdy neblokujeme.
-        setDoc(
-          doc(db, 'config', 'stats'),
-          {
-            generatedUserIds: arrayUnion(user.uid),
-            totalDocumentsGenerated: increment(1),
-            totalPouzijuChoicesSum: increment(pouzijuC),
-            lastGeneratedAt: serverTimestamp(),
-          },
-          { merge: true }
-        ).catch((err) => console.error('Nepodařilo se zaevidovat generování do statistik:', err));
+      // Souhrnná (anonymní) statistika pro administraci — jen počty a UID, žádná
+      // data o dítěti. Best-effort, stažení PDF tím nikdy neblokujeme.
+      setDoc(
+        doc(db, 'config', 'stats'),
+        {
+          generatedUserIds: arrayUnion(user.uid),
+          totalDocumentsGenerated: increment(1),
+          totalPouzijuChoicesSum: increment(pouzijuC),
+          lastGeneratedAt: serverTimestamp(),
+        },
+        { merge: true }
+      ).catch((err) => console.error('Nepodařilo se zaevidovat generování do statistik:', err));
 
-        // Přehled generovaných PDF pro administraci (sekce "Uživatelé a přístupy" →
-        // "Přehled uživatelů" i samostatná sekce níž) — na výslovnou žádost
-        // administrátorky opět živé, jeden záznam na každé vygenerování PDF.
-        addDoc(collection(db, 'pdf_logs'), {
-          email: teacherEmail,
-          role,
-          schoolType,
-          studentCount,
-          purpose,
-          pouzijuCount: pouzijuC,
-          spzCount: spzC,
-          timestamp: new Date().toISOString(),
-          choices: userChoices,
-        }).catch((err) => console.error('Nepodařilo se zaevidovat generování do přehledu PDF:', err));
-      }
+      // Přehled generovaných PDF pro administraci (sekce "Uživatelé a přístupy" →
+      // "Přehled uživatelů" i samostatná sekce níž) — na výslovnou žádost
+      // administrátorky opět živé, jeden záznam na každé vygenerování PDF.
+      addDoc(collection(db, 'pdf_logs'), {
+        email: teacherEmail,
+        role,
+        schoolType,
+        studentCount,
+        purpose,
+        pouzijuCount: pouzijuC,
+        spzCount: spzC,
+        timestamp: new Date().toISOString(),
+        choices: userChoices,
+      }).catch((err) => console.error('Nepodařilo se zaevidovat generování do přehledu PDF:', err));
     } catch (err) {
       console.error('Nepodařilo se uložit dokument do dashboardu:', err);
       setSaveError('Nepodařilo se uložit dokument do „Moje dokumenty". PDF si ale můžete stáhnout níže.');
@@ -1032,7 +1036,7 @@ export default function Home() {
                   if (!sheetHasPouzi) return null;
                   
                   return (
-                    <div key={sheet} className="bg-brand-green/5 rounded-xl p-6 border border-brand-green/20">
+                    <div key={sheet} data-pdf-plain-bg className="bg-brand-green/5 rounded-xl p-6 border border-brand-green/20">
                       <h4 data-pdf-block className="text-xs font-semibold text-brand-green/80 uppercase tracking-wide mb-5">
                         List: {sheet}
                       </h4>
@@ -1102,7 +1106,7 @@ export default function Home() {
                   if (!sheetHasSpz) return null;
                   
                   return (
-                    <div key={sheet} className="bg-brand-orange/5 rounded-xl p-6 border border-brand-orange/20">
+                    <div key={sheet} data-pdf-plain-bg className="bg-brand-orange/5 rounded-xl p-6 border border-brand-orange/20">
                       <h4 data-pdf-block className="text-xs font-semibold text-brand-orange/80 uppercase tracking-wide mb-5">
                         List: {sheet}
                       </h4>
