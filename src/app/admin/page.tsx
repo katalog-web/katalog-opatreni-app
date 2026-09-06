@@ -463,8 +463,8 @@ export default function AdminPage() {
 
   useEffect(() => { if (isAdmin) fetchLogs(); }, [isAdmin]);
 
-  // Souhrnné statistiky používání appky (config/stats) — nahrazují starší karty
-  // postavené na pdf_logs/login_logs, do kterých nová appka už nezapisuje.
+  // Souhrnné (anonymní) statistiky používání appky (config/stats) — doplňují
+  // podrobnější, ale méně anonymní přehled z pdf_logs/login_logs níž.
   const [appStats, setAppStats] = useState<AppStats | null>(null);
 
   const fetchAppStats = async () => {
@@ -526,13 +526,22 @@ export default function AdminPage() {
             folderId: null,
             pdfBase64: (data.pdfBase64 as string) ?? '',
             ownerEmail: data.ownerEmail,
+            ownerUid: uid,
             childNumber: data.childNumber,
             childAge: data.childAge,
+            childAgeYears: data.childAgeYears,
+            childAgeMonths: data.childAgeMonths,
+            childGender: data.childGender,
+            childGrade: data.childGrade,
+            childNeeds: data.childNeeds,
             role: data.role,
             schoolType: data.schoolType,
+            studentCount: data.studentCount,
             purpose: data.purpose,
             pouzijuCount: (data.pouzijuCount as number) ?? 0,
             spzCount: (data.spzCount as number) ?? 0,
+            choices: data.choices,
+            notes: data.notes,
             searchText: data.searchText,
           } as DocumentRecord);
         });
@@ -563,6 +572,73 @@ export default function AdminPage() {
     if (!docItem.pdfBase64) return;
     const safeName = docItem.title.replace(/[^\p{L}\p{N}._-]+/gu, '_');
     downloadBase64Pdf(docItem.pdfBase64, `${safeName}.pdf`);
+  };
+
+  // Export všech uložených dokumentů (dotazník + zvolená opatření) do jednoho
+  // Excelu se dvěma přehlednými listy: souhrn po dokumentech a detailní rozpad
+  // po jednotlivých vybraných opatřeních.
+  const [exportDocsSuccess, setExportDocsSuccess] = useState(false);
+
+  const handleExportDocumentsExcel = () => {
+    setExportDocsSuccess(true);
+    try {
+      const measureMap: Record<string, any> = {};
+      (measuresData as any[]).forEach((m) => { measureMap[m.id] = m; });
+
+      const overviewRows = allDocuments.map((d) => ({
+        'Dokument': d.title,
+        'Vlastník (e-mail)': d.ownerEmail || '',
+        'Vytvořeno': d.createdAt ? new Date(d.createdAt).toLocaleString('cs-CZ') : '',
+        'Číslo dítěte': d.childNumber || '',
+        'Věk dítěte': d.childAge || '',
+        'Pohlaví': d.childGender || '',
+        'Ročník': d.childGrade || '',
+        'Projevy a potřeby dítěte': d.childNeeds || '',
+        'Role': d.role || '',
+        'Typ školy': d.schoolType || '',
+        'Počet žáků ve škole': d.studentCount || '',
+        'Účel práce': d.purpose || '',
+        'Použiju v PO1 (počet)': d.pouzijuCount,
+        'Předat ŠPZ (počet)': d.spzCount,
+      }));
+
+      const detailRows: any[] = [];
+      allDocuments.forEach((d) => {
+        if (!d.choices) return;
+        Object.entries(d.choices).forEach(([measureId, choice]) => {
+          const m = measureMap[measureId];
+          if (!m) return;
+          detailRows.push({
+            'Dokument': d.title,
+            'Vlastník (e-mail)': d.ownerEmail || '',
+            'List': m.sheetName,
+            'Oblast': m.oblast,
+            'Krok': m.krok,
+            'Volba': choice === 'POUZIJU' ? 'Použiju v PO1' : 'Předat ŠPZ',
+            'Poznámka': (d.notes && (d.notes as Record<string, string>)[measureId]) || '',
+          });
+        });
+      });
+
+      const overviewSheet = XLSX.utils.json_to_sheet(overviewRows);
+      overviewSheet['!cols'] = [
+        { wch: 28 }, { wch: 26 }, { wch: 18 }, { wch: 14 }, { wch: 12 }, { wch: 10 },
+        { wch: 10 }, { wch: 30 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 24 },
+        { wch: 12 }, { wch: 12 },
+      ];
+
+      const detailSheet = XLSX.utils.json_to_sheet(detailRows);
+      detailSheet['!cols'] = [{ wch: 28 }, { wch: 26 }, { wch: 16 }, { wch: 22 }, { wch: 60 }, { wch: 16 }, { wch: 30 }];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, overviewSheet, 'Dokumenty');
+      XLSX.utils.book_append_sheet(workbook, detailSheet, 'Opatření');
+      XLSX.writeFile(workbook, 'katalog_ulozene_dokumenty.xlsx');
+    } catch (err) {
+      console.error('Export uložených dokumentů do Excelu selhal:', err);
+    } finally {
+      setTimeout(() => setExportDocsSuccess(false), 1500);
+    }
   };
 
   const handleDelete = async (docId: string) => {
@@ -607,8 +683,8 @@ export default function AdminPage() {
         </div>
       </nav>
 
-      {/* Statistiky — postavené na config/stats (souhrnná, anonymní čísla), ne na
-          starších pdf_logs/login_logs, do kterých už nová appka nezapisuje. */}
+      {/* Statistiky — postavené na config/stats (souhrnná, anonymní čísla).
+          Podrobnější (ale méně anonymní) přehled je v sekcích níž. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         <div className="bg-brand-navy/5 p-6 rounded-3xl border border-brand-surface/30 text-center">
           <p className="text-4xl font-extrabold text-brand-navy">
@@ -649,13 +725,27 @@ export default function AdminPage() {
             Uložené dokumenty
             <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{allDocuments.length}</span>
           </h2>
-          <button
-            onClick={fetchAllDocuments}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Obnovit
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportDocumentsExcel}
+              disabled={allDocuments.length === 0}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl transition-all border disabled:opacity-40 ${
+                exportDocsSuccess
+                  ? 'bg-brand-green/10 border-brand-green/30 text-brand-green'
+                  : 'bg-white hover:bg-brand-bg border-brand-surface/40 text-brand-navy/60 hover:text-brand-navy shadow-sm'
+              }`}
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exportDocsSuccess ? 'Ukládám...' : 'Exportovat do Excelu'}
+            </button>
+            <button
+              onClick={fetchAllDocuments}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Obnovit
+            </button>
+          </div>
         </div>
 
         <div className="p-4 border-b border-brand-surface/20">
@@ -704,14 +794,22 @@ export default function AdminPage() {
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDownloadDocument(docItem)}
-                  disabled={!docItem.pdfBase64}
-                  title="Stáhnout PDF"
-                  className="flex-shrink-0 p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
-                >
-                  <Download className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Link
+                    href={`/admin/detail?id=${docItem.id}&uid=${docItem.ownerUid ?? ''}`}
+                    className="px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/10 rounded-lg border border-transparent hover:border-brand-green/20 transition-all whitespace-nowrap"
+                  >
+                    Detail →
+                  </Link>
+                  <button
+                    onClick={() => handleDownloadDocument(docItem)}
+                    disabled={!docItem.pdfBase64}
+                    title="Stáhnout PDF"
+                    className="p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

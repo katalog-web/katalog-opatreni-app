@@ -13,6 +13,7 @@ export interface DocumentRecord {
   folderId: string | null;
   pdfBase64: string;
   ownerEmail?: string;
+  ownerUid?: string;
   childNumber?: string;
   childAge?: string;
   childAgeYears?: string;

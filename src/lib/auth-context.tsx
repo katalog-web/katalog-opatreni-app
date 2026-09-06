@@ -10,7 +10,7 @@ import {
   updateProfile,
   User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 
 interface AuthContextValue {
@@ -51,6 +51,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               { visitedUserIds: arrayUnion(firebaseUser.uid) },
               { merge: true }
             ).catch((err) => console.error('Nepodařilo se zaevidovat návštěvu do statistik:', err));
+
+            // Historie přihlášení pro administraci (sekce "Uživatelé a přístupy" →
+            // "Historie přihlášení") — na výslovnou žádost administrátorky opět
+            // živá, jeden záznam na každé přihlášení. Best-effort, nikdy neblokuje.
+            addDoc(collection(db, 'login_logs'), {
+              email: myEmail,
+              timestamp: new Date().toISOString(),
+            }).catch((err) => console.error('Nepodařilo se zaevidovat přihlášení do historie:', err));
 
             const adminSnap = await getDoc(doc(db, 'config', 'admins', 'members', myEmail));
             const admin = adminSnap.exists();

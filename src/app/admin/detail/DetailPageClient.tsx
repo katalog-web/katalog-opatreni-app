@@ -14,6 +14,11 @@ import measuresData from '@/data/measures.json';
 export default function DetailPageClient() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+  // Detail umí zobrazit dva zdroje: starší pdf_logs/{id} (bez uid v URL, zpětná
+  // kompatibilita se staršími odkazy z "Přehled generovaných PDF"), nebo skutečný
+  // uložený dokument uživatele users/{uid}/documents/{id} (nový odkaz z "Uložené
+  // dokumenty", nese uid v URL).
+  const uid = searchParams.get('uid');
   const [log, setLog] = useState<any>(null);
   const [measures, setMeasures] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,11 +30,18 @@ export default function DetailPageClient() {
 
     const fetchData = async () => {
       try {
-        // 1. Načíst konkrétní log z Firebase
         if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-          const docSnap = await getDoc(doc(db, 'pdf_logs', id));
+          const docSnap = uid
+            ? await getDoc(doc(db, 'users', uid, 'documents', id))
+            : await getDoc(doc(db, 'pdf_logs', id));
           if (docSnap.exists()) {
-            setLog(docSnap.data());
+            const data: any = docSnap.data();
+            // Sjednotit rozdílné názvy polí mezi oběma zdroji, ať zbytek stránky
+            // může počítat s jedním tvarem (log.email, log.timestamp, ...).
+            const email = data.email ?? data.ownerEmail ?? null;
+            const timestamp = data.timestamp
+              ?? (data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt ?? null);
+            setLog({ ...data, email, timestamp });
           }
         }
 
@@ -43,7 +55,7 @@ export default function DetailPageClient() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, uid]);
 
   if (isLoading) return <div className="p-24 text-center animate-pulse text-brand-navy/50">Načítám detail...</div>;
   if (!log) return <div className="p-24 text-center text-brand-navy/60">Záznam nenalezen. <Link href="/admin" className="text-brand-green underline">Zpět</Link></div>;
@@ -178,6 +190,11 @@ export default function DetailPageClient() {
                                         <div className="text-xs font-bold text-brand-navy/40 mb-1">{opatreni}</div>
                                       )}
                                       <div className="font-medium text-brand-navy leading-snug">{m.krok}</div>
+                                      {log.notes && log.notes[m.id] && (
+                                        <div className="text-sm text-brand-navy/60 italic mt-1.5 pt-1.5 border-t border-brand-surface/30">
+                                          Poznámka: {log.notes[m.id]}
+                                        </div>
+                                      )}
                                     </div>
                                   </li>
                                 ));

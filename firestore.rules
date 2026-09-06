@@ -11,10 +11,9 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/config/admins/members/$(request.auth.token.email.lower()));
     }
 
-    // Starší logy z předchozí verze appky (bez Firebase Auth) — "create" zůstává
-    // veřejné kvůli zpětné kompatibilitě s aktuálně nasazenou produkční verzí, která
-    // sem zapisuje bez přihlášení. Čtení a mazání (dřív "if true" pro kohokoliv na
-    // internetu) je teď omezené jen na administrátory.
+    // Přehled přihlášení a generování PDF pro administraci (sekce "Uživatelé a
+    // přístupy"). "create" zůstává bez podmínky auth (appka sem historicky zapisovala
+    // i bez přihlášení) — čtení a mazání je omezené jen na administrátory.
     match /login_logs/{docId} {
       allow create: if true;
       allow read, delete: if isAdmin();

@@ -3,6 +3,15 @@ import html2canvas from 'html2canvas-pro';
 
 const PDF_PAGE_WIDTH_MM = 210; // A4
 const PDF_PAGE_HEIGHT_MM = 297;
+// Bezpečný okraj — spousta tiskáren fyzicky nezvládne tisknout až do kraje papíru.
+// 10 mm zvládne prakticky každá běžná tiskárna i při ručním vytisknutí PDF doma/ve škole.
+const PRINT_MARGIN_MM = 10;
+const PRINTABLE_WIDTH_MM = PDF_PAGE_WIDTH_MM - 2 * PRINT_MARGIN_MM;
+const PRINTABLE_HEIGHT_MM = PDF_PAGE_HEIGHT_MM - 2 * PRINT_MARGIN_MM;
+// Nejvýš tolik prázdného místa jsme ochotni "obětovat", abychom se vyhnuli přeříznutí
+// jednoho bloku (kroku/poznámky) mezi dvě stránky — u mimořádně dlouhého bloku je
+// menší zlo nechat ho přetéct, než na jeho kvůli němu nechat půl stránky prázdné.
+const MAX_PAGE_BREAK_WASTE_MM = 50;
 
 /**
  * Zachytí vykreslenou HTML sekci (typicky #print-summary) jako obrázek a poskládá ji
@@ -11,13 +20,11 @@ const PDF_PAGE_HEIGHT_MM = 297;
  *
  * Prvky s třídou `no-print` se do snímku nezahrnou (stejná konvence jako u tiskové CSS).
  * Vnořené scrollovatelné seznamy (`overflow-y-auto`) se dočasně "rozbalí", aby se do
- * snímku dostal celý obsah, ne jen viditelná část.
+ * snímku dostal celý obsah, ne jen viditelná část. Obsah se skládá s bezpečným okrajem
+ * (viz PRINT_MARGIN_MM) a řez mezi stránkami se vyhýbá atomickým blokům (viz `data-pdf-block`
+ * v page.tsx), ať se text kroku/poznámky nikdy nerozdělí uprostřed věty.
  */
 export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<jsPDF> {
-  // Atomické bloky (jednotlivý krok opatření, hlavička dotazníku) — řez stránky PDF
-  // do nich nikdy nesmí padnout doprostřed, jinak se text věty přeřízne napůl mezi
-  // dvě stránky. Měříme na živém DOM (ne na klonu), protože rozvržení #print-summary
-  // žádné vlastní scrollovací kontejnery nemá, takže odpovídá tomu, co zachytí html2canvas.
   const containerRect = element.getBoundingClientRect();
   const forbiddenRanges = Array.from(element.querySelectorAll<HTMLElement>('[data-pdf-block]'))
     .map((el) => {
@@ -26,8 +33,13 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     })
     .filter((r) => r.bottom > r.top);
 
+  // Pevné (na obrazovce appky nezávislé) rozlišení snímku — dřív se používalo
+  // window.devicePixelRatio, které je na běžných (ne-Retina) monitorech jen 1, což
+  // dělalo z textu na celou A4 stránku rozmazaný obrázek. Kvalita tisku/čtení PDF
+  // nemá s hustotou pixelů obrazovky nic společného, proto teď appka vždy vykresluje
+  // ve vyšším, pevném rozlišení.
   const canvas = await html2canvas(element, {
-    scale: Math.min(2, window.devicePixelRatio || 1.5),
+    scale: 2.2,
     useCORS: true,
     backgroundColor: '#ffffff',
     ignoreElements: (el) => el.classList?.contains('no-print'),
@@ -39,27 +51,33 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     },
   });
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.85);
-  const imgWidthMm = PDF_PAGE_WIDTH_MM;
-  const pxPerMm = canvas.width / imgWidthMm; // poměr canvas px ↔ mm, stejný pro obě osy
+  // PNG místo JPEG — obsah je téměř výhradně text na plochém pozadí, kde PNG
+  // komprimuje dobře a bez ztrátových artefaktů, které by ostrost písma zhoršovaly.
+  const imgData = canvas.toDataURL('image/png');
+  const pxPerMm = canvas.width / PRINTABLE_WIDTH_MM; // poměr canvas px ↔ mm, stejný pro obě osy
   const imgHeightMm = canvas.height / pxPerMm;
-  const pageHeightPx = PDF_PAGE_HEIGHT_MM * pxPerMm;
+  const pageHeightPx = PRINTABLE_HEIGHT_MM * pxPerMm;
   const totalHeightPx = canvas.height;
 
   // Zakázané pásy převedené z DOM souřadnic (CSS px) do canvas pixelů. Bloky vyšší
-  // než jedna celá stránka nejde rozumně ochránit (např. mimořádně dlouhá poznámka)
-  // — u těch necháváme původní chování, ať appka nikdy nezacyklí.
+  // než polovina tiskové oblasti stránky se neochraňují — jinak by jediný mimořádně
+  // dlouhý blok (např. dlouhá poznámka) mohl kvůli sobě nechat prázdnou skoro celou stránku.
   const domToCanvasScale = canvas.width / element.offsetWidth;
   const forbiddenPx = forbiddenRanges
     .map((r) => ({ top: r.top * domToCanvasScale, bottom: r.bottom * domToCanvasScale }))
-    .filter((r) => r.bottom - r.top < pageHeightPx);
+    .filter((r) => r.bottom - r.top < pageHeightPx * 0.5);
 
   /** Pokud by navržený řez stránky padl doprostřed nějakého atomického bloku,
-   * posune ho na jeho začátek — celý blok se pak zobrazí až na další stránce. */
+   * posune ho na jeho začátek — celý blok se pak zobrazí až na další stránce.
+   * Pokud by to ale znamenalo obětovat víc než MAX_PAGE_BREAK_WASTE_MM prázdného
+   * místa, radši necháme původní (naivní) řez, než plýtvat velkou částí stránky. */
   function adjustBreak(candidatePx: number, pageTopPx: number): number {
     for (const r of forbiddenPx) {
       if (candidatePx > r.top && candidatePx < r.bottom) {
-        return r.top > pageTopPx ? r.top : candidatePx;
+        if (r.top <= pageTopPx) return candidatePx;
+        const wastedMm = (candidatePx - r.top) / pxPerMm;
+        if (wastedMm > MAX_PAGE_BREAK_WASTE_MM) return candidatePx;
+        return r.top;
       }
     }
     return candidatePx;
@@ -75,16 +93,18 @@ export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<
     if (endPx <= cursorPx) endPx = naiveEndPx; // pojistka proti nekonečné smyčce
 
     if (pageIndex > 0) doc.addPage();
-    const yOffsetMm = -cursorPx / pxPerMm;
-    doc.addImage(imgData, 'JPEG', 0, yOffsetMm, imgWidthMm, imgHeightMm);
+    const yOffsetMm = PRINT_MARGIN_MM - cursorPx / pxPerMm;
+    doc.addImage(imgData, 'PNG', PRINT_MARGIN_MM, yOffsetMm, PRINTABLE_WIDTH_MM, imgHeightMm);
 
-    // Když jsme řez posunuli výš kvůli ochraně bloku, zbytek téhle stránky (kde by
-    // se jinak zobrazil jen kousek toho bloku) přemalujeme bílou, ať zůstane prázdný.
+    // Horní okraj vždy přemalovat bílou — obrázek je jeden nepřerušený pás přes
+    // všechny stránky, takže by se sem jinak "prosvítal" už zobrazený spodek
+    // předchozí stránky. Stejně tak spodní okraj a případný kousek chráněného
+    // bloku, co by jinak vyčníval přes navržený řez.
     const visibleHeightMm = (endPx - cursorPx) / pxPerMm;
-    if (visibleHeightMm < PDF_PAGE_HEIGHT_MM) {
-      doc.setFillColor(255, 255, 255);
-      doc.rect(0, visibleHeightMm, PDF_PAGE_WIDTH_MM, PDF_PAGE_HEIGHT_MM - visibleHeightMm, 'F');
-    }
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, PDF_PAGE_WIDTH_MM, PRINT_MARGIN_MM, 'F');
+    const blankFromMm = PRINT_MARGIN_MM + visibleHeightMm;
+    doc.rect(0, blankFromMm, PDF_PAGE_WIDTH_MM, PDF_PAGE_HEIGHT_MM - blankFromMm, 'F');
 
     cursorPx = endPx;
     pageIndex += 1;

@@ -9,7 +9,7 @@ import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { MeasureCard, Choice } from '@/components/MeasureCard';
 import { ChevronDown, CheckCircle2, HelpCircle, FileDown, Loader2, User, Search, X, BookOpen } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, serverTimestamp, arrayUnion, increment } from 'firebase/firestore';
+import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth-context';
 import { buildSummaryPdfFromElement, base64ByteSize } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
@@ -207,6 +207,21 @@ export default function Home() {
           },
           { merge: true }
         ).catch((err) => console.error('Nepodařilo se zaevidovat generování do statistik:', err));
+
+        // Přehled generovaných PDF pro administraci (sekce "Uživatelé a přístupy" →
+        // "Přehled uživatelů" i samostatná sekce níž) — na výslovnou žádost
+        // administrátorky opět živé, jeden záznam na každé vygenerování PDF.
+        addDoc(collection(db, 'pdf_logs'), {
+          email: teacherEmail,
+          role,
+          schoolType,
+          studentCount,
+          purpose,
+          pouzijuCount: pouzijuC,
+          spzCount: spzC,
+          timestamp: new Date().toISOString(),
+          choices: userChoices,
+        }).catch((err) => console.error('Nepodařilo se zaevidovat generování do přehledu PDF:', err));
       }
     } catch (err) {
       console.error('Nepodařilo se uložit dokument do dashboardu:', err);
