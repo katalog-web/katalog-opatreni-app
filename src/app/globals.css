@@ -2,7 +2,8 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  
+  --font-body: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+
   /* Brand colors from Logo Manual */
   --color-brand-navy: #26325D;
   --color-brand-yellow: #FAB609;
@@ -57,14 +58,11 @@
     padding: 0 !important;
   }
 
-  /* Skrýt hlavičku, záložky, karty, progress bar – vše */
-  main > div:first-child,
-  main > div:nth-child(2),
-  main > div:nth-child(3) {
-    display: none !important;
-  }
-
-  /* Souhrn – zobrazit čistě */
+  /* Souhrn – zobrazit čistě. Skrývání zbytku stránky (hlavička, záložky, karty) řeší
+     výhradně třída .no-print/print:hidden přímo na daných prvcích (viz Header.tsx,
+     page.tsx) — dřív tu bylo i pozicové main > div:nth-child pravidlo, které bylo
+     křehké (spoléhalo na pořadí přímých potomků <main>, fungovalo jen náhodou díky
+     specificitě pravidla níže) a duplicitní, proto bylo odstraněno. */
   #print-summary {
     display: block !important;
     margin: 0 !important;

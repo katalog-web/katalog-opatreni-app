@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Open_Sans } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from '@/lib/auth-context';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter' });
+const openSans = Open_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-open-sans' });
 
 export const metadata: Metadata = {
   title: 'Katalog podpůrných opatření',
@@ -16,8 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cs" className="scroll-smooth">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 min-h-screen antialiased`}>
-        {children}
+      <body className={`${inter.variable} ${openSans.variable} font-sans bg-brand-bg text-brand-navy min-h-screen antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

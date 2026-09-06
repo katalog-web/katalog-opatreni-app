@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Pomocná funkce: je přihlášený uživatel administrátor? (existuje jeho vlastní
+    // dokument v config/admins/members). Custom claims (Admin SDK) nejde použít,
+    // protože organizace blokuje generování service account klíčů.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && exists(/databases/$(database)/documents/config/admins/members/$(request.auth.token.email.lower()));
+    }
+
+    // Starší logy z předchozí verze appky (bez Firebase Auth) — "create" zůstává
+    // veřejné kvůli zpětné kompatibilitě s aktuálně nasazenou produkční verzí, která
+    // sem zapisuje bez přihlášení. Čtení a mazání (dřív "if true" pro kohokoliv na
+    // internetu) je teď omezené jen na administrátory.
+    match /login_logs/{docId} {
+      allow create: if true;
+      allow read, delete: if isAdmin();
+    }
+    match /pdf_logs/{docId} {
+      allow create: if true;
+      allow read, delete: if isAdmin();
+    }
+
+    // Seznam administrátorů — jeden dokument na e-mail (ne jedno pole se všemi e-maily),
+    // aby běžný přihlášený uživatel nemohl přečíst kompletní seznam administrátorů:
+    // "get" (přečti si vlastní dokument) smí kdokoliv přihlášený jen pro svůj vlastní
+    // e-mail — tím appka pozná, jestli JE admin, aniž by viděla seznam ostatních.
+    // "list" (vypsat všechny) a "write" (přidat/odebrat) smí jen ten, kdo už admin je.
+    match /config/admins/members/{email} {
+      allow get: if request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email;
+      allow list, write: if isAdmin();
+    }
+
+    // Schvalování přístupu — administrátor ručně schvaluje, kdo appku (se zdarma
+    // poskytnutým přístupem k datům o dětech) smí používat. Stejný jeden-dokument-
+    // na-e-mail vzor jako u admins: "get" na vlastní e-mail smí kdokoliv přihlášený
+    // (appka tak pozná svůj vlastní stav), "list"/"write" jen administrátor.
+    match /config/approved_users/members/{email} {
+      allow get: if request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email;
+      allow list, write: if isAdmin();
+    }
+
+    // Žádost o schválení — vznikne automaticky při prvním přihlášení/registraci.
+    // Uživatel smí vytvořit/aktualizovat JEN svou vlastní žádost (podle e-mailu
+    // v tokenu, ne libovolně zvoleného ID) a přečíst si jen tu svou. Vypsat celý
+    // seznam čekajících žádostí a mazat (po schválení/zamítnutí) smí jen administrátor.
+    match /config/pending_users/members/{email} {
+      allow get: if request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email;
+      allow create, update: if request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email
+        && request.resource.data.email == request.auth.token.email;
+      allow list, delete: if isAdmin();
+    }
+
+    // Zpětná vazba z widgetu (nahlášení problému / komentář) — kdokoliv přihlášený smí
+    // přidat, ale číst a mazat smí jen administrátoři.
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Nové: osobní dashboard uživatele — dostupné jen jemu/jí (podle Firebase Auth uid)
+    match /users/{userId} {
+      match /folders/{folderId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      match /documents/{documentId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

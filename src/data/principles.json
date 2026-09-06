@@ -1,0 +1,1505 @@
+[
+  {
+    "id": "princ_1",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Nastavit transparentní systém hodnocení",
+    "krok": "Formulovat jasně a srozumitelně pravidla hodnocení, aby žáci přesně věděli, co se od nich očekává."
+  },
+  {
+    "id": "princ_2",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Nastavit transparentní systém hodnocení",
+    "krok": "Vymezit kritéria hodnocení s ohledem na individuální vzdělávací potřeby žáků"
+  },
+  {
+    "id": "princ_3",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Nastavit transparentní systém hodnocení",
+    "krok": "Zajistit jednotnost přístupu všech pedagogů k hodnocení, aby bylo férové a konzistentní napříč předměty a vyučujícími."
+  },
+  {
+    "id": "princ_4",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Nastavit transparentní systém hodnocení",
+    "krok": "Pravidelně školit pedagogy v oblasti sjednocení hodnoticích postupů a přizpůsobení hodnocení specifickým potřebám žáků."
+  },
+  {
+    "id": "princ_5",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Implementovat formativní hodnocení jako průběžný proces sběru zpětné vazby k podpoře učení\na rozvoji",
+    "krok": "Systematicky uplatňovat formativní hodnocení se srozumitelnou zpětnou vazbou."
+  },
+  {
+    "id": "princ_6",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Implementovat formativní hodnocení jako průběžný proces sběru zpětné vazby k podpoře učení\na rozvoji",
+    "krok": "Do procesu formativního hodnocení zapojit žáky a na základě výsledků upravovat výuku."
+  },
+  {
+    "id": "princ_7",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Implementovat formativní hodnocení jako průběžný proces sběru zpětné vazby k podpoře učení\na rozvoji",
+    "krok": "Připomínat systém hodnocení a zpětnou vazbu, aby žáci mohli sledovat svůj pokrok a věděli, jak se vyvíjí jejich výkon v průběhu času."
+  },
+  {
+    "id": "princ_8",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Implementovat formativní hodnocení jako průběžný proces sběru zpětné vazby k podpoře učení\na rozvoji",
+    "krok": "Školit pedagogy v metodách formativního hodnocení a jeho efektivní aplikaci v různých vzdělávacích situacích."
+  },
+  {
+    "id": "princ_9",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Jasně a srozumitelně objasnit žákům systém hodnocení, včetně kritérií, na základě kterých budou jejich výkony hodnoceny, co se od nich očekává v rámci plnění úkolů a projektů."
+  },
+  {
+    "id": "princ_10",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Upozornit žáky na důležitost jednotlivých kritérií, jako jsou samostatnost, kreativita, kvalita práce, úsilí, a jak tyto faktory ovlivňují celkové hodnocení"
+  },
+  {
+    "id": "princ_11",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Vysvětlit, jakým způsobem budou přidělovány známky, bodové hodnoty nebo slovní hodnocení, a co každé hodnocení znamená."
+  },
+  {
+    "id": "princ_12",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Poskytnout příklady různých typů hodnocení, aby žáci pochopili, že se hodnotí nejen výsledky, ale i proces učení,"
+  },
+  {
+    "id": "princ_13",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Umožnit žákům klást otázky a vyjasnit si případné nejasnosti týkající se systému hodnocení, aby se cítili se systémem hodnocení srozuměni."
+  },
+  {
+    "id": "princ_14",
+    "cisloKategorie": 1,
+    "kategorie": "Hodnocení, podpora učení",
+    "ucel": "Využití hodnocení pro učení",
+    "zamereni": "Kritéria hodnocení, formativní hodnocení, komunikace hodnocení",
+    "opatreni": "Srozumitně komunikovat systém hodnocení směrem k žákům a rodičům",
+    "krok": "Sjednotit proces hodnocení směrem k rodičům - např. triády"
+  },
+  {
+    "id": "princ_15",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Drilování jako nejčastější metoda výuky a opakování, může vést k únavě, ztrátě motivace, pozornosti a povrchnímu zapamatování"
+  },
+  {
+    "id": "princ_16",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Využívat kognitivní stimulaci prostřednictvím logických her, hádanek, hlavolamů, problémových úloh a úkolů s více řešeními."
+  },
+  {
+    "id": "princ_17",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Uplatňovat senzorickou stimulaci zapojením různých smyslů (např. hmatové pomůcky, práce s přírodními materiály, zvukové podněty, vizuální podněty)."
+  },
+  {
+    "id": "princ_18",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Podporovat sociální a emoční stimulaci prostřednictvím kooperativních her, skupinových projektů a činností rozvíjejících empatii a sebevyjádření."
+  },
+  {
+    "id": "princ_19",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Zařazovat motorickou stimulaci pomocí pohybových her, jemné i hrubé motoriky (např. manipulace s drobnými předměty, balanční cvičení, koordinační úkoly)."
+  },
+  {
+    "id": "princ_20",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zařazovat do výuky a podpůrných aktivit stimulační techniky, které podněcují rozvoj kognitivních, sociálních, emočních a motorických schopností žáka.",
+    "krok": "Přizpůsobovat stimulační techniky individuálním potřebám žáka a průběžně sledovat jejich vliv na jeho rozvoj a motivaci."
+  },
+  {
+    "id": "princ_21",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Podporovat a rozvíjet aktivní skupinovou spolupráci kooperativní výukou",
+    "krok": "Začít jednoduchými aktivitami a kooperativními hrami, postupně přecházet k náročnějším úkolům s reflexí skupinové činnosti."
+  },
+  {
+    "id": "princ_22",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Podporovat a rozvíjet aktivní skupinovou spolupráci kooperativní výukou",
+    "krok": "Nabízet úkoly, které aktivizují spolupráci na společných cílech s rozdělením na dílčí úkoly pro jednotlivce"
+  },
+  {
+    "id": "princ_23",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Podporovat a rozvíjet aktivní skupinovou spolupráci kooperativní výukou",
+    "krok": "Podporovat rozvoj skupinových dovedností nastavením pravidel, vytvořením prostoru a času, nabídkou materiálů."
+  },
+  {
+    "id": "princ_24",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Motivovat žáky k vyhledávání, kritické analýze a sdílení globálních informací s využitím jazyků, digitálních nástrojů a mezikulturních kontaktů.",
+    "krok": "Motivovat žáky k tomu, aby se aktivně zajímali o to, co se děje kolem nich nejen v jejich vlastní zemi, ale i ve světě. To zahrnuje nejen studium cizích jazyků, ale i rozšiřování osobního horizontu prostřednictvím knih, filmů, dokumentů, podcastů a dalších forem vzdělávání."
+  },
+  {
+    "id": "princ_25",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Motivovat žáky k vyhledávání, kritické analýze a sdílení globálních informací s využitím jazyků, digitálních nástrojů a mezikulturních kontaktů.",
+    "krok": "Zařazovat do výuky aktivity, které žáky motivují k vyhledávání informací o aktuálních celospolečenských tématech, a to nejen v České republice, ale i v zahraničí. Tato témata by měla zahrnovat globální problémy, kulturní rozmanitost, mezinárodní vztahy, ekologii nebo světovou ekonomiku, aby žáci pochopili význam těchto otázek pro jejich každodenní život."
+  },
+  {
+    "id": "princ_26",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Motivovat žáky k vyhledávání, kritické analýze a sdílení globálních informací s využitím jazyků, digitálních nástrojů a mezikulturních kontaktů.",
+    "krok": "Žáci by měli být motivováni k zájmu o cestování, což jim umožní osobně zažít různorodost světa, což podpoří jejich zájem o jiné kultury, tradice a způsoby života. Aktivity mohou zahrnovat přípravu a plánování fiktivních nebo skutečných cest, prezentace o různých destinacích nebo analýzu kulturních rozdílů."
+  },
+  {
+    "id": "princ_27",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Motivovat žáky k vyhledávání, kritické analýze a sdílení globálních informací s využitím jazyků, digitálních nástrojů a mezikulturních kontaktů.",
+    "krok": "Zařadit do výuky projekty, kde si žáci samostatně nebo ve skupinách vyhledávají informace o celospolečenských otázkách ve světě. Může jít o výzkum týkající se změny klimatu, globálního vzdělávání, lidských práv, migrace, mezinárodní politiky, nebo světového hospodářství. Projekty podporují nejen akademické dovednosti, ale i kritické myšlení a schopnost hledat souvislosti mezi místními a globálními problémy."
+  },
+  {
+    "id": "princ_28",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Motivovat žáky k vyhledávání, kritické analýze a sdílení globálních informací s využitím jazyků, digitálních nástrojů a mezikulturních kontaktů.",
+    "krok": "Podle možností motivovat žáky k účasti na výměnných programech, virtuálních setkáních nebo mezinárodních projektech, které jim umožní komunikovat s vrstevníky z jiných zemí. Tato setkání podporují zájem o kulturní výměnu a posilují mezinárodní povědomí a porozumění."
+  },
+  {
+    "id": "princ_29",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Organizovat kroužky podle zájmu žáků, žákovské veřejné výstavy k prezentaci projektů",
+    "krok": "Vytvářet příležitost pro diskuse, rozvoj kritického myšlení, komunikaci, podporu kreativity"
+  },
+  {
+    "id": "princ_30",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Organizovat kroužky podle zájmu žáků, žákovské veřejné výstavy k prezentaci projektů",
+    "krok": "Reflektovat s žáky účast na těchto akcích"
+  },
+  {
+    "id": "princ_31",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Organizovat kroužky podle zájmu žáků, žákovské veřejné výstavy k prezentaci projektů",
+    "krok": "Pravidelně vyhodnocovat zájem o kroužky a podle potřeby upravovat jejich náplň nebo otevírat nové, aby nabídka zůstala aktuální a motivující."
+  },
+  {
+    "id": "princ_32",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zapojení nadaného žáka s OMJ",
+    "krok": "V průběhu běžné hodiny pravidelně ověřovat, zda žák s odlišným mateřským jazykem (OMJ) rozumí výuce, zadání úkolů a používané terminologii."
+  },
+  {
+    "id": "princ_33",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zapojení nadaného žáka s OMJ",
+    "krok": "Při přípravě na výuku plánovat takové aktivity, do kterých se žák s OMJ může aktivně zapojit, i když jeho jazyková úroveň není totožná s ostatními žáky."
+  },
+  {
+    "id": "princ_34",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zapojení nadaného žáka s OMJ",
+    "krok": "Poskytovat žákovi dodatečné vysvětlení zadání úkolů (např. pomocí jednodušší formulace, vizuální podpory, překladu klíčových slov, ukázky postupu)."
+  },
+  {
+    "id": "princ_35",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zapojení nadaného žáka s OMJ",
+    "krok": "Nabízet alternativní způsoby splnění úkolu, které zohledňují jazykové možnosti žáka (např. odpověď v kratších větách, využití obrázků, práce s dvojjazyčným slovníkem)."
+  },
+  {
+    "id": "princ_36",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Zapojení nadaného žáka s OMJ",
+    "krok": "Podporovat spolupráci žáka s OMJ s ostatními spolužáky formou párové či skupinové práce, kde může získávat jazykové vzory v přirozené komunikaci."
+  },
+  {
+    "id": "princ_37",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Umožnit zapojení žáků do charitativních projektů s konkrétními komunitami a organizacemi",
+    "krok": "Rozvíjet dobrovolnictví žáků ve spolupráci s komunitou prostřednictvím dlouhodobých projektů"
+  },
+  {
+    "id": "princ_38",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Umožnit zapojení žáků do charitativních projektů s konkrétními komunitami a organizacemi",
+    "krok": "Podpořit edukaci v oblasti, která se komunity nebo organizace týká"
+  },
+  {
+    "id": "princ_39",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Umožnit zapojení žáků do charitativních projektů s konkrétními komunitami a organizacemi",
+    "krok": "Podpořit rozvoj leadershipu, týmové spolupráce, koordinace"
+  },
+  {
+    "id": "princ_40",
+    "cisloKategorie": 2,
+    "kategorie": "Organizace a individualizace výuky",
+    "ucel": "Přizpůsobení výuky vzdělávacím potřebám žáků",
+    "zamereni": "Diferenciace, plánování výuky, metody a pomůcky",
+    "opatreni": "Umožnit zapojení žáků do charitativních projektů s konkrétními komunitami a organizacemi",
+    "krok": "Reflektovat dopad činnosti, občanskou zodpovědnost"
+  },
+  {
+    "id": "princ_41",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Aktivně podporovat vytváření kladných vztahů mezi žáky prostřednictvím týmových aktivit, které vyžadují spolupráci, respekt a vzájemnou pomoc."
+  },
+  {
+    "id": "princ_42",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Vytvářet příležitosti pro žáky, aby se vzájemně poznali, například prostřednictvím společných projektů, diskuzí, her nebo třídních setkání."
+  },
+  {
+    "id": "princ_43",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Povzbuzovat žáky, aby si navzájem projevovali uznání a respekt, například chválou za pomoc, oceněním dobré spolupráce nebo vyjádřením podpory při řešení problémů."
+  },
+  {
+    "id": "princ_44",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Zajistit, aby ve třídě panovala otevřená a pozitivní atmosféra, kde se žáci cítí pohodlně a bezpečně sdílet své názory a pocity bez obav z posměchu nebo kritiky."
+  },
+  {
+    "id": "princ_45",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Učit žáky, jak konstruktivně řešit konflikty a rozdíly v názorech, tím, že jim poskytneme nástroje pro efektivní komunikaci a hledání kompromisů."
+  },
+  {
+    "id": "princ_46",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Podporovat význam vzájemné pomoci, kde žáci vědí, že mohou požádat o pomoc, ale také ochotně pomáhají ostatním, čímž se posiluje vzájemná důvěra a spolupráce."
+  },
+  {
+    "id": "princ_47",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Budovat a udržovat bezpečné klima třídy a školy",
+    "krok": "Využívat pravidelnou zpětnou vazbu a reflexi, aby žáci měli možnost hodnotit své vzájemné vztahy, sdílet pozitivní zážitky a identifikovat oblasti pro zlepšení ve skupinové dynamice."
+  },
+  {
+    "id": "princ_48",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Průběžně monitorovat a reflektovat vztahy mezi žáky a cíleně zlepšovat klima."
+  },
+  {
+    "id": "princ_49",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Monitorovat vztahy mezi žáky během skupinových aktivit, her, diskusí a společných projektů, odhalit jak pozitivní, tak negativní dynamiku"
+  },
+  {
+    "id": "princ_50",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Umožnit žákům pravidelně reflektovat své vzájemné vztahy prostřednictvím diskusí, individuálních rozhovorů nebo aktivit zaměřených na rozvoj sociálních dovedností"
+  },
+  {
+    "id": "princ_51",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Zajistit, aby žáci věděli, že mohou bezpečně vyjádřit své potřeby nebo obavy bez obav z negativních důsledků."
+  },
+  {
+    "id": "princ_52",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Poskytnout žákům možnost k anonymnímu vyjádření svých názorů na vztahy, například pomocí dotazníků nebo zpětné vazby, která bude sloužit jako základ pro další opatření nebo aktivity zaměřené na zlepšení klimatu."
+  },
+  {
+    "id": "princ_53",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Zapojit žáky do peer mentoringu nebo jiných podpůrných systémů, kde si mohou vzájemně pomáhat a sdílet své zkušenosti, což může pomoci včas detekovat signály změn v atmosféře školy."
+  },
+  {
+    "id": "princ_54",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Monitorovat a reflektovat třídní a školní klima",
+    "krok": "Udržovat pravidelnou komunikaci s rodiči, aby bylo možné identifikovat změny v chování žáků i mimo školu, včas detekovat problémy a efektivně na ně reagovat."
+  },
+  {
+    "id": "princ_55",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Rozvíjet u žáků respekt, empatii a přijetí rozmanitosti jako hodnot pro bezpečné inkluzivní prostředí",
+    "krok": "Vytvářet ve třídě prostředí, kde je každý žák přijat a podporován, což žákům pomůže nejen přijmout různost, ale i uznat její hodnotu a význam pro společnost."
+  },
+  {
+    "id": "princ_56",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Rozvíjet u žáků respekt, empatii a přijetí rozmanitosti jako hodnot pro bezpečné inkluzivní prostředí",
+    "krok": "Podporovat žáky v rozvoji empatie tím, že je budeme aktivně vyzývat, aby si představili život z pohledu druhého, a to jak prostřednictvím aktivit, tak i reflexe nad svými vlastními postoji a zkušenostmi."
+  },
+  {
+    "id": "princ_57",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Rozvíjet u žáků respekt, empatii a přijetí rozmanitosti jako hodnot pro bezpečné inkluzivní prostředí",
+    "krok": "Učit žáky, jak konstruktivně komunikovat s lidmi, kteří mají odlišné názory nebo pochází z jiného kulturního či sociálního prostředí, a jak reagovat na rozdíly s respektem a porozuměním."
+  },
+  {
+    "id": "princ_58",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Rozvíjet u žáků respekt, empatii a přijetí rozmanitosti jako hodnot pro bezpečné inkluzivní prostředí",
+    "krok": "Vytvářet příležitosti pro žáky, aby se seznámili s různými perspektivami a zkušenostmi, například prostřednictvím diskusí, projektů nebo pozvání hostů z různých prostředí, kteří mohou sdílet své příběhy, kteří mají odlišné životní zkušenosti, aby si žáci mohli uvědomit rozmanitost a hodnotu lidských příběhů."
+  },
+  {
+    "id": "princ_59",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Využívat odlišnosti žáků a vytvářet prostor k vzájemnému učení, ke sdílení strategií, obohacování zkušeností a posilování inkluzivní třídní komunity"
+  },
+  {
+    "id": "princ_60",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Projevovat žákům uznání hodnoty příspěvku pro komunitu třídy"
+  },
+  {
+    "id": "princ_61",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Aktivně podporovat otevřenost a pozitivní přístup k různosti prostřednictvím vzdělávacích aktivit, které ukazují hodnotu a sílu různých kultur, názorů, schopností a zkušeností ve třídě."
+  },
+  {
+    "id": "princ_62",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Začlenit do výuky témata o toleranci, respektu a rovnosti, které pomohou žákům pochopit, že každý člověk je jedinečný a že rozdíly jsou přirozenou součástí života."
+  },
+  {
+    "id": "princ_63",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Příběhy druhých využívat pro rozvoj empatie, sociálních dovedností žáků, schopnosti naslouchat s cílem lépe pochopit potřeby a emoce druhých."
+  },
+  {
+    "id": "princ_64",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využít rozmanitost jako vzdělávací příležitost",
+    "krok": "Využívat dokumentární filmy o lidských právech s bezpečně moderovanými debatami, externí spoluprací a navazujícími projekty žáků."
+  },
+  {
+    "id": "princ_65",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Organizovat vzdělávání pedagogů zaměřené na rozpoznání charakteristik nadaných dětí a efektivní přístupy k jejich podpoře, včetně diferenciace výuky, poskytování výzev a motivace."
+  },
+  {
+    "id": "princ_66",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Vytvářet informační materiály a organizovat setkání pro rodiče o nadání se zaměřením na porozumění a přístup ve výchově a vzdělávání."
+  },
+  {
+    "id": "princ_67",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Organizovat setkání pro žáky se zaměřením na význam rozvoje svých silných stránek, porozumění sobě a ostatním."
+  },
+  {
+    "id": "princ_68",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Téma nadání zařadit do školního kurikula prostřednictvím projektů nebo aktivit, které podpoří výjimečné schopnosti žáků.."
+  },
+  {
+    "id": "princ_69",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Podporovat bezpečné prostředí pro rozmanitosti, které umožní také nadaným dětem naplno rozvinout svůj potenciál, aniž by se cítily vyčleněné nebo nepochopené"
+  },
+  {
+    "id": "princ_70",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Vzdělávat školní komunitu o nadání, zajistit včasné rozpoznání, cílenou podporu nadaných žáků",
+    "krok": "Vytvářet pro žáky příležitosti k seznámení se zkušenostmi a příklady úspěšných osobností, které prokázali mimořádné nadání v různých oblastech, inspirovat žáky."
+  },
+  {
+    "id": "princ_71",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Cíleně rozvíjet pedagogické dovednosti v oblasti monitoringu klimatu",
+    "krok": "Pravidelně komunikovat a sdílet zkušenosti pedagogů týkající se vlivu jejich výuky na klima ve třídě, ve škole např. sdílení metod, které zlepšují atmosféru, diskuse o výzvách při vytváření pozitivního prostředí."
+  },
+  {
+    "id": "princ_72",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Cíleně rozvíjet pedagogické dovednosti v oblasti monitoringu klimatu",
+    "krok": "Organizovat školení a workshopy pro učitele zaměřené na zlepšení jejich pedagogických dovedností a přístupů, které přímo ovlivňují školní klima např. komunikace, řešení konfliktů, motivace žáků, vytváření inkluzivního prostředí."
+  },
+  {
+    "id": "princ_73",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Cíleně rozvíjet pedagogické dovednosti v oblasti monitoringu klimatu",
+    "krok": "Vyhodnocovat účinnost strategií a změn po jejich implementaci s ohledem na pozitivní vliv na vztahy mezi žáky, učiteli a celkový školní přístup k výuce."
+  },
+  {
+    "id": "princ_74",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Cíleně rozvíjet pedagogické dovednosti v oblasti monitoringu klimatu",
+    "krok": "V rámci procesu udržení pozitivního klimatu ve škole vést pravidelný přehled změn a adaptací v přístupu, které zlepšují školní klima, a identifikovat oblasti pro dlouhodobý rozvoj."
+  },
+  {
+    "id": "princ_75",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Zařazovat OSV do výuky formou pravidelných, na sebe navazujících bloků."
+  },
+  {
+    "id": "princ_76",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Plánovat obsah tak, aby zahrnoval rozvoj sebepoznání, seberegulace, empatie, sociálních dovedností a odpovědného rozhodování."
+  },
+  {
+    "id": "princ_77",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Využívat interaktivní metody – diskusní kruhy, modelové situace, skupinové projekty, hry na spolupráci, dramatizace a reflexi prožitku."
+  },
+  {
+    "id": "princ_78",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Integrovat témata OSV také do výuky ostatních předmětů, aby se dovednosti přenášely do reálných situací."
+  },
+  {
+    "id": "princ_79",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Pravidelně vyhodnocovat pokroky žáků v oblasti sociálních a emočních kompetencí a přizpůsobovat program jejich potřebám."
+  },
+  {
+    "id": "princ_80",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat pravidelně do výuky osobnostní sociální výchovu",
+    "krok": "Zapojovat do programu i rodiče (např. formou workshopů nebo domácích aktivit), aby byla podpora konzistentní v prostředí školy i rodiny."
+  },
+  {
+    "id": "princ_81",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat do výuky prvky relaxace a imaginativní techniky",
+    "krok": "Zařazovat do výuky pravidelné prvky relaxace a pohybového odreagování, které pomáhají žákovi obnovit pozornost a snížit napětí (např. jednoduché protažení, dechová cvičení, lehké pohybové hry)."
+  },
+  {
+    "id": "princ_82",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat do výuky prvky relaxace a imaginativní techniky",
+    "krok": "Využívat imaginativní techniky, kdy žák zavře oči, soustředí se na pravidelný dech a představuje si příjemné, uklidňující obrazy nebo situace (např. klidné místo v přírodě, oblíbenou činnost)."
+  },
+  {
+    "id": "princ_83",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat do výuky prvky relaxace a imaginativní techniky",
+    "krok": "Doporučit tyto techniky používat během přestávek a podporovat žáky ve vědomém využívání těchto technik jako nástroje zvládání stresu a únavy, k regeneraci a zlepšení koncentrace nejen během školního dne."
+  },
+  {
+    "id": "princ_84",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Zařazovat do výuky prvky relaxace a imaginativní techniky",
+    "krok": "Zařadit tyto postupy do preventivních opatření proti vyhoření a přetížení, s ohledem na individuální potřeby a možnosti žáka."
+  },
+  {
+    "id": "princ_85",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Využívat karty emocí jako vizuální pomůcku pro rozpoznávání, pojmenovávání a vyjadřování emocí u žáků různých věkových skupin."
+  },
+  {
+    "id": "princ_86",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Zařazovat do výuky a mimoškolních aktivit hry na rozvoj emocí a sociálních dovedností, které podporují empatii, spolupráci, asertivitu a zvládání konfliktů (např. role-playing, diskusní hry, kooperativní aktivity)"
+  },
+  {
+    "id": "princ_87",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Zařazovat komunikační hry rozvíjející aktivní naslouchání, vyjadřování emocí a sdílení názorů (např. hry na otázky a odpovědi, příběhové hry, improvizace)."
+  },
+  {
+    "id": "princ_88",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Pravidelně aktualizovat nabídku metodik, PL a her podle aktuálních potřeb pedagogů a žáků, včetně zapojení digitálních nástrojů."
+  },
+  {
+    "id": "princ_89",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Doporučovat využití těchto materiálů jako součást systematické práce na budování pozitivního klimatu ve třídě a prevenci sociálně patologických jevů."
+  },
+  {
+    "id": "princ_90",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Vytvářet a využívat pomůcky ve formě kreslených scénářů, které vizuálně znázorňují postupy, situace nebo pravidla, aby žák lépe porozuměl a zvládal různé úkoly a sociální interakce."
+  },
+  {
+    "id": "princ_91",
+    "cisloKategorie": 3,
+    "kategorie": "Bezpečné klima a wellbeing",
+    "ucel": "Vytváření bezpečného prostředí podporujícího učení",
+    "zamereni": "Třídní klima, prevence, wellbeing, monitoring klimatu, respekt, empatie a rozmanitost",
+    "opatreni": "Využívat pomůcky a materiály zaměřené na socio-emoční rozvoj žáků",
+    "krok": "Využívat kooperativní hry, kde je důležitá spolupráce k dosažení společného cíle (např. týmové a skupinové úkoly)."
+  },
+  {
+    "id": "princ_92",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Nastavit jasná pravidla pro komunikaci ve třídě, která podporují konstruktivní a pozitivní výměnu názorů, a zároveň zajišťují, že každý bude mít prostor pro vyjádření svého názoru."
+  },
+  {
+    "id": "princ_93",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Podporovat aktivní naslouchání a vzájemný respekt v komunikaci, kde se každý účastník cítí slyšený a pochopený, a to jak mezi žáky navzájem, tak mezi žáky a učiteli."
+  },
+  {
+    "id": "princ_94",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Používat pozitivní a podporující jazyk, který povzbuzuje žáky k tomu, aby se nebáli se zapojit do aktivit, vytvářet atmosféru důvěry."
+  },
+  {
+    "id": "princ_95",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Vytvářet ve škole otevřené a respektující prostředí, ve kterém žáci i učitelé mohou svobodně vyjadřovat své názory, pocity a potřeby bez obav z posměchu, negativního hodnocení."
+  },
+  {
+    "id": "princ_96",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Podporovat atmosféru důvěry, kde si žáci a učitelé navzájem důvěřují, že jejich sdílené informace a názory budou respektovány a zachovány v bezpečí."
+  },
+  {
+    "id": "princ_97",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Vytvářet pravidelně příležitosti pro sdílení názorů a zpětné vazby, například prostřednictvím třídních setkání, diskusí nebo anonymních dotazníků, které žákům umožní vyjádřit své pocity v bezpečném prostoru"
+  },
+  {
+    "id": "princ_98",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Budovat bezpečnou a respektující třídní komunikaci s jasnými pravidly, pravidelnou zpětnou vazbou",
+    "krok": "Zapojovat žáky do tvorby a etického šíření informací napříč školními médii s následnou reflexí účinnosti komunikace."
+  },
+  {
+    "id": "princ_99",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Zajistit, aby ve třídě nebo škole byl vyhrazený prostor, kde si žák může v klidu promluvit s učitelem bez přítomnosti ostatních žáků, například učitelský koutek, kancelář nebo tichá místnost."
+  },
+  {
+    "id": "princ_100",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Poskytovat žákům možnost mluvit s učitelem v soukromí, bez obav z posměchu nebo narušení jejich osobní integrity. Zajistit, aby se žáci cítili v bezpečí a věděli, že jejich sdílené informace budou respektovány."
+  },
+  {
+    "id": "princ_101",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Zavést pravidelný čas nebo konkrétní dny v týdnu, kdy mohou žáci přicházet na individuální konzultace."
+  },
+  {
+    "id": "princ_102",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Učitel by měl být otevřený a přístupný pro individuální kontakt, žáci by měli vědět, že mohou kdykoli požádat o pomoc nebo vyjádřit své pocity."
+  },
+  {
+    "id": "princ_103",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Učitel by měl v průběhu individuálních rozhovorů projevovat empatii, trpělivost a citlivost na potřeby žáka. Měl by se vyhýbat kritice a místo toho podporovat žáka v hledání řešení jeho problémů a otázky."
+  },
+  {
+    "id": "princ_104",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Zajistit, aby žáci věděli, že jejich osobní problémy nebo pocity jsou důležité a budou brány vážně. Důvěra mezi žákem a učitelem je klíčová pro to, aby se žák cítil pohodlně při sdílení svých obav nebo problémů."
+  },
+  {
+    "id": "princ_105",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Kromě osobního kontaktu může být poskytována možnost komunikace prostřednictvím jiných nástrojů, jako jsou e-maily, chaty nebo psané zprávy, zejména v případě, kdy je žák stydlivý nebo se cítí nepohodlně při osobních setkáních."
+  },
+  {
+    "id": "princ_106",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Zajistit žákům dostupnou, diskrétní a empatickou individuální komunikaci s učitelem včetně alternativních kanálů a návazné podpory.",
+    "krok": "Po individuálním rozhovoru by měl učitel nabídnout žákovi možnosti pro následnou podporu nebo pokračování konverzace, pokud si žák přeje další pomoc nebo chce dále diskutovat o dané situaci."
+  },
+  {
+    "id": "princ_107",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "Učit žáky i učitele, jak řešit nesouhlas nebo konflikty otevřeně, ale s respektem, pomocí konkrétních komunikačních technik, jako jsou \"já zprávy\" a techniky aktivního naslouchání."
+  },
+  {
+    "id": "princ_108",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "Nabízet role-playing hry a scénáře pro nácvik řešení konfliktů, vyjednávání a asertivního chování."
+  },
+  {
+    "id": "princ_109",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "Poskytovat žákům i učitelům nástroje pro konstruktivní řešení problémů a konfliktů, aby se komunikace mezi nimi nezhoršovala, ale vedla k pozitivní změně a lepšímu porozumění."
+  },
+  {
+    "id": "princ_110",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "V případě větších konfliktů zapojit skupinu žáků do hledání řešení, podpořit kolektivní odpovědnost a vzájemnou podporu při řešení problémů, žási se cítí součástí řešení."
+  },
+  {
+    "id": "princ_111",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "Nastavit systém tak, aby zajistil identifikaci konfliktů v počáteční fázi a jejich včasné řešení konfliktů prostřednictvím konstruktivní komunikace a mediace. Může zahrnovat například nabídku rozhovoru, změnu prostředí nebo pomoc při formulování názorů a návrhu řešení."
+  },
+  {
+    "id": "princ_112",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Rozvíjet komunikační dovednosti o nácvik konstruktivního řešení konfliktů včetně mediace a včasné intervence",
+    "krok": "Učit žáky základním mediátorským dovednostem, kde mohou pomoci vyřešit konflikty mezi ostatními. Tento proces by měl zahrnovat naslouchání oběma stranám, identifikaci problémů a hledání společného řešení, které je přijatelné pro všechny zúčastněné."
+  },
+  {
+    "id": "princ_113",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Realizovat videotrénink interakcí pro podporu komunikace a spolupráce",
+    "krok": "Využívat videotrénink interakcí k podpoře a zlepšení komunikace a spolupráce mezi žákem a pedagogem, asistentem pedagoga, spolužáky nebo rodiči."
+  },
+  {
+    "id": "princ_114",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Realizovat videotrénink interakcí pro podporu komunikace a spolupráce",
+    "krok": "Pořídit krátké videozáznamy přirozených situací, ve kterých dochází k interakci (např. práce ve dvojici, skupinová aktivita, rozhovor s učitelem)."
+  },
+  {
+    "id": "princ_115",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Realizovat videotrénink interakcí pro podporu komunikace a spolupráce",
+    "krok": "Společně s účastníky záznam analyzovat, vyzdvihovat funkční a pozitivní momenty v komunikaci a hledat způsoby jejich posílení."
+  },
+  {
+    "id": "princ_116",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Realizovat videotrénink interakcí pro podporu komunikace a spolupráce",
+    "krok": "Poskytovat konstruktivní zpětnou vazbu založenou na konkrétních příkladech ze záznamu, s důrazem na úspěšné strategie a pozitivní chování."
+  },
+  {
+    "id": "princ_117",
+    "cisloKategorie": 4,
+    "kategorie": "Sociální učení, komunikace a spolupráce",
+    "ucel": "Rozvoj vztahových a sociálních kompetencí",
+    "zamereni": "Komunikace, empatie, spolupráce, řešení konfliktů",
+    "opatreni": "Realizovat videotrénink interakcí pro podporu komunikace a spolupráce",
+    "krok": "Opakovat proces natáčení a vyhodnocování v pravidelných intervalech, aby bylo možné sledovat pokrok a upevňovat žádoucí komunikační dovednosti."
+  },
+  {
+    "id": "princ_118",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Zapojit žáky do tvorby, reflexe a revize pravidel",
+    "krok": "Společně se žáky vytvářet a pravidelně připomínat jasná, srozumitelná a férová pravidla chování ve třídě, která podporují respekt, odpovědnost a spolupráci."
+  },
+  {
+    "id": "princ_119",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Zapojit žáky do tvorby, reflexe a revize pravidel",
+    "krok": "Zapojovat žáky do formulace pravidel, aby se cítili jejich spolutvůrci a lépe je respektovali."
+  },
+  {
+    "id": "princ_120",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Zapojit žáky do tvorby, reflexe a revize pravidel",
+    "krok": "Vést pravidelnou diskusi o smyslu pravidel a jejich dopadu na klima ve třídě i individuální pocit bezpečí a pohody."
+  },
+  {
+    "id": "princ_121",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Zapojit žáky do tvorby, reflexe a revize pravidel",
+    "krok": "Využívat motivační strategie založené na pozitivním posilování žádoucího chování (pochvaly, odměny, uznání) a jasně komunikovat důsledky porušení pravidel."
+  },
+  {
+    "id": "princ_122",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Zapojit žáky do tvorby, reflexe a revize pravidel",
+    "krok": "Pravidelně hodnotit účinnost nastavených pravidel a motivačních opatření a v případě potřeby je upravovat společně se žáky."
+  },
+  {
+    "id": "princ_123",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Vytvářet a využívat s žáky aktivní preventivní strategie s jasnými pravidly",
+    "krok": "Implementovat aktivní preventivní strategie zaměřené na předcházení problémovému chování (např. jasná pravidla chování, pozitivní posilování, vytváření podpůrného prostředí)."
+  },
+  {
+    "id": "princ_124",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Vytvářet a využívat s žáky aktivní preventivní strategie s jasnými pravidly",
+    "krok": "Poskytovat žákům možnosti volby a zapojení do rozhodování o pravidlech a aktivitách, čímž se zvyšuje jejich odpovědnost a motivace k pozitivnímu chování."
+  },
+  {
+    "id": "princ_125",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Vytvářet a využívat s žáky aktivní preventivní strategie s jasnými pravidly",
+    "krok": "Využívat metody pozitivní disciplíny a zaměřovat se na posilování žádoucího chování místo trestání nežádoucího."
+  },
+  {
+    "id": "princ_126",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Využívat peer efekt k posílení vazeb mezi žáky napříč ročníky a stupni vzdělávání, například prostřednictvím mentorství, kde starší žáci pomáhají mladším se zlepšením jejich dovedností a adaptací na školní prostředí."
+  },
+  {
+    "id": "princ_127",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Organizovat společné projekty, kde žáci z různých ročníků spolupracují na úkolech, což podporuje vzájemné učení, sdílení zkušeností a zodpovědnosti."
+  },
+  {
+    "id": "princ_128",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Vytvářet příležitosti pro žáky, aby sdíleli své znalosti a dovednosti, například prostřednictvím pravidelných setkání, kde starší žáci mohou prezentovat své projekty a výsledky mladším žákům."
+  },
+  {
+    "id": "princ_129",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Podporovat vzájemnou pomoc mezi žáky různého věku při řešení problémů, což posiluje týmovou spolupráci a rozvíjí dovednosti jako je komunikace, vedení a empatie."
+  },
+  {
+    "id": "princ_130",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Umožnit žákům z různých ročníků navzájem si poskytovat zpětnou vazbu a radu při plnění úkolů, čímž se posílí nejen jejich vztahy, ale i důvěra a vzájemné respektování."
+  },
+  {
+    "id": "princ_131",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Nabízet a zajistit možnost mentorství starších žáků v roli „mentora“ nebo „průvodce“, podpořit jejich osobní rozvoj, zodpovědnost a rozšíření jejich dovedností."
+  },
+  {
+    "id": "princ_132",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Podporovat vytváření silných sociálních vazeb mezi žáky, které přetrvávají napříč ročníky, což zvyšuje celkovou soudržnost školní komunity a pomáhá mladším žákům snadněji se zapojit do kolektivu."
+  },
+  {
+    "id": "princ_133",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Rozvíjet a vyhodnocovat vrstevnické mentorství a spolupráci napříč ročníky pro posílení vztahů, učení a adaptace.",
+    "krok": "Monitorovat efektivitu peer aktivit a pravidelně hodnotit jejich přínos pro vztahy mezi žáky a pro jejich akademický a sociální rozvoj"
+  },
+  {
+    "id": "princ_134",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Strukturovat výuku do tematických celků, projektových dnů, zvyšovat participaci žáků",
+    "krok": "Plánovat výuku do tematických bloků napříč předměty"
+  },
+  {
+    "id": "princ_135",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Strukturovat výuku do tematických celků, projektových dnů, zvyšovat participaci žáků",
+    "krok": "Zařazovat projektové dny, které umožňují pracovat podle úrovně žáků na konkrétních tématech"
+  },
+  {
+    "id": "princ_136",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Strukturovat výuku do tematických celků, projektových dnů, zvyšovat participaci žáků",
+    "krok": "Zapojovat žáky aktivně do plánování, přípravy a hodnocení vlastní práce"
+  },
+  {
+    "id": "princ_137",
+    "cisloKategorie": 5,
+    "kategorie": "Participace a odpovědnost žáků",
+    "ucel": "Aktivní zapojení žáků do života třídy",
+    "zamereni": "Pravidla, spolurozhodování, seberegulace, odpovědnost, vrstevnické učení",
+    "opatreni": "Strukturovat výuku do tematických celků, projektových dnů, zvyšovat participaci žáků",
+    "krok": "Podporovat reflexi a sebehodnocení žáků na základě splněného plánu jako nástroj dalšího rozvoje"
+  },
+  {
+    "id": "princ_138",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Vést pravidelné individuální rozhovory s žákem o způsobech jednání",
+    "krok": "Vést s žákem pravidelné individuální rozhovory zaměřené na pochopení příčin problémového chování a hledání vhodných řešení."
+  },
+  {
+    "id": "princ_139",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Vést pravidelné individuální rozhovory s žákem o způsobech jednání",
+    "krok": "V rámci rozhovorů formulovat společně s žákem dohodu, která jasně stanoví očekávané způsoby jednání a konkrétní závazky žáka."
+  },
+  {
+    "id": "princ_140",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Vést pravidelné individuální rozhovory s žákem o způsobech jednání",
+    "krok": "Dohodu pravidelně revidovat a hodnotit její plnění, přičemž pozitivní změny aktivně oceňovat."
+  },
+  {
+    "id": "princ_141",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Vést pravidelné individuální rozhovory s žákem o způsobech jednání",
+    "krok": "Používat otevřený a respektující styl komunikace, který podporuje důvěru a motivaci k pozitivní změně."
+  },
+  {
+    "id": "princ_142",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Vést pravidelné individuální rozhovory s žákem o způsobech jednání",
+    "krok": "Zajistit propojení individuálních rozhovorů s dalšími podpůrnými opatřeními a spolupráci s rodiči či poradenskými službami."
+  },
+  {
+    "id": "princ_143",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Zajistit monitoring pravidelnou koordinovanou komunikací mezi pedagogy a odborníky",
+    "krok": "Nastavit jasný systém průběžné spolupráce mezi pedagogy, asistenty, speciálními pedagogy, školním psychologem a dalšími odborníky zapojenými do vzdělávání žáka."
+  },
+  {
+    "id": "princ_144",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Zajistit monitoring pravidelnou koordinovanou komunikací mezi pedagogy a odborníky",
+    "krok": "Dohodnout způsob a frekvenci předávání informací (např. pravidelné týmové porady, zápisy v elektronické třídní knize, sdílený online dokument)."
+  },
+  {
+    "id": "princ_145",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Zajistit monitoring pravidelnou koordinovanou komunikací mezi pedagogy a odborníky",
+    "krok": "Zajistit, aby se předávané informace týkaly jak vzdělávacího pokroku žáka, tak jeho socio-emoční pohody a aktuálních potřeb."
+  },
+  {
+    "id": "princ_146",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Zajistit monitoring pravidelnou koordinovanou komunikací mezi pedagogy a odborníky",
+    "krok": "Stanovit odpovědnou osobu pro koordinaci komunikace a sledování plnění domluvených opatření."
+  },
+  {
+    "id": "princ_147",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Zajistit monitoring pravidelnou koordinovanou komunikací mezi pedagogy a odborníky",
+    "krok": "Pravidelně vyhodnocovat účinnost spolupráce a podle potřeby upravovat formu i obsah sdílení informací."
+  },
+  {
+    "id": "princ_148",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Nastavit funkční komunikační kanály s rodinou",
+    "krok": "Od nástupu žáka do školy nastavit funkční, obousměrné a pravidelně využívané informační kanály mezi školou a rodinou (např. e-mail, školní informační systém, telefonické konzultace)."
+  },
+  {
+    "id": "princ_149",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Nastavit funkční komunikační kanály s rodinou",
+    "krok": "Pravidelně ověřovat funkčnost zvolených komunikačních kanálů a upravovat je podle potřeb rodičů a školy."
+  },
+  {
+    "id": "princ_150",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Nastavit funkční komunikační kanály s rodinou",
+    "krok": "Poskytovat rodičům postupy, tipy a materiály pro rozvoj jejich kompetencí ke spolupráci se školou (např. doporučení k podpoře domácí přípravy, přehled možností zapojení do školních aktivit)."
+  },
+  {
+    "id": "princ_151",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Nastavit funkční komunikační kanály s rodinou",
+    "krok": "Vytvořit a rodičům předat příručku obsahující základní informace o možnostech komunikace se školou, postupech při řešení problémů a dostupných formách podpory; příručku zveřejnit i na webu školy."
+  },
+  {
+    "id": "princ_152",
+    "cisloKategorie": 6,
+    "kategorie": "Monitoring, evaluace a plánování podpory",
+    "ucel": "Průběžné vyhodnocování dopadu podpory",
+    "zamereni": "Monitoring, zpětná vazba, plánování změn, evaluace",
+    "opatreni": "Nastavit funkční komunikační kanály s rodinou",
+    "krok": "Nabízet konzultace pro rodiče – individuální i skupinové – zaměřené na konkrétní cíle (např. porozumění IVP, podpora rozvoje nadání), které se konají nepravidelně podle potřeby."
+  },
+  {
+    "id": "princ_153",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Zajistit pravidelnou koordinovanou komunikaci mezi pedagogy a odborníky pomocí jasně stanovených postupů a odpovědné osoby při sledování vzdělávacího pokroku i socio-emoční pohody žáka.",
+    "krok": "Nastavit jasný systém průběžné spolupráce mezi pedagogy, asistenty, speciálními pedagogy, školním psychologem a dalšími odborníky zapojenými do vzdělávání žáka."
+  },
+  {
+    "id": "princ_154",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Zajistit pravidelnou koordinovanou komunikaci mezi pedagogy a odborníky pomocí jasně stanovených postupů a odpovědné osoby při sledování vzdělávacího pokroku i socio-emoční pohody žáka.",
+    "krok": "Dohodnout způsob a frekvenci předávání informací (např. pravidelné týmové porady, zápisy v elektronické třídní knize, sdílený online dokument)."
+  },
+  {
+    "id": "princ_155",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Zajistit pravidelnou koordinovanou komunikaci mezi pedagogy a odborníky pomocí jasně stanovených postupů a odpovědné osoby při sledování vzdělávacího pokroku i socio-emoční pohody žáka.",
+    "krok": "Zajistit, aby se předávané informace týkaly jak vzdělávacího pokroku žáka, tak jeho socio-emoční pohody a aktuálních potřeb."
+  },
+  {
+    "id": "princ_156",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Zajistit pravidelnou koordinovanou komunikaci mezi pedagogy a odborníky pomocí jasně stanovených postupů a odpovědné osoby při sledování vzdělávacího pokroku i socio-emoční pohody žáka.",
+    "krok": "Stanovit odpovědnou osobu pro koordinaci komunikace a sledování plnění domluvených opatření."
+  },
+  {
+    "id": "princ_157",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Zajistit pravidelnou koordinovanou komunikaci mezi pedagogy a odborníky pomocí jasně stanovených postupů a odpovědné osoby při sledování vzdělávacího pokroku i socio-emoční pohody žáka.",
+    "krok": "Pravidelně vyhodnocovat účinnost spolupráce a podle potřeby upravovat formu i obsah sdílení informací."
+  },
+  {
+    "id": "princ_158",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat kazuistické semináře zaměřené na analýzu konkrétních případů",
+    "krok": "Organizovat kazuistické semináře pro pedagogy a odborníky, zaměřené na analýzu konkrétních případů žáků s cílem hledat efektivní podpůrná opatření a řešení."
+  },
+  {
+    "id": "princ_159",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat kazuistické semináře zaměřené na analýzu konkrétních případů",
+    "krok": "Vést reflexi jednotlivých případů s důrazem na identifikaci klíčových faktorů úspěchu i překážek v podpoře žáka."
+  },
+  {
+    "id": "princ_160",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat kazuistické semináře zaměřené na analýzu konkrétních případů",
+    "krok": "Prezentovat a diskutovat různé přístupy a metody intervence, vycházející z reálných zkušeností a aktuálních odborných poznatků."
+  },
+  {
+    "id": "princ_161",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat kazuistické semináře zaměřené na analýzu konkrétních případů",
+    "krok": "Podporovat týmovou spolupráci a sdílení zkušeností mezi účastníky, aby bylo možné využít kolektivní znalosti pro zlepšení praxe."
+  },
+  {
+    "id": "princ_162",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat kazuistické semináře zaměřené na analýzu konkrétních případů",
+    "krok": "Pravidelně vyhodnocovat dopad seminářů na kvalitu poskytované podpory a na potřeby dalšího vzdělávání pedagogů."
+  },
+  {
+    "id": "princ_163",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat školní případové konference pro společné shromáždění relevantních informací o žákovi",
+    "krok": "Organizovat školní případové konference s účastí pedagogického týmu, odborníků, případně rodičů ke konkrétnímu žákovi a jeho potřebách."
+  },
+  {
+    "id": "princ_164",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat školní případové konference pro společné shromáždění relevantních informací o žákovi",
+    "krok": "Podporovat otevřenou a respektující komunikaci mezi všemi účastníky konference s cílem vytvořit co nejlepší podmínky pro rozvoj žáka."
+  },
+  {
+    "id": "princ_165",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat školní případové konference pro společné shromáždění relevantních informací o žákovi",
+    "krok": "Shromáždit relevantní informace o žákovi, jeho vzdělávacích, sociálních a emočních potřebách, včetně výsledků vyšetření a doporučení odborných zařízení."
+  },
+  {
+    "id": "princ_166",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat školní případové konference pro společné shromáždění relevantních informací o žákovi",
+    "krok": "Společně stanovit cíle, plán podpory a konkrétní kroky k jejich dosažení s jasným rozdělením rolí a odpovědností mezi zapojenými osobami."
+  },
+  {
+    "id": "princ_167",
+    "cisloKategorie": 7,
+    "kategorie": "Profesní spolupráce pedagogů a odborná podpora",
+    "ucel": "Koordinace práce pedagogů a využití odborné podpory",
+    "zamereni": "Metodická spolupráce, kazuistiky, případové konference, konzultace",
+    "opatreni": "Organizovat školní případové konference pro společné shromáždění relevantních informací o žákovi",
+    "krok": "Pravidelně hodnotit průběh a účinnost realizovaných opatření a podle potřeby plán aktualizovat."
+  }
+]
