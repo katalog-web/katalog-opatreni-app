@@ -1010,6 +1010,11 @@ export default function Home() {
             </div>
           )}
 
+          {/* Seznam vybraných opatření může být dlouhý — vlastní posuvník napravo,
+              ať se dá skočit rovnou na tlačítko "Uložit a stáhnout PDF" níž, aniž by
+              se muselo projíždět přes celý výpis. Do PDF/tisku se i tak propíše celý
+              obsah — generateSummaryPdf.ts tenhle box před snímkem dočasně "rozbalí". */}
+          <div className="custom-scrollbar max-h-[65vh] overflow-y-auto pr-3 -mr-3">
           {/* Výpis opatření POUZIJU */}
           {pouzijuCount > 0 ? (
             <div className="mb-12">
@@ -1028,7 +1033,7 @@ export default function Home() {
                   
                   return (
                     <div key={sheet} className="bg-brand-green/5 rounded-xl p-6 border border-brand-green/20">
-                      <h4 className="text-xs font-semibold text-brand-green/80 uppercase tracking-wide mb-5">
+                      <h4 data-pdf-block className="text-xs font-semibold text-brand-green/80 uppercase tracking-wide mb-5">
                         List: {sheet}
                       </h4>
                       <div className="space-y-6">
@@ -1040,7 +1045,7 @@ export default function Home() {
                           
                           return (
                             <div key={oblast} className="pl-2 md:pl-4 border-l-4 border-brand-green/30">
-                              <h5 className="font-bold text-brand-navy/80 mb-3 text-lg flex items-center gap-2">
+                              <h5 data-pdf-block className="font-bold text-brand-navy/80 mb-3 text-lg flex items-center gap-2">
                                 Oblast: {oblast}
                               </h5>
                               <ul className="space-y-3">
@@ -1098,7 +1103,7 @@ export default function Home() {
                   
                   return (
                     <div key={sheet} className="bg-brand-orange/5 rounded-xl p-6 border border-brand-orange/20">
-                      <h4 className="text-xs font-semibold text-brand-orange/80 uppercase tracking-wide mb-5">
+                      <h4 data-pdf-block className="text-xs font-semibold text-brand-orange/80 uppercase tracking-wide mb-5">
                         List: {sheet}
                       </h4>
                       <div className="space-y-6">
@@ -1110,7 +1115,7 @@ export default function Home() {
                           
                           return (
                             <div key={oblast} className="pl-2 md:pl-4 border-l-4 border-brand-orange/30">
-                              <h5 className="font-bold text-brand-navy/80 mb-3 text-lg flex items-center gap-2">
+                              <h5 data-pdf-block className="font-bold text-brand-navy/80 mb-3 text-lg flex items-center gap-2">
                                 Oblast: {oblast}
                               </h5>
                               <ul className="space-y-3">
@@ -1145,6 +1150,7 @@ export default function Home() {
               </div>
             </div>
           )}
+          </div>
 
           {/* Odesílací sekce (stahování PDF + Email) - Hidden on print */}
           <div id="pdf-controls" className="mt-14 p-8 md:p-10 bg-brand-bg/60 border border-brand-surface/30 rounded-2xl no-print">
