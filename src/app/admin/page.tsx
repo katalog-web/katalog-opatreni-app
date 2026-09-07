@@ -62,6 +62,9 @@ interface ApprovedUser {
 
 export default function AdminPage() {
   const { user, isAdmin } = useAuth();
+  // "Aktuální" = vše živé, se čím se dnes pracuje. "Archiv" = starší data
+  // (login_logs/pdf_logs), nic se nemaže, jen to nepřekáží nahoře.
+  const [dashboardView, setDashboardView] = useState<'aktualni' | 'archiv'>('aktualni');
   const [logs, setLogs] = useState<PdfLog[]>([]);
   const [loginLogs, setLoginLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -784,6 +787,31 @@ export default function AdminPage() {
         </p>
       </div>
 
+      {/* Přepínač Aktuální/Archiv — ať nová (živá) data nezapadnou mezi starší
+          kolekce (login_logs/pdf_logs), které appka jen kvůli kontinuitě nemaže. */}
+      <div className="flex mb-8">
+        <div className="inline-flex bg-brand-bg p-1 rounded-2xl gap-1 text-sm font-bold">
+          <button
+            onClick={() => setDashboardView('aktualni')}
+            className={`px-4 py-2 rounded-xl transition-all ${
+              dashboardView === 'aktualni' ? 'bg-white text-brand-navy shadow-sm' : 'text-brand-navy/40 hover:text-brand-navy'
+            }`}
+          >
+            Aktuální
+          </button>
+          <button
+            onClick={() => setDashboardView('archiv')}
+            className={`px-4 py-2 rounded-xl transition-all ${
+              dashboardView === 'archiv' ? 'bg-white text-brand-navy shadow-sm' : 'text-brand-navy/40 hover:text-brand-navy'
+            }`}
+          >
+            Archiv / starší data
+          </button>
+        </div>
+      </div>
+
+      {dashboardView === 'aktualni' ? (
+      <>
       {/* Rychlá navigace mezi sekcemi — ať se po stránce nemusí jezdit celá,
           drží se při scrollování pod pevnou horní lištou. */}
       <nav className="sticky top-16 z-20 -mx-4 px-4 py-3 mb-10 bg-brand-bg/90 backdrop-blur border-b border-brand-surface/30">
@@ -793,8 +821,6 @@ export default function AdminPage() {
           <a href="#sekce-zadosti" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Žádosti o schválení</a>
           <a href="#sekce-administratori" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Administrátoři</a>
           <a href="#sekce-top-opatreni" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Top opatření</a>
-          <a href="#sekce-uzivatele-pristupy" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uživatelé a přístupy</a>
-          <a href="#sekce-prehled-pdf" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Přehled generovaných PDF</a>
         </div>
       </nav>
 
@@ -1236,9 +1262,17 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+      </>
+      ) : (
+      <>
+      {/* Archivní navigace — jen dvě starší sekce, netřeba sticky lišta jako u aktuálních. */}
+      <div className="flex flex-wrap gap-2 text-xs font-bold mb-10">
+        <a href="#sekce-uzivatele-pristupy" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uživatelé a přístupy</a>
+        <a href="#sekce-prehled-pdf" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Přehled generovaných PDF</a>
+      </div>
 
-      {/* Uživatelé a přístupy — přesunuto nahoru, appka to používá jako hlavní přehled */}
-      <div id="sekce-uzivatele-pristupy" className="mt-16 scroll-mt-20">
+      {/* Uživatelé a přístupy — starší přehled z login_logs/pdf_logs */}
+      <div id="sekce-uzivatele-pristupy" className="scroll-mt-20">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 text-brand-navy" />
@@ -1476,6 +1510,8 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Potvrzení odebrání přístupu vlastním heslem/Google účtem administrátorky —
           chrání proti omylem odebranému přístupu (nevratné, uživatel se musí znovu
