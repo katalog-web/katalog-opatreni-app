@@ -43,6 +43,13 @@ service cloud.firestore {
       allow get: if request.auth != null
         && request.auth.token.email != null
         && request.auth.token.email.lower() == email;
+      // Appka si při prvním přihlášení po schválení sama zaznamená datum vstupu
+      // (jen tohle jedno pole, jen do vlastního dokumentu) — nejde tím zneužít
+      // ke schválení sebe sama ani ke změně ničeho jiného.
+      allow update: if request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstLoginAt']);
       allow list, write: if isAdmin();
     }
 
@@ -92,6 +99,12 @@ service cloud.firestore {
         // Administrátor smí (na vlastní žádost) číst uložené dokumenty i ostatních
         // uživatelů — appka to využívá v administraci k dohledání a stažení PDF.
         allow read: if isAdmin();
+        // "Smazání" dokumentu z pohledu administrace jen nastaví příznak
+        // hiddenFromAdmin (dokument se schová z admin přehledu, ať tam nepřekáží
+        // testovací pokusy) — administrátor tím nesmí změnit nic jiného, dokument
+        // zůstává vlastníkovi v jeho Moje dokumenty beze změny.
+        allow update: if isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hiddenFromAdmin']);
 
         // PDF rozdělené na kousky (appka běží jen na bezplatném Spark plánu, kde
         // jeden dokument smí mít nejvýš ~1 MB) — stejná pravidla jako u dokumentu samotného.

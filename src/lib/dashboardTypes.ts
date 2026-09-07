@@ -18,6 +18,9 @@ export interface DocumentRecord {
   pdfChunkCount?: number;
   ownerEmail?: string;
   ownerUid?: string;
+  // Nastaveno jen z administrace ("Uložené dokumenty") — schová dokument z admin
+  // přehledu (testovací pokusy), aniž by se cokoliv změnilo pro vlastníka dokumentu.
+  hiddenFromAdmin?: boolean;
   childNumber?: string;
   childAge?: string;
   childAgeYears?: string;

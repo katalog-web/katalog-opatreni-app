@@ -71,6 +71,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const approved = approvedSnap.exists();
             setIsApproved(approved);
 
+            // Datum prvního vstupu do appky pro přehled administrátorky — appka ho
+            // dopočítá jen jednou (při prvním přihlášení po schválení) z data založení
+            // Firebase Auth účtu, které appka jinak (bez placeného Admin SDK) nemá jak
+            // zjistit zpětně pro cizí účet. Best-effort, přihlášení tím neblokujeme.
+            if (approved && !approvedSnap.data()?.firstLoginAt) {
+              setDoc(
+                doc(db, 'config', 'approved_users', 'members', myEmail),
+                { firstLoginAt: firebaseUser.metadata.creationTime || new Date().toISOString() },
+                { merge: true }
+              ).catch((err) => console.error('Nepodařilo se zaevidovat datum prvního vstupu:', err));
+            }
+
             if (!admin && !approved) {
               // Zaevidovat/aktualizovat žádost o schválení, ať ji administrátor vidí
               // v seznamu čekajících — best-effort, přihlášení kvůli tomu neblokujeme.

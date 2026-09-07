@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check, Search, FileText } from 'lucide-react';
+import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check, Search, FileText, Lock } from 'lucide-react';
 import { AuthGate } from '@/components/AuthGate';
 import { Header } from '@/components/Header';
 import { SectionEyebrow } from '@/components/SectionEyebrow';
 import { useAuth } from '@/lib/auth-context';
-import { db } from '@/lib/firebase';
+import { db, auth, googleProvider } from '@/lib/firebase';
 import { collection, getDocs, getDoc, query, orderBy, deleteDoc, doc, setDoc, updateDoc, where, limit } from 'firebase/firestore';
+import { EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup } from 'firebase/auth';
 import measuresData from '@/data/measures.json';
 import * as XLSX from 'xlsx';
 import { downloadBase64Pdf, loadDocumentPdfBase64 } from '@/lib/generateSummaryPdf';
@@ -56,6 +57,7 @@ interface ApprovedUser {
   name: string | null;
   approvedAt: string | null;
   approvedBy: string | null;
+  firstLoginAt: string | null;
 }
 
 export default function AdminPage() {
@@ -164,6 +166,7 @@ export default function AdminPage() {
             name: data.name ?? null,
             approvedAt: data.approvedAt ?? null,
             approvedBy: data.approvedBy ?? null,
+            firstLoginAt: data.firstLoginAt ?? null,
           };
         })
       );
@@ -213,8 +216,53 @@ export default function AdminPage() {
     }
   };
 
+  // Předem schválit e-maily (např. účastníky připravované akce), ať appku po
+  // registraci nemusí čekat na ruční schválení — funguje, protože appka pozná
+  // "je schválený?" jen podle toho, že existuje dokument v approved_users s jejich
+  // e-mailem, což jde založit i dřív, než se dotyčný poprvé přihlásí.
+  const [preApproveEmails, setPreApproveEmails] = useState('');
+  const [isPreApproving, setIsPreApproving] = useState(false);
+  const [preApproveResult, setPreApproveResult] = useState<string | null>(null);
+
+  const handlePreApprove = async () => {
+    const emails = Array.from(
+      new Set(
+        preApproveEmails
+          .split(/[\n,;]+/)
+          .map((e) => e.trim().toLowerCase())
+          .filter(Boolean)
+      )
+    );
+    if (emails.length === 0) return;
+    setIsPreApproving(true);
+    setPreApproveResult(null);
+    try {
+      await Promise.all(
+        emails.map((email) =>
+          setDoc(
+            doc(db, 'config', 'approved_users', 'members', email),
+            {
+              name: null,
+              approvedAt: new Date().toISOString(),
+              approvedBy: user?.email || null,
+              firstLoginAt: null,
+            },
+            { merge: true }
+          )
+        )
+      );
+      setPreApproveEmails('');
+      setPreApproveResult(`Předschváleno: ${emails.length}.`);
+      await fetchApprovedUsers();
+    } catch (err) {
+      console.error('Předschválení selhalo:', err);
+      setPreApproveResult('Nepodařilo se předschválit.');
+    } finally {
+      setIsPreApproving(false);
+    }
+  };
+
   const handleRevokeAccess = async (email: string) => {
-    if (!confirm(`Opravdu chcete odebrat přístup uživateli ${email}?`)) return;
     setApprovalActionError(null);
     setIsApprovalActionLoading(true);
     try {
@@ -225,6 +273,53 @@ export default function AdminPage() {
       setApprovalActionError('Nepodařilo se odebrat přístup.');
     } finally {
       setIsApprovalActionLoading(false);
+    }
+  };
+
+  // Odebrání přístupu je nevratná akce (uživatel je hned poté zase jen "čekající"
+  // a musí se znovu schválit), proto ji navíc chráníme opětovným ověřením vlastní
+  // administrátorky (heslem, nebo přes Google, podle toho, jak se sama přihlašuje)
+  // — stejný princip jako "potvrďte heslo" u citlivých akcí ve velkých appkách.
+  const [revokeTarget, setRevokeTarget] = useState<ApprovedUser | null>(null);
+  const [revokePassword, setRevokePassword] = useState('');
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+  const [isReauthLoading, setIsReauthLoading] = useState(false);
+
+  const usesPasswordAuth = user?.providerData?.some((p) => p.providerId === 'password') ?? false;
+
+  const closeRevokeModal = () => {
+    setRevokeTarget(null);
+    setRevokePassword('');
+    setRevokeError(null);
+  };
+
+  const handleConfirmRevoke = async () => {
+    if (!revokeTarget || !auth.currentUser) return;
+    setRevokeError(null);
+    setIsReauthLoading(true);
+    try {
+      if (usesPasswordAuth) {
+        if (!revokePassword) {
+          setRevokeError('Zadejte prosím své heslo.');
+          setIsReauthLoading(false);
+          return;
+        }
+        const credential = EmailAuthProvider.credential(auth.currentUser.email || '', revokePassword);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+      } else {
+        await reauthenticateWithPopup(auth.currentUser, googleProvider);
+      }
+      await handleRevokeAccess(revokeTarget.email);
+      closeRevokeModal();
+    } catch (err: any) {
+      console.error('Ověření administrátorky selhalo:', err);
+      setRevokeError(
+        err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential'
+          ? 'Nesprávné heslo.'
+          : 'Ověření se nezdařilo. Zkuste to prosím znovu.'
+      );
+    } finally {
+      setIsReauthLoading(false);
     }
   };
 
@@ -519,6 +614,7 @@ export default function AdminPage() {
         const snap = await getDocs(collection(db, 'users', uid, 'documents'));
         snap.docs.forEach((d) => {
           const data = d.data();
+          if (data.hiddenFromAdmin) return; // skryté administrátorkou (testovací pokus)
           docs.push({
             id: d.id,
             title: (data.title as string) ?? 'Bez názvu',
@@ -557,6 +653,22 @@ export default function AdminPage() {
   };
 
   useEffect(() => { if (isAdmin) fetchAllDocuments(); }, [isAdmin]);
+
+  // "Smazání" v administraci dokument jen schová z tohohle přehledu (hiddenFromAdmin)
+  // — nikdy nemaže skutečný dokument uživatele, ten mu v Moje dokumenty zůstává beze
+  // změny. Bezpečné i pro čištění vlastních testovacích pokusů bez rizika, že se
+  // omylem smaže něčí reálný uložený dokument.
+  const handleHideDocumentInAdmin = async (docItem: DocumentRecord) => {
+    if (!docItem.ownerUid) return;
+    if (!confirm(`Schovat dokument „${docItem.title}" z tohoto přehledu?\n\nVlastníkovi zůstane beze změny v jeho Moje dokumenty — jen se přestane zobrazovat tady v administraci.`)) return;
+    try {
+      await updateDoc(doc(db, 'users', docItem.ownerUid, 'documents', docItem.id), { hiddenFromAdmin: true });
+      setAllDocuments((prev) => prev.filter((d) => d.id !== docItem.id));
+    } catch (err) {
+      console.error('Schování dokumentu selhalo:', err);
+      alert('Nepodařilo se dokument schovat z přehledu.');
+    }
+  };
 
   const filteredAllDocuments = useMemo(() => {
     const q = docsSearchQuery.trim().toLowerCase();
@@ -817,6 +929,13 @@ export default function AdminPage() {
                   >
                     <Download className="w-5 h-5" />
                   </button>
+                  <button
+                    onClick={() => handleHideDocumentInAdmin(docItem)}
+                    title="Schovat z přehledu (nemaže uživateli jeho dokument)"
+                    className="p-2.5 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -957,28 +1076,62 @@ export default function AdminPage() {
             ))}
           </div>
         )}
+
+        {/* Předem schválit e-maily (např. účastníci připravované akce/školení) —
+            appka pozná "je schválený?" jen podle toho, jestli existuje dokument
+            s daným e-mailem v config/approved_users/members, takže ho jde založit
+            i dřív, než se dotyčný poprvé přihlásí — přeskočí tak frontu žádostí. */}
+        <div className="p-6 border-t border-brand-surface/30 bg-brand-bg/30">
+          <h3 className="text-xs font-bold text-brand-navy/40 uppercase tracking-wide mb-1">
+            Předem schválit e-maily
+          </h3>
+          <p className="text-xs text-brand-navy/40 mb-3">
+            Hodí se, když víte předem o akci/školení — účastníci pak po registraci nečekají na schválení.
+          </p>
+          <textarea
+            value={preApproveEmails}
+            onChange={(e) => setPreApproveEmails(e.target.value)}
+            placeholder={'jeden e-mail na řádek (nebo oddělené čárkou)\nnapr.novak@skola.cz\njana.svobodova@skola.cz'}
+            rows={3}
+            className="w-full px-4 py-2.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all text-brand-navy font-medium text-sm mb-3"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handlePreApprove}
+              disabled={isPreApproving || !preApproveEmails.trim()}
+              className="flex items-center gap-2 px-5 py-2.5 bg-brand-green text-white rounded-xl font-semibold text-sm transition-all hover:bg-brand-green/90 disabled:opacity-40"
+            >
+              <UserPlus className="w-4 h-4" />
+              {isPreApproving ? 'Ukládám...' : 'Předschválit'}
+            </button>
+            {preApproveResult && <p className="text-sm font-semibold text-brand-navy/50">{preApproveResult}</p>}
+          </div>
+        </div>
+
         {approvedUsers.length > 0 && (
           <div className="p-6 border-t border-brand-surface/30">
             <h3 className="text-xs font-bold text-brand-navy/40 uppercase tracking-wide mb-3">
               Schválení uživatelé ({approvedUsers.length})
             </h3>
-            <div className="custom-scrollbar flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-2">
+            <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-80 overflow-y-auto pr-2">
               {approvedUsers.map((au) => (
-                <span
-                  key={au.email}
-                  className="inline-flex items-center gap-2 bg-brand-bg text-brand-navy text-sm font-semibold px-3 py-1.5 rounded-lg border border-brand-surface/30"
-                  title={au.name || au.email}
-                >
-                  {au.name || au.email}
+                <div key={au.email} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
+                    <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
+                  </div>
+                  <p className="text-xs text-brand-navy/30 flex-shrink-0">
+                    První vstup: {au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : 'zatím se nepřihlásil/a'}
+                  </p>
                   <button
-                    onClick={() => handleRevokeAccess(au.email)}
+                    onClick={() => setRevokeTarget(au)}
                     disabled={isApprovalActionLoading}
                     title="Odebrat přístup"
-                    className="text-brand-navy/30 hover:text-rose-500 transition-colors disabled:opacity-40"
+                    className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
-                </span>
+                </div>
               ))}
             </div>
           </div>
@@ -1323,6 +1476,53 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Potvrzení odebrání přístupu vlastním heslem/Google účtem administrátorky —
+          chrání proti omylem odebranému přístupu (nevratné, uživatel se musí znovu
+          nechat schválit). */}
+      {revokeTarget && (
+        <div className="fixed inset-0 z-50 bg-brand-navy/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-xl border border-brand-surface/30 p-8 max-w-md w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold text-brand-navy">Potvrďte odebrání přístupu</h3>
+            </div>
+            <p className="text-sm text-brand-navy/60 mb-5">
+              Chystáte se odebrat přístup uživateli <strong className="text-brand-navy">{revokeTarget.name || revokeTarget.email}</strong>. Pro potvrzení {usesPasswordAuth ? 'zadejte znovu své heslo' : 'se znovu ověřte přes Google'}.
+            </p>
+            {usesPasswordAuth && (
+              <input
+                type="password"
+                value={revokePassword}
+                onChange={(e) => setRevokePassword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleConfirmRevoke(); }}
+                placeholder="Vaše heslo"
+                autoFocus
+                className="w-full px-4 py-2.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all text-brand-navy font-medium text-sm mb-3"
+              />
+            )}
+            {revokeError && <p className="text-rose-500 font-semibold text-sm mb-3">{revokeError}</p>}
+            <div className="flex gap-3 justify-end mt-2">
+              <button
+                onClick={closeRevokeModal}
+                disabled={isReauthLoading}
+                className="px-4 py-2.5 text-brand-navy/50 hover:text-brand-navy font-semibold text-sm transition-colors disabled:opacity-40"
+              >
+                Zrušit
+              </button>
+              <button
+                onClick={handleConfirmRevoke}
+                disabled={isReauthLoading}
+                className="px-5 py-2.5 bg-rose-500 text-white rounded-xl font-semibold text-sm transition-all hover:bg-rose-600 disabled:opacity-40"
+              >
+                {isReauthLoading ? 'Ověřuji...' : usesPasswordAuth ? 'Potvrdit heslem' : 'Potvrdit přes Google'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </main>
     </AuthGate>
