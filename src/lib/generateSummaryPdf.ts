@@ -1,127 +1,328 @@
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas-pro';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import type { Choice } from '@/components/MeasureCard';
 
-const PDF_PAGE_WIDTH_MM = 210; // A4
-const PDF_PAGE_HEIGHT_MM = 297;
-// Bezpečný okraj — spousta tiskáren fyzicky nezvládne tisknout až do kraje papíru.
-// 10 mm zvládne prakticky každá běžná tiskárna i při ručním vytisknutí PDF doma/ve škole.
-const PRINT_MARGIN_MM = 10;
-const PRINTABLE_WIDTH_MM = PDF_PAGE_WIDTH_MM - 2 * PRINT_MARGIN_MM;
-const PRINTABLE_HEIGHT_MM = PDF_PAGE_HEIGHT_MM - 2 * PRINT_MARGIN_MM;
-// Nejvýš tolik prázdného místa jsme ochotni "obětovat", abychom se vyhnuli přeříznutí
-// jednoho bloku (kroku/poznámky) mezi dvě stránky — u mimořádně dlouhého bloku je
-// menší zlo nechat ho přetéct, než na jeho kvůli němu nechat půl stránky prázdné.
-const MAX_PAGE_BREAK_WASTE_MM = 50;
+// ---------- Vestavěný font s českou diakritikou ----------
+// Výchozí PDF fonty (Helvetica/Times) umí jen WinAnsi znakovou sadu — bez ě š č ř ž
+// ý ů ď ť ň. Appka dřív místo textu vkládala do PDF snímek vykresleného HTML (obrázek),
+// což diakritiku obešlo, ale výsledek nešlo prohledávat, kopírovat ani zvětšit beze
+// ztráty ostrosti. Místo toho appka vkládá skutečný font přímo do PDF (PT Sans, ve
+// statické — ne variabilní — podobě, protože jsPDF umí vložit jen běžné statické TTF).
+// Fonty appka nemá v repozitáři přímo v kódu, ale jako statické soubory v public/fonts
+// (viz PTSans-Regular.ttf/PTSans-Bold.ttf) — appka je stáhne jen při skutečném
+// generování PDF, ne při každém načtení stránky.
+const FONT_NAME = 'PTSans';
+let fontsCache: { regular: string; bold: string } | null = null;
+let fontsPromise: Promise<{ regular: string; bold: string }> | null = null;
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000; // po menších kouscích, ať String.fromCharCode nespadne na velkém poli
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function loadFonts(): Promise<{ regular: string; bold: string }> {
+  if (fontsCache) return fontsCache;
+  if (!fontsPromise) {
+    fontsPromise = Promise.all([
+      fetch('/fonts/PTSans-Regular.ttf').then((r) => r.arrayBuffer()),
+      fetch('/fonts/PTSans-Bold.ttf').then((r) => r.arrayBuffer()),
+    ]).then(([regularBuf, boldBuf]) => {
+      fontsCache = { regular: arrayBufferToBase64(regularBuf), bold: arrayBufferToBase64(boldBuf) };
+      return fontsCache;
+    });
+  }
+  return fontsPromise;
+}
+
+function registerFonts(pdfDoc: jsPDF, fonts: { regular: string; bold: string }) {
+  pdfDoc.addFileToVFS('PTSans-Regular.ttf', fonts.regular);
+  pdfDoc.addFont('PTSans-Regular.ttf', FONT_NAME, 'normal');
+  pdfDoc.addFileToVFS('PTSans-Bold.ttf', fonts.bold);
+  pdfDoc.addFont('PTSans-Bold.ttf', FONT_NAME, 'bold');
+  pdfDoc.setFont(FONT_NAME, 'normal');
+}
+
+// ---------- Rozměry stránky a barvy (odpovídají brand barvám appky) ----------
+const PAGE_W = 210; // A4
+const PAGE_H = 297;
+const MARGIN = 18;
+const CONTENT_W = PAGE_W - 2 * MARGIN;
+const CONTENT_BOTTOM = PAGE_H - MARGIN;
+
+type RGB = [number, number, number];
+const COLOR_NAVY: RGB = [38, 50, 93];
+const COLOR_NAVY_80: RGB = [81, 91, 125];
+const COLOR_NAVY_60: RGB = [125, 132, 158];
+const COLOR_NAVY_40: RGB = [168, 173, 190];
+const COLOR_GREEN: RGB = [118, 183, 42];
+const COLOR_ORANGE: RGB = [238, 118, 24];
+const COLOR_LINE: RGB = [194, 208, 221];
+
+// pt → mm, plus trocha extra řádkování pro čitelnost
+function lineHeightMm(fontSizePt: number, leading = 1.4): number {
+  return fontSizePt * 0.3528 * leading;
+}
+
+export interface SummaryPdfMeasure {
+  id: string;
+  sheetName: string;
+  oblast: string;
+  opatreni: string;
+  krok: string;
+}
+
+export interface SummaryPdfData {
+  childNumber: string;
+  childAge: string;
+  childGender: string;
+  childGrade: string;
+  childNeeds: string;
+  role: string;
+  schoolType: string;
+  studentCount: string;
+  purpose: string;
+  measures: SummaryPdfMeasure[];
+  choices: Record<string, Choice>;
+  notes: Record<string, string>;
+}
+
+type MeasureGroups = Record<string, Record<string, Record<string, SummaryPdfMeasure[]>>>;
+
+function groupMeasures(measures: SummaryPdfMeasure[]): MeasureGroups {
+  const acc: MeasureGroups = {};
+  for (const m of measures) {
+    if (!acc[m.sheetName]) acc[m.sheetName] = {};
+    if (!acc[m.sheetName][m.oblast]) acc[m.sheetName][m.oblast] = {};
+    if (!acc[m.sheetName][m.oblast][m.opatreni]) acc[m.sheetName][m.oblast][m.opatreni] = [];
+    acc[m.sheetName][m.oblast][m.opatreni].push(m);
+  }
+  return acc;
+}
 
 /**
- * Zachytí vykreslenou HTML sekci (typicky #print-summary) jako obrázek a poskládá ji
- * do vícestránkového PDF. Používáme snímek skutečného DOM (ne programaticky skládaný text),
- * protože jinak by chyběla diakritika (výchozí PDF fonty ji nepodporují) a grafický styl appky.
- *
- * Prvky s třídou `no-print` se do snímku nezahrnou (stejná konvence jako u tiskové CSS).
- * Vnořené scrollovatelné seznamy (`overflow-y-auto`) se dočasně "rozbalí", aby se do
- * snímku dostal celý obsah, ne jen viditelná část. Obsah se skládá s bezpečným okrajem
- * (viz PRINT_MARGIN_MM) a řez mezi stránkami se vyhýbá atomickým blokům (viz `data-pdf-block`
- * v page.tsx), ať se text kroku/poznámky nikdy nerozdělí uprostřed věty.
+ * Sestaví souhrn vybraných opatření jako skutečný textový PDF dokument (ne obrázek) —
+ * text jde vybrat, kopírovat i vyhledávat, a při zvětšení zůstává ostrý. Nahrazuje
+ * dřívější přístup přes html2canvas (snímek vykresleného HTML appky), který sice
+ * věrně kopíroval vzhled appky, ale výsledné PDF bylo jen obrázek.
  */
-export async function buildSummaryPdfFromElement(element: HTMLElement): Promise<jsPDF> {
-  const containerRect = element.getBoundingClientRect();
-  const forbiddenRanges = Array.from(element.querySelectorAll<HTMLElement>('[data-pdf-block]'))
-    .map((el) => {
-      const r = el.getBoundingClientRect();
-      return { top: r.top - containerRect.top, bottom: r.bottom - containerRect.top };
-    })
-    .filter((r) => r.bottom > r.top);
-
-  // Pevné (na obrazovce appky nezávislé) rozlišení snímku — dřív se používalo
-  // window.devicePixelRatio, které je na běžných (ne-Retina) monitorech jen 1, což
-  // dělalo z textu na celou A4 stránku rozmazaný obrázek. Zkoušeli jsme i vyšší
-  // scale (2.2) s PNG, ale u delšího souhrnu to vygenerovalo PDF přes 60 MB —
-  // nepoužitelné k odeslání/uložení. 1.8 + kvalitní JPEG je rozumný kompromis:
-  // znatelně ostřejší než původní devicePixelRatio přístup, ale v přiměřené velikosti.
-  const canvas = await html2canvas(element, {
-    scale: 1.8,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-    ignoreElements: (el) => el.classList?.contains('no-print'),
-    onclone: (clonedDoc) => {
-      clonedDoc.querySelectorAll<HTMLElement>('.overflow-y-auto').forEach((el) => {
-        el.style.maxHeight = 'none';
-        el.style.overflow = 'visible';
-      });
-      // Barevné podbarvení (zelená/oranžová) je hezké na obrazovce, ale v PDF/tisku
-      // zbytečně spotřebovává barvu a působí méně formálně — pro export se nahrazuje
-      // neutrální bílou/šedou, na živém webu se appka nijak nemění (upravuje se jen klon).
-      clonedDoc.querySelectorAll<HTMLElement>('[data-pdf-plain-bg]').forEach((el) => {
-        el.style.backgroundColor = '#ffffff';
-        el.style.borderColor = '#e2e8f0';
-      });
-    },
+export async function buildSummaryPdf(data: SummaryPdfData): Promise<jsPDF> {
+  const fonts = await loadFonts();
+  const pdfDoc = new jsPDF({ unit: 'mm', format: 'a4' });
+  registerFonts(pdfDoc, fonts);
+  pdfDoc.setProperties({
+    title: data.childNumber ? `Souhrn opatření — dítě č. ${data.childNumber}` : 'Souhrn vybraných opatření',
+    subject: 'Souhrn vybraných podpůrných opatření',
+    author: 'Katalog podpůrných opatření (AFREŠ)',
+    creator: 'Katalog podpůrných opatření (AFREŠ)',
   });
 
-  const pxPerMm = canvas.width / PRINTABLE_WIDTH_MM; // poměr canvas px ↔ mm, stejný pro obě osy
-  const pageHeightPx = PRINTABLE_HEIGHT_MM * pxPerMm;
-  const totalHeightPx = canvas.height;
+  let y = MARGIN;
+  // Když se stránka zalomí uprostřed výpisu kroků jedné oblasti, appka na nové
+  // stránce zopakuje aspoň nadpis oblasti — ať čtenář nepřijde o kontext, ke které
+  // oblasti daný krok patří.
+  let continuationContext: { oblast: string; color: RGB } | null = null;
 
-  // Zakázané pásy převedené z DOM souřadnic (CSS px) do canvas pixelů. Bloky vyšší
-  // než polovina tiskové oblasti stránky se neochraňují — jinak by jediný mimořádně
-  // dlouhý blok (např. dlouhá poznámka) mohl kvůli sobě nechat prázdnou skoro celou stránku.
-  const domToCanvasScale = canvas.width / element.offsetWidth;
-  const forbiddenPx = forbiddenRanges
-    .map((r) => ({ top: r.top * domToCanvasScale, bottom: r.bottom * domToCanvasScale }))
-    .filter((r) => r.bottom - r.top < pageHeightPx * 0.5);
+  function newPage(): void {
+    pdfDoc.addPage();
+    y = MARGIN;
+    if (continuationContext) {
+      pdfDoc.setFont(FONT_NAME, 'bold');
+      pdfDoc.setFontSize(10.5);
+      pdfDoc.setTextColor(...continuationContext.color);
+      pdfDoc.text(`Oblast: ${continuationContext.oblast} (pokračování)`, MARGIN, y + 3);
+      y += 9;
+    }
+  }
 
-  /** Pokud by navržený řez stránky padl doprostřed nějakého atomického bloku,
-   * posune ho na jeho začátek — celý blok se pak zobrazí až na další stránce.
-   * Pokud by to ale znamenalo obětovat víc než MAX_PAGE_BREAK_WASTE_MM prázdného
-   * místa, radši necháme původní (naivní) řez, než plýtvat velkou částí stránky. */
-  function adjustBreak(candidatePx: number, pageTopPx: number): number {
-    for (const r of forbiddenPx) {
-      if (candidatePx > r.top && candidatePx < r.bottom) {
-        if (r.top <= pageTopPx) return candidatePx;
-        const wastedMm = (candidatePx - r.top) / pxPerMm;
-        if (wastedMm > MAX_PAGE_BREAK_WASTE_MM) return candidatePx;
-        return r.top;
+  function ensureSpace(neededHeightMm: number): void {
+    if (y + neededHeightMm > CONTENT_BOTTOM) newPage();
+  }
+
+  /** Zalomí a vykreslí text po řádcích, se stránkováním po jednotlivých řádcích. */
+  function drawWrapped(text: string, x: number, width: number, fontSizePt: number, style: 'normal' | 'bold', color: RGB): void {
+    pdfDoc.setFont(FONT_NAME, style);
+    pdfDoc.setFontSize(fontSizePt);
+    pdfDoc.setTextColor(...color);
+    const lh = lineHeightMm(fontSizePt);
+    const lines = pdfDoc.splitTextToSize(text, width) as string[];
+    for (const line of lines) {
+      ensureSpace(lh);
+      pdfDoc.text(line, x, y);
+      y += lh;
+    }
+  }
+
+  function drawRule(color: RGB = COLOR_LINE): void {
+    pdfDoc.setDrawColor(...color);
+    pdfDoc.setLineWidth(0.3);
+    pdfDoc.line(MARGIN, y, MARGIN + CONTENT_W, y);
+  }
+
+  // ---------- Záhlaví ----------
+  pdfDoc.setFont(FONT_NAME, 'bold');
+  pdfDoc.setFontSize(9);
+  pdfDoc.setTextColor(...COLOR_ORANGE);
+  pdfDoc.text('SOUHRN', MARGIN, y);
+  y += 7;
+
+  pdfDoc.setFont(FONT_NAME, 'bold');
+  pdfDoc.setFontSize(19);
+  pdfDoc.setTextColor(...COLOR_NAVY);
+  pdfDoc.text('Souhrn vybraných opatření', MARGIN, y);
+  y += 6;
+
+  const now = new Date();
+  pdfDoc.setFont(FONT_NAME, 'normal');
+  pdfDoc.setFontSize(9);
+  pdfDoc.setTextColor(...COLOR_NAVY_40);
+  pdfDoc.text(`Vygenerováno ${now.toLocaleDateString('cs-CZ')} ${now.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}`, MARGIN, y);
+  y += 5;
+  drawRule();
+  y += 8;
+
+  // ---------- Informace o dítěti a kontextu ----------
+  type InfoField = { label: string; value: string; block?: boolean };
+  const infoFields: InfoField[] = [];
+  if (data.childNumber) infoFields.push({ label: 'Dítě č.', value: data.childNumber });
+  if (data.childAge) infoFields.push({ label: 'Věk', value: data.childAge });
+  if (data.childGender) infoFields.push({ label: 'Pohlaví', value: data.childGender });
+  if (data.childGrade) infoFields.push({ label: 'Ročník', value: data.childGrade });
+  if (data.role) infoFields.push({ label: 'Role', value: data.role });
+  if (data.schoolType) infoFields.push({ label: 'Škola', value: data.schoolType });
+  if (data.studentCount) infoFields.push({ label: 'Počet žáků ve škole', value: data.studentCount });
+  if (data.purpose) infoFields.push({ label: 'Účel práce', value: data.purpose });
+  if (data.childNeeds) infoFields.push({ label: 'Projevy a potřeby dítěte', value: data.childNeeds, block: true });
+
+  if (infoFields.length > 0) {
+    for (const field of infoFields) {
+      const labelText = `${field.label}: `;
+      if (field.block) {
+        ensureSpace(lineHeightMm(10));
+        pdfDoc.setFont(FONT_NAME, 'normal');
+        pdfDoc.setFontSize(10);
+        pdfDoc.setTextColor(...COLOR_NAVY_60);
+        pdfDoc.text(labelText, MARGIN, y);
+        y += lineHeightMm(10);
+        drawWrapped(field.value, MARGIN, CONTENT_W, 10.5, 'bold', COLOR_NAVY);
+        y += 2;
+      } else {
+        ensureSpace(lineHeightMm(10.5));
+        pdfDoc.setFont(FONT_NAME, 'normal');
+        pdfDoc.setFontSize(10.5);
+        pdfDoc.setTextColor(...COLOR_NAVY_60);
+        pdfDoc.text(labelText, MARGIN, y);
+        const labelWidth = pdfDoc.getTextWidth(labelText);
+        pdfDoc.setFont(FONT_NAME, 'bold');
+        pdfDoc.setTextColor(...COLOR_NAVY);
+        pdfDoc.text(field.value, MARGIN + labelWidth, y);
+        y += lineHeightMm(10.5);
       }
     }
-    return candidatePx;
+    y += 4;
+    drawRule();
+    y += 8;
   }
 
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  // ---------- Výpis vybraných opatření ----------
+  const groups = groupMeasures(data.measures);
+  const sections: { key: Exclude<Choice, null>; heading: string; color: RGB }[] = [
+    { key: 'POUZIJU', heading: 'Opatření a kroky k zavedení (Použiju v PO1)', color: COLOR_GREEN },
+    { key: 'NECHAM_NA_SPZ', heading: 'Kroky předané ŠPZ', color: COLOR_ORANGE },
+  ];
 
-  let cursorPx = 0;
-  let pageIndex = 0;
-  while (cursorPx < totalHeightPx) {
-    const naiveEndPx = Math.min(cursorPx + pageHeightPx, totalHeightPx);
-    let endPx = naiveEndPx >= totalHeightPx ? naiveEndPx : adjustBreak(naiveEndPx, cursorPx);
-    if (endPx <= cursorPx) endPx = naiveEndPx; // pojistka proti nekonečné smyčce
+  for (const section of sections) {
+    const sheetNames = Object.keys(groups).filter((sheet) =>
+      Object.keys(groups[sheet]).some((oblast) =>
+        Object.keys(groups[sheet][oblast]).some((op) => groups[sheet][oblast][op].some((m) => data.choices[m.id] === section.key))
+      )
+    );
+    if (sheetNames.length === 0) continue;
 
-    if (pageIndex > 0) doc.addPage();
+    ensureSpace(lineHeightMm(15) + 6);
+    pdfDoc.setFont(FONT_NAME, 'bold');
+    pdfDoc.setFontSize(14.5);
+    pdfDoc.setTextColor(...section.color);
+    pdfDoc.text(section.heading, MARGIN, y);
+    y += 3;
+    y += 2;
+    drawRule(section.color);
+    y += 8;
 
-    // Pro každou stránku se z celkového snímku vyřízne jen její vlastní kousek do
-    // samostatného (menšího) obrázku — žádné "domalovávání bílou přes obrázek" jako
-    // dřív. To dřívější řešení umělo za určitých okolností nechat prosvítat/duplikovat
-    // kousek obsahu na švu dvou stránek; oříznutí na zdroji tohle riziko úplně odstraní.
-    const sliceHeightPx = Math.max(1, Math.round(endPx - cursorPx));
-    const sliceCanvas = document.createElement('canvas');
-    sliceCanvas.width = canvas.width;
-    sliceCanvas.height = sliceHeightPx;
-    const sliceCtx = sliceCanvas.getContext('2d')!;
-    sliceCtx.fillStyle = '#ffffff';
-    sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-    sliceCtx.drawImage(canvas, 0, -cursorPx);
-    const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+    for (const sheet of sheetNames) {
+      const oblasts = Object.keys(groups[sheet]).filter((oblast) =>
+        Object.keys(groups[sheet][oblast]).some((op) => groups[sheet][oblast][op].some((m) => data.choices[m.id] === section.key))
+      );
+      if (oblasts.length === 0) continue;
 
-    const sliceHeightMm = sliceHeightPx / pxPerMm;
-    doc.addImage(sliceImgData, 'JPEG', PRINT_MARGIN_MM, PRINT_MARGIN_MM, PRINTABLE_WIDTH_MM, sliceHeightMm);
+      ensureSpace(lineHeightMm(9) + 4);
+      pdfDoc.setFont(FONT_NAME, 'bold');
+      pdfDoc.setFontSize(9);
+      pdfDoc.setTextColor(...section.color);
+      pdfDoc.text(`List: ${sheet}`.toUpperCase(), MARGIN, y);
+      y += lineHeightMm(9) + 3;
 
-    cursorPx = endPx;
-    pageIndex += 1;
+      for (const oblast of oblasts) {
+        const steps = Object.keys(groups[sheet][oblast]).flatMap((op) =>
+          groups[sheet][oblast][op].filter((m) => data.choices[m.id] === section.key)
+        );
+        if (steps.length === 0) continue;
+
+        ensureSpace(lineHeightMm(12) + 10);
+        pdfDoc.setFont(FONT_NAME, 'bold');
+        pdfDoc.setFontSize(11.5);
+        pdfDoc.setTextColor(...COLOR_NAVY_80);
+        pdfDoc.text(`Oblast: ${oblast}`, MARGIN, y);
+        y += lineHeightMm(11.5) + 3;
+
+        continuationContext = { oblast, color: section.color };
+        const bulletX = MARGIN + 2;
+        const textX = MARGIN + 6;
+        const textW = CONTENT_W - 6;
+
+        for (const step of steps) {
+          ensureSpace(lineHeightMm(10.5) + 3);
+          // Malý barevný odrážkový bod — vizuální kontinuita s appkou, ale bez
+          // podbarvení celé plochy (pro tisk formálnější a úspornější na inkoust).
+          pdfDoc.setFillColor(...section.color);
+          pdfDoc.circle(bulletX, y - 1.3, 0.9, 'F');
+
+          if (step.opatreni !== '-' && step.opatreni !== step.krok) {
+            drawWrapped(step.opatreni, textX, textW, 8.5, 'bold', COLOR_NAVY_40);
+            y += 0.5;
+          }
+          drawWrapped(step.krok, textX, textW, 10.5, 'bold', COLOR_NAVY);
+          const note = data.notes[step.id];
+          if (note) {
+            y += 0.5;
+            drawWrapped(`Poznámka: ${note}`, textX, textW, 9, 'normal', COLOR_NAVY_60);
+          }
+          y += 4;
+        }
+        continuationContext = null;
+        y += 3;
+      }
+    }
+    y += 4;
   }
 
-  return doc;
+  // ---------- Patička (číslo stránky) na každé stránce ----------
+  const totalPages = pdfDoc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdfDoc.setPage(i);
+    pdfDoc.setFont(FONT_NAME, 'normal');
+    pdfDoc.setFontSize(8);
+    pdfDoc.setTextColor(...COLOR_NAVY_40);
+    pdfDoc.text('Katalog podpůrných opatření · afres.cz', MARGIN, PAGE_H - 10);
+    pdfDoc.text(`Strana ${i} / ${totalPages}`, PAGE_W - MARGIN, PAGE_H - 10, { align: 'right' });
+  }
+
+  return pdfDoc;
 }
 
 /** Vrátí velikost base64 řetězce v bajtech (přibližně, pro kontrolu limitu Firestore 1 MB/dokument). */

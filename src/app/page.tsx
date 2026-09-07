@@ -11,7 +11,7 @@ import { ChevronDown, CheckCircle2, HelpCircle, FileDown, Loader2, User, Search,
 import { db } from '@/lib/firebase';
 import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment, writeBatch } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth-context';
-import { buildSummaryPdfFromElement, splitBase64IntoChunks } from '@/lib/generateSummaryPdf';
+import { buildSummaryPdf, splitBase64IntoChunks } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
 import measuresData from '@/data/measures.json';
 
@@ -118,7 +118,7 @@ export default function Home() {
   const [pendingScrollOblast, setPendingScrollOblast] = useState<string | null>(null);
 
   const handleGenerateAndSendPdf = async () => {
-    if (!user || !summaryRef.current) return;
+    if (!user) return;
 
     // Dotazník je povinná součást — bez něj nejde PDF vygenerovat. Místo tichého
     // nereagování tlačítka uživatele odscrollujeme zpět k nevyplněnému dotazníku.
@@ -132,14 +132,29 @@ export default function Home() {
     setIsGeneratingPdf(true);
     setSaveError(null);
 
-    // Počty se počítají přímo z dat (ne ze snímku PDF) — jsou potřeba pro Firestore metadata.
+    // Počty se počítají přímo z dat (stejná data appka teď posílá i do PDF generátoru).
     const pouzijuC = measures.filter(m => userChoices[m.id] === 'POUZIJU').length;
     const spzC = measures.filter(m => userChoices[m.id] === 'NECHAM_NA_SPZ').length;
+    const childAge = formatChildAge(childAgeYears, childAgeMonths);
 
-    // 1) Vygenerovat PDF (snímek vykresleného souhrnu) — pokud selže tohle, nemá smysl pokračovat.
+    // 1) Vygenerovat PDF jako skutečný text (ne snímek HTML) — pokud selže tohle,
+    // nemá smysl pokračovat.
     let pdfDoc;
     try {
-      pdfDoc = await buildSummaryPdfFromElement(summaryRef.current);
+      pdfDoc = await buildSummaryPdf({
+        childNumber,
+        childAge,
+        childGender,
+        childGrade,
+        childNeeds,
+        role,
+        schoolType,
+        studentCount,
+        purpose,
+        measures,
+        choices: userChoices,
+        notes: userNotes,
+      });
     } catch (err) {
       console.error('Nepodařilo se vygenerovat PDF:', err);
       setSaveError('Nepodařilo se vygenerovat PDF. Zkuste to prosím znovu.');
@@ -156,7 +171,6 @@ export default function Home() {
       const title = childNumber
         ? `Dítě č. ${childNumber} - ${new Date().toLocaleDateString('cs-CZ')}`
         : `Souhrn ${new Date().toLocaleDateString('cs-CZ')} ${new Date().toLocaleTimeString('cs-CZ')}`;
-      const childAge = formatChildAge(childAgeYears, childAgeMonths);
       const searchText = [title, childNumber, childAge, childGender, childGrade, childNeeds, teacherEmail, role, schoolType, studentCount, purpose]
         .filter(Boolean)
         .join(' ')
@@ -1016,8 +1030,8 @@ export default function Home() {
 
           {/* Seznam vybraných opatření může být dlouhý — vlastní posuvník napravo,
               ať se dá skočit rovnou na tlačítko "Uložit a stáhnout PDF" níž, aniž by
-              se muselo projíždět přes celý výpis. Do PDF/tisku se i tak propíše celý
-              obsah — generateSummaryPdf.ts tenhle box před snímkem dočasně "rozbalí". */}
+              se muselo projíždět přes celý výpis. Na PDF export to nemá vliv — ten se
+              skládá přímo z dat (userChoices/userNotes), ne z vykresleného HTML. */}
           <div className="custom-scrollbar max-h-[65vh] overflow-y-auto pr-3 -mr-3">
           {/* Výpis opatření POUZIJU */}
           {pouzijuCount > 0 ? (
