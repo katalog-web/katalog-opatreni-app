@@ -43,13 +43,13 @@ service cloud.firestore {
       allow get: if request.auth != null
         && request.auth.token.email != null
         && request.auth.token.email.lower() == email;
-      // Appka si při prvním přihlášení po schválení sama zaznamená datum vstupu
-      // (jen tohle jedno pole, jen do vlastního dokumentu) — nejde tím zneužít
-      // ke schválení sebe sama ani ke změně ničeho jiného.
+      // Appka si při každém přihlášení sama zaznamená datum vstupu a jméno (jen
+      // tahle pole, jen do vlastního dokumentu) — nejde tím zneužít ke schválení
+      // sebe sama ani ke změně ničeho jiného (např. approvedBy).
       allow update: if request.auth != null
         && request.auth.token.email != null
         && request.auth.token.email.lower() == email
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstLoginAt']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstLoginAt', 'lastLoginAt', 'name']);
       allow list, write: if isAdmin();
     }
 

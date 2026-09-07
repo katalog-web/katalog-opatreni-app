@@ -64,17 +64,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const admin = adminSnap.exists();
             setIsAdmin(admin);
 
-            // Jméno a datum prvního vstupu pro přehled v administraci (sekce
-            // Administrátoři) — stejný princip jako u schválených uživatelů níž.
-            if (admin && !adminSnap.data()?.firstLoginAt) {
-              setDoc(
-                doc(db, 'config', 'admins', 'members', myEmail),
-                {
-                  name: firebaseUser.displayName || null,
-                  firstLoginAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
-                },
-                { merge: true }
-              ).catch((err) => console.error('Nepodařilo se zaevidovat datum prvního vstupu administrátora:', err));
+            // Jméno, datum prvního i posledního vstupu pro přehled v administraci
+            // (sekce Administrátoři) — firstLoginAt jen jednou, lastLoginAt při
+            // každém přihlášení, name jen pokud appka ho ještě nezná.
+            if (admin) {
+              const adminData = adminSnap.data();
+              const adminPayload: Record<string, unknown> = { lastLoginAt: new Date().toISOString() };
+              if (!adminData?.firstLoginAt) {
+                adminPayload.firstLoginAt = firebaseUser.metadata.creationTime || new Date().toISOString();
+              }
+              if (!adminData?.name && firebaseUser.displayName) {
+                adminPayload.name = firebaseUser.displayName;
+              }
+              setDoc(doc(db, 'config', 'admins', 'members', myEmail), adminPayload, { merge: true })
+                .catch((err) => console.error('Nepodařilo se zaevidovat vstup administrátora:', err));
             }
 
             // Přístup ke katalogu (datům o dětech) schvaluje ručně administrátor —
@@ -84,16 +87,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const approved = approvedSnap.exists();
             setIsApproved(approved);
 
-            // Datum prvního vstupu do appky pro přehled administrátorky — appka ho
-            // dopočítá jen jednou (při prvním přihlášení po schválení) z data založení
-            // Firebase Auth účtu, které appka jinak (bez placeného Admin SDK) nemá jak
-            // zjistit zpětně pro cizí účet. Best-effort, přihlášení tím neblokujeme.
-            if (approved && !approvedSnap.data()?.firstLoginAt) {
-              setDoc(
-                doc(db, 'config', 'approved_users', 'members', myEmail),
-                { firstLoginAt: firebaseUser.metadata.creationTime || new Date().toISOString() },
-                { merge: true }
-              ).catch((err) => console.error('Nepodařilo se zaevidovat datum prvního vstupu:', err));
+            // Datum prvního i posledního vstupu do appky pro přehled administrátorky
+            // (sekce "Uživatelé aplikace"). firstLoginAt se dopočítá jen jednou (z data
+            // založení Firebase Auth účtu, které appka jinak — bez placeného Admin SDK
+            // — nemá jak zjistit zpětně pro cizí účet), lastLoginAt při každém přihlášení.
+            // Best-effort, přihlášení tím nikdy neblokujeme.
+            if (approved) {
+              const approvedData = approvedSnap.data();
+              const approvedPayload: Record<string, unknown> = { lastLoginAt: new Date().toISOString() };
+              if (!approvedData?.firstLoginAt) {
+                approvedPayload.firstLoginAt = firebaseUser.metadata.creationTime || new Date().toISOString();
+              }
+              if (!approvedData?.name && firebaseUser.displayName) {
+                approvedPayload.name = firebaseUser.displayName;
+              }
+              setDoc(doc(db, 'config', 'approved_users', 'members', myEmail), approvedPayload, { merge: true })
+                .catch((err) => console.error('Nepodařilo se zaevidovat vstup uživatele:', err));
             }
 
             if (!admin && !approved) {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check, Search, FileText, Lock } from 'lucide-react';
+import { Mail, Clock, CheckCircle2, HelpCircle, RefreshCw, Trash2, User, School, Users, BarChart3, TrendingUp, Download, ShieldCheck, UserPlus, X, MessageCircle, Hourglass, Check, Search, FileText, Lock, ChevronRight } from 'lucide-react';
 import { AuthGate } from '@/components/AuthGate';
 import { Header } from '@/components/Header';
 import { SectionEyebrow } from '@/components/SectionEyebrow';
@@ -58,12 +58,14 @@ interface ApprovedUser {
   approvedAt: string | null;
   approvedBy: string | null;
   firstLoginAt: string | null;
+  lastLoginAt: string | null;
 }
 
 interface AdminMember {
   email: string; // Firestore document ID
   name: string | null;
   firstLoginAt: string | null;
+  lastLoginAt: string | null;
   addedAt: string | null;
 }
 
@@ -95,6 +97,7 @@ export default function AdminPage() {
             email: d.id,
             name: data.name ?? null,
             firstLoginAt: data.firstLoginAt ?? null,
+            lastLoginAt: data.lastLoginAt ?? null,
             addedAt: data.addedAt ?? null,
           };
         })
@@ -162,6 +165,18 @@ export default function AdminPage() {
   const [approvedUsers, setApprovedUsers] = useState<ApprovedUser[]>([]);
   const [isApprovalActionLoading, setIsApprovalActionLoading] = useState(false);
   const [approvalActionError, setApprovalActionError] = useState<string | null>(null);
+  // Rozbalení jednotlivých uživatelů v sekci "Uživatelé aplikace" — ať se jejich
+  // uložené dokumenty zobrazí vnořené (a ne jako samostatná sekce), ale jen na vyžádání.
+  const [expandedUserEmails, setExpandedUserEmails] = useState<Set<string>>(new Set());
+  const toggleUserExpanded = (email: string) => {
+    setExpandedUserEmails((prev) => {
+      const next = new Set(prev);
+      if (next.has(email)) next.delete(email);
+      else next.add(email);
+      return next;
+    });
+  };
+  const [usersSearchQuery, setUsersSearchQuery] = useState('');
 
   const fetchPendingUsers = async () => {
     try {
@@ -193,6 +208,7 @@ export default function AdminPage() {
             approvedAt: data.approvedAt ?? null,
             approvedBy: data.approvedBy ?? null,
             firstLoginAt: data.firstLoginAt ?? null,
+            lastLoginAt: data.lastLoginAt ?? null,
           };
         })
       );
@@ -543,6 +559,22 @@ export default function AdminPage() {
     })).filter((m: any) => m.total > 0).sort((a: any, b: any) => b.pouziju - a.pouziju);
   }, [logs]);
 
+  // Nový přehled Top opatření — dva žebříčky vedle sebe (Použiju v PO1 / Předat
+  // ŠPZ), každý seřazený podle vlastního počtu, s vodorovným pruhem podle podílu
+  // na nejvyšší hodnotě v žebříčku. Starý souhrnný seznam (řazený jen podle
+  // "Použiju") zůstává beze změny v Archivu.
+  const TOP_MEASURES_LIMIT = 8;
+  const topByPouziju = useMemo(
+    () => [...measureStats].filter((m) => m.pouziju > 0).sort((a, b) => b.pouziju - a.pouziju).slice(0, TOP_MEASURES_LIMIT),
+    [measureStats]
+  );
+  const topBySpz = useMemo(
+    () => [...measureStats].filter((m) => m.spz > 0).sort((a, b) => b.spz - a.spz).slice(0, TOP_MEASURES_LIMIT),
+    [measureStats]
+  );
+  const maxPouziju = topByPouziju[0]?.pouziju || 1;
+  const maxSpz = topBySpz[0]?.spz || 1;
+
   const fetchPdfLogs = async () => {
     try {
       if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -630,7 +662,6 @@ export default function AdminPage() {
   // konkrétní, známou cestu users/{uid}/documents, což appka pravidlo umožňuje bez potíží.
   const [allDocuments, setAllDocuments] = useState<DocumentRecord[]>([]);
   const [isDocsLoading, setIsDocsLoading] = useState(false);
-  const [docsSearchQuery, setDocsSearchQuery] = useState('');
 
   const fetchAllDocuments = async () => {
     setIsDocsLoading(true);
@@ -705,16 +736,38 @@ export default function AdminPage() {
     }
   };
 
-  const filteredAllDocuments = useMemo(() => {
-    const q = docsSearchQuery.trim().toLowerCase();
-    if (!q) return allDocuments;
-    return allDocuments.filter(
-      (d) =>
-        (d.searchText || '').toLowerCase().includes(q) ||
-        (d.ownerEmail || '').toLowerCase().includes(q) ||
-        d.title.toLowerCase().includes(q)
+  // Uložené dokumenty seskupené podle vlastníka (e-mailu) — na výslovnou žádost
+  // administrátorky se dokumenty v dashboardu nezobrazují jako samostatná sekce,
+  // ale vnořené pod každým uživatelem v sekci "Uživatelé aplikace" níž.
+  const documentsByEmail = useMemo(() => {
+    const map: Record<string, DocumentRecord[]> = {};
+    allDocuments.forEach((d) => {
+      const email = (d.ownerEmail || '').toLowerCase();
+      if (!email) return;
+      if (!map[email]) map[email] = [];
+      map[email].push(d);
+    });
+    return map;
+  }, [allDocuments]);
+
+  // Dokumenty, které se nepodařilo přiřadit k žádnému schválenému uživateli (starší
+  // záznamy bez e-mailu vlastníka, nebo dokumenty administrátora) — ať se neztratí,
+  // zobrazí se v samostatném "Ostatní dokumenty" řádku na konci seznamu.
+  const unassignedDocuments = useMemo(() => {
+    const knownEmails = new Set(approvedUsers.map((au) => au.email.toLowerCase()));
+    return allDocuments.filter((d) => {
+      const email = (d.ownerEmail || '').toLowerCase();
+      return !email || !knownEmails.has(email);
+    });
+  }, [allDocuments, approvedUsers]);
+
+  const filteredApprovedUsers = useMemo(() => {
+    const q = usersSearchQuery.trim().toLowerCase();
+    if (!q) return approvedUsers;
+    return approvedUsers.filter(
+      (au) => au.email.toLowerCase().includes(q) || (au.name || '').toLowerCase().includes(q)
     );
-  }, [allDocuments, docsSearchQuery]);
+  }, [approvedUsers, usersSearchQuery]);
 
   const handleDownloadDocument = async (docItem: DocumentRecord) => {
     if (!docItem.ownerUid) return;
@@ -723,6 +776,52 @@ export default function AdminPage() {
     const safeName = docItem.title.replace(/[^\p{L}\p{N}._-]+/gu, '_');
     downloadBase64Pdf(base64, `${safeName}.pdf`);
   };
+
+  // Jeden řádek dokumentu — použitý vnořený pod uživatelem v sekci "Uživatelé
+  // aplikace" i v řádku "Ostatní dokumenty" (dřív samostatná sekce "Uložené dokumenty").
+  const renderDocumentRow = (docItem: DocumentRecord) => (
+    <div key={docItem.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-1">
+          <span className="font-bold text-brand-navy truncate">{docItem.title}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-navy/40">
+          {docItem.createdAt && <span>{new Date(docItem.createdAt).toLocaleString('cs-CZ')}</span>}
+          {docItem.role && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.role}</span>}
+          {docItem.schoolType && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.schoolType}</span>}
+          <span className="flex items-center gap-1 text-brand-green font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5" /> {docItem.pouzijuCount}
+          </span>
+          <span className="flex items-center gap-1 text-brand-orange font-bold">
+            <HelpCircle className="w-3.5 h-3.5" /> {docItem.spzCount}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <Link
+          href={`/admin/detail?id=${docItem.id}&uid=${docItem.ownerUid ?? ''}`}
+          className="px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/10 rounded-lg border border-transparent hover:border-brand-green/20 transition-all whitespace-nowrap"
+        >
+          Detail →
+        </Link>
+        <button
+          onClick={() => handleDownloadDocument(docItem)}
+          disabled={!docItem.pdfBase64 && !docItem.pdfChunkCount}
+          title="Stáhnout PDF"
+          className="p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
+        >
+          <Download className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => handleHideDocumentInAdmin(docItem)}
+          title="Schovat z přehledu (nemaže uživateli jeho dokument)"
+          className="p-2.5 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
 
   // Export všech uložených dokumentů (dotazník + zvolená opatření) do jednoho
   // Excelu se dvěma přehlednými listy: souhrn po dokumentech a detailní rozpad
@@ -848,7 +947,7 @@ export default function AdminPage() {
           drží se při scrollování pod pevnou horní lištou. */}
       <nav className="sticky top-16 z-20 -mx-4 px-4 py-3 mb-10 bg-brand-bg/90 backdrop-blur border-b border-brand-surface/30">
         <div className="flex flex-wrap gap-2 text-xs font-bold">
-          <a href="#sekce-dokumenty" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uložené dokumenty</a>
+          <a href="#sekce-uzivatele" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uživatelé aplikace</a>
           <a href="#sekce-zpetna-vazba" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Zpětná vazba</a>
           <a href="#sekce-zadosti" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Žádosti o schválení</a>
           <a href="#sekce-administratori" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Administrátoři</a>
@@ -894,14 +993,16 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Uložené dokumenty (PDF) všech uživatelů — administrátorka je smí dohledat
-          a stáhnout stejně, jako je vidí uživatel ve vlastním účtě. */}
-      <div id="sekce-dokumenty" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
+      {/* Uživatelé aplikace — schválení uživatelé se základními statistikami
+          (první/poslední vstup, počet vygenerovaných PDF) a jejich uložené
+          dokumenty vnořené pod každým řádkem (na výslovnou žádost administrátorky
+          nejsou "Uložené dokumenty" samostatná sekce). */}
+      <div id="sekce-uzivatele" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
         <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
-            <FileText className="w-5 h-5 text-brand-navy" />
-            Uložené dokumenty
-            <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{allDocuments.length}</span>
+            <Users className="w-5 h-5 text-brand-navy" />
+            Uživatelé aplikace
+            <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{approvedUsers.length}</span>
           </h2>
           <div className="flex items-center gap-2">
             <button
@@ -912,12 +1013,13 @@ export default function AdminPage() {
                   ? 'bg-brand-green/10 border-brand-green/30 text-brand-green'
                   : 'bg-white hover:bg-brand-bg border-brand-surface/40 text-brand-navy/60 hover:text-brand-navy shadow-sm'
               }`}
+              title="Exportovat všechny uložené dokumenty do Excelu"
             >
               <Download className="w-3.5 h-3.5" />
-              {exportDocsSuccess ? 'Ukládám...' : 'Exportovat do Excelu'}
+              {exportDocsSuccess ? 'Ukládám...' : 'Exportovat dokumenty'}
             </button>
             <button
-              onClick={fetchAllDocuments}
+              onClick={() => { fetchApprovedUsers(); fetchAllDocuments(); }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
@@ -930,79 +1032,91 @@ export default function AdminPage() {
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-navy/30" />
             <input
-              value={docsSearchQuery}
-              onChange={(e) => setDocsSearchQuery(e.target.value)}
-              placeholder="Hledat podle e-mailu, role, školy, účelu…"
+              value={usersSearchQuery}
+              onChange={(e) => setUsersSearchQuery(e.target.value)}
+              placeholder="Hledat podle jména nebo e-mailu…"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-surface/50 focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/10 outline-none transition-all text-brand-navy font-medium text-sm"
             />
           </div>
         </div>
 
-        {isDocsLoading ? (
-          <div className="p-12 text-center text-brand-navy/50 animate-pulse">Načítám data...</div>
-        ) : filteredAllDocuments.length === 0 ? (
+        {filteredApprovedUsers.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-brand-navy/40 font-medium">
-              {docsSearchQuery ? 'Žádný dokument neodpovídá hledání.' : 'Zatím zde nejsou žádné uložené dokumenty.'}
+              {usersSearchQuery ? 'Žádný uživatel neodpovídá hledání.' : 'Zatím zde nejsou žádní schválení uživatelé.'}
             </p>
           </div>
         ) : (
-          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[500px] overflow-y-auto pr-2">
-            {filteredAllDocuments.map((docItem) => (
-              <div key={docItem.id} className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-1">
-                    <span className="font-bold text-brand-navy truncate">{docItem.title}</span>
-                    {docItem.ownerEmail && (
-                      <span className="flex items-center gap-1.5 text-brand-navy/60 text-sm bg-brand-surface/20 px-2 py-0.5 rounded-md">
-                        <Mail className="w-3.5 h-3.5" />
-                        {docItem.ownerEmail}
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[600px] overflow-y-auto pr-2">
+            {filteredApprovedUsers.map((au) => {
+              const emailKey = au.email.toLowerCase();
+              const userDocs = documentsByEmail[emailKey] || [];
+              const isExpanded = expandedUserEmails.has(emailKey);
+              return (
+                <div key={au.email}>
+                  <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
+                    <button
+                      onClick={() => userDocs.length > 0 && toggleUserExpanded(emailKey)}
+                      disabled={userDocs.length === 0}
+                      className="flex-1 min-w-0 flex items-center gap-3 text-left disabled:cursor-default"
+                    >
+                      <ChevronRight className={`w-4 h-4 text-brand-navy/30 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${userDocs.length === 0 ? 'opacity-0' : ''}`} />
+                      <div className="min-w-0">
+                        <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
+                        <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
+                      </div>
+                    </button>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-brand-navy/40 flex-shrink-0">
+                      <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
+                        První vstup: {au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : '—'}
                       </span>
-                    )}
+                      <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
+                        Poslední vstup: {au.lastLoginAt ? new Date(au.lastLoginAt).toLocaleDateString('cs-CZ') : '—'}
+                      </span>
+                      <span className="flex items-center gap-1 bg-brand-green/10 text-brand-green px-2 py-1 rounded-md font-bold">
+                        <FileText className="w-3.5 h-3.5" /> {userDocs.length}× PDF
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
+                      disabled={isApprovalActionLoading}
+                      title="Odebrat přístup"
+                      className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-navy/40">
-                    {docItem.createdAt && <span>{new Date(docItem.createdAt).toLocaleString('cs-CZ')}</span>}
-                    {docItem.role && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.role}</span>}
-                    {docItem.schoolType && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.schoolType}</span>}
-                    <span className="flex items-center gap-1 text-brand-green font-bold">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> {docItem.pouzijuCount}
-                    </span>
-                    <span className="flex items-center gap-1 text-brand-orange font-bold">
-                      <HelpCircle className="w-3.5 h-3.5" /> {docItem.spzCount}
-                    </span>
-                  </div>
+                  {isExpanded && userDocs.length > 0 && (
+                    <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
+                      {userDocs.map((docItem) => renderDocumentRow(docItem))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Link
-                    href={`/admin/detail?id=${docItem.id}&uid=${docItem.ownerUid ?? ''}`}
-                    className="px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/10 rounded-lg border border-transparent hover:border-brand-green/20 transition-all whitespace-nowrap"
-                  >
-                    Detail →
-                  </Link>
-                  <button
-                    onClick={() => handleDownloadDocument(docItem)}
-                    disabled={!docItem.pdfBase64 && !docItem.pdfChunkCount}
-                    title="Stáhnout PDF"
-                    className="p-2.5 text-brand-navy/50 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors disabled:opacity-30"
-                  >
-                    <Download className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleHideDocumentInAdmin(docItem)}
-                    title="Schovat z přehledu (nemaže uživateli jeho dokument)"
-                    className="p-2.5 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-        {allDocuments.some((d) => !d.ownerEmail) && (
-          <p className="text-xs text-brand-navy/40 px-6 py-4 border-t border-brand-surface/20">
-            U dokumentů uložených před zavedením téhle funkce appka e-mail vlastníka nezná — u nich se zobrazí jen ostatní údaje.
-          </p>
+
+        {unassignedDocuments.length > 0 && (
+          <div className="border-t border-brand-surface/30">
+            <button
+              onClick={() => toggleUserExpanded('__unassigned__')}
+              className="w-full p-5 flex items-center gap-3 text-left hover:bg-brand-bg/60 transition-colors"
+            >
+              <ChevronRight className={`w-4 h-4 text-brand-navy/30 flex-shrink-0 transition-transform ${expandedUserEmails.has('__unassigned__') ? 'rotate-90' : ''}`} />
+              <span className="font-bold text-brand-navy/60">Ostatní dokumenty</span>
+              <span className="bg-brand-surface/20 text-brand-navy/50 text-xs font-bold px-2 py-0.5 rounded-full">{unassignedDocuments.length}</span>
+              <span className="text-xs text-brand-navy/30 ml-auto">bez přiřazení ke schválenému uživateli</span>
+            </button>
+            {expandedUserEmails.has('__unassigned__') && (
+              <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
+                {unassignedDocuments.map((docItem) => renderDocumentRow(docItem))}
+              </div>
+            )}
+          </div>
+        )}
+        {approvalActionError && (
+          <p className="text-brand-orange font-semibold text-sm px-6 py-4 border-t border-brand-surface/20">{approvalActionError}</p>
         )}
       </div>
 
@@ -1165,37 +1279,8 @@ export default function AdminPage() {
             {preApproveResult && <p className="text-sm font-semibold text-brand-navy/50">{preApproveResult}</p>}
           </div>
         </div>
-
-        {approvedUsers.length > 0 && (
-          <div className="p-6 border-t border-brand-surface/30">
-            <h3 className="text-xs font-bold text-brand-navy/40 uppercase tracking-wide mb-3">
-              Schválení uživatelé ({approvedUsers.length})
-            </h3>
-            <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-80 overflow-y-auto pr-2">
-              {approvedUsers.map((au) => (
-                <div key={au.email} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
-                    <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
-                  </div>
-                  <p className="text-xs text-brand-navy/30 flex-shrink-0">
-                    První vstup: {au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : 'zatím se nepřihlásil/a'}
-                  </p>
-                  <button
-                    onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
-                    disabled={isApprovalActionLoading}
-                    title="Odebrat přístup"
-                    className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
         {approvalActionError && (
-          <p className="text-brand-orange font-semibold text-sm px-6 pb-4">{approvalActionError}</p>
+          <p className="text-brand-orange font-semibold text-sm px-6 py-4 border-t border-brand-surface/20">{approvalActionError}</p>
         )}
       </div>
 
@@ -1218,9 +1303,14 @@ export default function AdminPage() {
                     <p className="font-bold text-brand-navy truncate">{admin.name || '(bez jména)'}</p>
                     <p className="text-sm text-brand-navy/50 truncate">{admin.email}</p>
                   </div>
-                  <p className="text-xs text-brand-navy/30 flex-shrink-0">
-                    První vstup: {admin.firstLoginAt ? new Date(admin.firstLoginAt).toLocaleDateString('cs-CZ') : 'zatím se nepřihlásil/a'}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-brand-navy/40 flex-shrink-0">
+                    <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
+                      První vstup: {admin.firstLoginAt ? new Date(admin.firstLoginAt).toLocaleDateString('cs-CZ') : '—'}
+                    </span>
+                    <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
+                      Poslední vstup: {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleDateString('cs-CZ') : '—'}
+                    </span>
+                  </div>
                   <button
                     onClick={() => requestRemoveAdmin(admin)}
                     disabled={isAdminActionLoading}
@@ -1261,49 +1351,82 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Top Opatření (Statistiky) */}
+      {/* Top opatření — nový přehled: dva žebříčky vedle sebe (Použiju v PO1 /
+          Předat ŠPZ), každý řazený podle vlastního počtu, s vodorovným pruhem podle
+          podílu na nejvyšší hodnotě. Starý souhrnný seznam (řazený jen podle
+          "Použiju") zůstává beze změny v Archivu, ať se nic neztratí. */}
       {measureStats.length > 0 && (
         <div id="sekce-top-opatreni" className="bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden mb-12 scroll-mt-20">
           <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
             <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
               <TrendingUp className="w-5 h-5 text-brand-navy" />
-              Nejčastěji vybíraná opatření
+              Top opatření
             </h2>
           </div>
-          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
-            {measureStats.map((stat: any, idx: number) => (
-              <div key={stat.id} className="p-4 hover:bg-brand-bg/60 transition-colors flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-brand-bg text-brand-navy/60 font-bold flex items-center justify-center flex-shrink-0 mt-1 shadow-inner">
-                  {idx + 1}.
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs font-bold text-brand-navy/40 uppercase tracking-widest mb-1">
-                    {stat.sheetName} / {stat.oblast}
+          <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-brand-surface/20">
+            <div>
+              <h3 className="px-6 pt-5 pb-3 text-xs font-bold text-brand-green uppercase tracking-widest">
+                Nejčastěji „Použiju v PO1"
+              </h3>
+              <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[420px] overflow-y-auto pr-1 pb-2">
+                {topByPouziju.map((stat: any, idx: number) => (
+                  <div key={stat.id} className="px-6 py-3 hover:bg-brand-bg/60 transition-colors">
+                    <div className="flex items-start gap-3 mb-1.5">
+                      <span className="text-xs font-bold text-brand-navy/30 mt-0.5 flex-shrink-0">{idx + 1}.</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-widest mb-0.5">
+                          {stat.sheetName} / {stat.oblast}
+                        </div>
+                        <div className="text-sm font-bold text-brand-navy leading-snug">{stat.krok}</div>
+                      </div>
+                      <span className="text-brand-green font-black text-sm flex-shrink-0">{stat.pouziju}</span>
+                    </div>
+                    <div className="h-1.5 bg-brand-bg rounded-full overflow-hidden ml-6">
+                      <div className="h-full bg-brand-green rounded-full" style={{ width: `${(stat.pouziju / maxPouziju) * 100}%` }} />
+                    </div>
                   </div>
-                  <div className="font-bold text-brand-navy leading-snug">{stat.krok}</div>
-                </div>
-                <div className="flex gap-4 flex-shrink-0 text-sm">
-                  <div className="flex flex-col items-center bg-brand-green/10 px-3 py-1.5 rounded-lg border border-brand-green/20">
-                    <span className="text-brand-green font-black text-lg">{stat.pouziju}</span>
-                    <span className="text-brand-green/80 text-[10px] font-bold uppercase tracking-wider">Použiju</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-brand-orange/10 px-3 py-1.5 rounded-lg border border-brand-orange/20">
-                    <span className="text-brand-orange font-black text-lg">{stat.spz}</span>
-                    <span className="text-brand-orange/80 text-[10px] font-bold uppercase tracking-wider">ŠPZ</span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
+            <div>
+              <h3 className="px-6 pt-5 pb-3 text-xs font-bold text-brand-orange uppercase tracking-widest">
+                Nejčastěji „Předat ŠPZ"
+              </h3>
+              <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[420px] overflow-y-auto pr-1 pb-2">
+                {topBySpz.length === 0 ? (
+                  <p className="px-6 py-4 text-sm text-brand-navy/40 italic">Zatím žádná data.</p>
+                ) : (
+                  topBySpz.map((stat: any, idx: number) => (
+                    <div key={stat.id} className="px-6 py-3 hover:bg-brand-bg/60 transition-colors">
+                      <div className="flex items-start gap-3 mb-1.5">
+                        <span className="text-xs font-bold text-brand-navy/30 mt-0.5 flex-shrink-0">{idx + 1}.</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-widest mb-0.5">
+                            {stat.sheetName} / {stat.oblast}
+                          </div>
+                          <div className="text-sm font-bold text-brand-navy leading-snug">{stat.krok}</div>
+                        </div>
+                        <span className="text-brand-orange font-black text-sm flex-shrink-0">{stat.spz}</span>
+                      </div>
+                      <div className="h-1.5 bg-brand-bg rounded-full overflow-hidden ml-6">
+                        <div className="h-full bg-brand-orange rounded-full" style={{ width: `${(stat.spz / maxSpz) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
       </>
       ) : (
       <>
-      {/* Archivní navigace — jen dvě starší sekce, netřeba sticky lišta jako u aktuálních. */}
+      {/* Archivní navigace — jen starší sekce, netřeba sticky lišta jako u aktuálních. */}
       <div className="flex flex-wrap gap-2 text-xs font-bold mb-10">
         <a href="#sekce-uzivatele-pristupy" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Uživatelé a přístupy</a>
         <a href="#sekce-prehled-pdf" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Přehled generovaných PDF</a>
+        <a href="#sekce-top-opatreni-archiv" className="px-3 py-1.5 rounded-full bg-white text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg border border-brand-surface/40 transition-colors">Top opatření (původní)</a>
       </div>
 
       {/* Uživatelé a přístupy — starší přehled z login_logs/pdf_logs */}
@@ -1545,6 +1668,45 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Top Opatření (původní, souhrnný seznam řazený jen podle "Použiju") —
+          přesně zkopírováno ze starého dashboardu, ať se žádná historická data
+          neztratí; nový přehled (dva žebříčky) je teď v záložce Aktuální. */}
+      {measureStats.length > 0 && (
+        <div id="sekce-top-opatreni-archiv" className="mt-16 bg-white rounded-3xl shadow-sm border border-brand-surface/30 overflow-hidden scroll-mt-20">
+          <div className="flex items-center justify-between p-6 border-b border-brand-surface/30 bg-brand-navy/5">
+            <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
+              <TrendingUp className="w-5 h-5 text-brand-navy" />
+              Nejčastěji vybíraná opatření (původní přehled)
+            </h2>
+          </div>
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[400px] overflow-y-auto pr-2">
+            {measureStats.map((stat: any, idx: number) => (
+              <div key={stat.id} className="p-4 hover:bg-brand-bg/60 transition-colors flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-brand-bg text-brand-navy/60 font-bold flex items-center justify-center flex-shrink-0 mt-1 shadow-inner">
+                  {idx + 1}.
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs font-bold text-brand-navy/40 uppercase tracking-widest mb-1">
+                    {stat.sheetName} / {stat.oblast}
+                  </div>
+                  <div className="font-bold text-brand-navy leading-snug">{stat.krok}</div>
+                </div>
+                <div className="flex gap-4 flex-shrink-0 text-sm">
+                  <div className="flex flex-col items-center bg-brand-green/10 px-3 py-1.5 rounded-lg border border-brand-green/20">
+                    <span className="text-brand-green font-black text-lg">{stat.pouziju}</span>
+                    <span className="text-brand-green/80 text-[10px] font-bold uppercase tracking-wider">Použiju</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-brand-orange/10 px-3 py-1.5 rounded-lg border border-brand-orange/20">
+                    <span className="text-brand-orange font-black text-lg">{stat.spz}</span>
+                    <span className="text-brand-orange/80 text-[10px] font-bold uppercase tracking-wider">ŠPZ</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       </>
       )}
 
