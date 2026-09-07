@@ -60,6 +60,13 @@ interface ApprovedUser {
   firstLoginAt: string | null;
 }
 
+interface AdminMember {
+  email: string; // Firestore document ID
+  name: string | null;
+  firstLoginAt: string | null;
+  addedAt: string | null;
+}
+
 export default function AdminPage() {
   const { user, isAdmin } = useAuth();
   // "Aktuální" = vše živé, se čím se dnes pracuje. "Archiv" = starší data
@@ -73,7 +80,7 @@ export default function AdminPage() {
 
   // Správa administrátorů — jeden dokument na e-mail v config/admins/members/{email}
   // (ne jedno pole se všemi e-maily), aby běžný uživatel neviděl kompletní seznam.
-  const [adminEmails, setAdminEmails] = useState<string[]>([]);
+  const [adminMembers, setAdminMembers] = useState<AdminMember[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [adminActionError, setAdminActionError] = useState<string | null>(null);
   const [isAdminActionLoading, setIsAdminActionLoading] = useState(false);
@@ -81,7 +88,17 @@ export default function AdminPage() {
   const fetchAdmins = async () => {
     try {
       const snap = await getDocs(collection(db, 'config', 'admins', 'members'));
-      setAdminEmails(snap.docs.map(d => d.id));
+      setAdminMembers(
+        snap.docs.map((d) => {
+          const data = d.data();
+          return {
+            email: d.id,
+            name: data.name ?? null,
+            firstLoginAt: data.firstLoginAt ?? null,
+            addedAt: data.addedAt ?? null,
+          };
+        })
+      );
     } catch (err) {
       console.error('Nepodařilo se načíst seznam administrátorů:', err);
     }
@@ -104,12 +121,8 @@ export default function AdminPage() {
     }
   };
 
+  // Skutečné odebrání administrátora (po potvrzení v reautentizační modálce níž).
   const handleRemoveAdmin = async (email: string) => {
-    if (email === user?.email?.toLowerCase()) {
-      if (!confirm('Opravdu si chcete odebrat vlastní administrátorský přístup? Přijdete tak o možnost sem znovu vstoupit (dokud vás nepřidá jiný administrátor).')) return;
-    } else if (!confirm(`Opravdu chcete odebrat administrátorský přístup uživateli ${email}?`)) {
-      return;
-    }
     setAdminActionError(null);
     setIsAdminActionLoading(true);
     try {
@@ -121,6 +134,16 @@ export default function AdminPage() {
     } finally {
       setIsAdminActionLoading(false);
     }
+  };
+
+  // Kliknutí na "Odebrat" u administrátora — u odebrání sebe sama ještě zvlášť
+  // upozorní (přijde tak o možnost sem znovu vstoupit), pak vždy pokračuje přes
+  // stejnou reautentizační modálku jako odebrání přístupu schválenému uživateli.
+  const requestRemoveAdmin = (admin: AdminMember) => {
+    if (admin.email === user?.email?.toLowerCase()) {
+      if (!confirm('Opravdu si chcete odebrat vlastní administrátorský přístup? Přijdete tak o možnost sem znovu vstoupit (dokud vás nepřidá jiný administrátor).')) return;
+    }
+    setConfirmTarget({ kind: 'admin', email: admin.email, displayName: admin.name || admin.email });
   };
 
   useEffect(() => {
@@ -279,11 +302,16 @@ export default function AdminPage() {
     }
   };
 
-  // Odebrání přístupu je nevratná akce (uživatel je hned poté zase jen "čekající"
-  // a musí se znovu schválit), proto ji navíc chráníme opětovným ověřením vlastní
-  // administrátorky (heslem, nebo přes Google, podle toho, jak se sama přihlašuje)
-  // — stejný princip jako "potvrďte heslo" u citlivých akcí ve velkých appkách.
-  const [revokeTarget, setRevokeTarget] = useState<ApprovedUser | null>(null);
+  // Odebrání přístupu (uživateli i administrátorovi) je nevratná akce, proto ji
+  // navíc chráníme opětovným ověřením vlastní administrátorky (heslem, nebo přes
+  // Google, podle toho, jak se sama přihlašuje) — stejný princip jako "potvrďte
+  // heslo" u citlivých akcí ve velkých appkách. Jedna modálka pro oba případy.
+  interface ConfirmTarget {
+    kind: 'user' | 'admin';
+    email: string;
+    displayName: string;
+  }
+  const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget | null>(null);
   const [revokePassword, setRevokePassword] = useState('');
   const [revokeError, setRevokeError] = useState<string | null>(null);
   const [isReauthLoading, setIsReauthLoading] = useState(false);
@@ -291,13 +319,13 @@ export default function AdminPage() {
   const usesPasswordAuth = user?.providerData?.some((p) => p.providerId === 'password') ?? false;
 
   const closeRevokeModal = () => {
-    setRevokeTarget(null);
+    setConfirmTarget(null);
     setRevokePassword('');
     setRevokeError(null);
   };
 
   const handleConfirmRevoke = async () => {
-    if (!revokeTarget || !auth.currentUser) return;
+    if (!confirmTarget || !auth.currentUser) return;
     setRevokeError(null);
     setIsReauthLoading(true);
     try {
@@ -312,7 +340,11 @@ export default function AdminPage() {
       } else {
         await reauthenticateWithPopup(auth.currentUser, googleProvider);
       }
-      await handleRevokeAccess(revokeTarget.email);
+      if (confirmTarget.kind === 'user') {
+        await handleRevokeAccess(confirmTarget.email);
+      } else {
+        await handleRemoveAdmin(confirmTarget.email);
+      }
       closeRevokeModal();
     } catch (err: any) {
       console.error('Ověření administrátorky selhalo:', err);
@@ -1150,7 +1182,7 @@ export default function AdminPage() {
                     První vstup: {au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : 'zatím se nepřihlásil/a'}
                   </p>
                   <button
-                    onClick={() => setRevokeTarget(au)}
+                    onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
                     disabled={isApprovalActionLoading}
                     title="Odebrat přístup"
                     className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
@@ -1176,25 +1208,28 @@ export default function AdminPage() {
           </h2>
         </div>
         <div className="p-6">
-          <div className="custom-scrollbar flex flex-wrap gap-2 mb-5 max-h-40 overflow-y-auto pr-2">
-            {adminEmails.length === 0 ? (
+          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-80 overflow-y-auto pr-2 mb-5">
+            {adminMembers.length === 0 ? (
               <p className="text-brand-navy/40 text-sm italic">Načítám...</p>
             ) : (
-              adminEmails.map((email) => (
-                <span
-                  key={email}
-                  className="inline-flex items-center gap-2 bg-brand-bg text-brand-navy text-sm font-semibold px-3 py-1.5 rounded-lg border border-brand-surface/30"
-                >
-                  {email}
+              adminMembers.map((admin) => (
+                <div key={admin.email} className="py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-brand-navy truncate">{admin.name || '(bez jména)'}</p>
+                    <p className="text-sm text-brand-navy/50 truncate">{admin.email}</p>
+                  </div>
+                  <p className="text-xs text-brand-navy/30 flex-shrink-0">
+                    První vstup: {admin.firstLoginAt ? new Date(admin.firstLoginAt).toLocaleDateString('cs-CZ') : 'zatím se nepřihlásil/a'}
+                  </p>
                   <button
-                    onClick={() => handleRemoveAdmin(email)}
+                    onClick={() => requestRemoveAdmin(admin)}
                     disabled={isAdminActionLoading}
                     title="Odebrat administrátorský přístup"
-                    className="text-brand-navy/30 hover:text-rose-500 transition-colors disabled:opacity-40"
+                    className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
-                </span>
+                </div>
               ))
             )}
           </div>
@@ -1516,17 +1551,19 @@ export default function AdminPage() {
       {/* Potvrzení odebrání přístupu vlastním heslem/Google účtem administrátorky —
           chrání proti omylem odebranému přístupu (nevratné, uživatel se musí znovu
           nechat schválit). */}
-      {revokeTarget && (
+      {confirmTarget && (
         <div className="fixed inset-0 z-50 bg-brand-navy/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-xl border border-brand-surface/30 p-8 max-w-md w-full">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center flex-shrink-0">
                 <Lock className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-brand-navy">Potvrďte odebrání přístupu</h3>
+              <h3 className="text-lg font-bold text-brand-navy">
+                {confirmTarget.kind === 'user' ? 'Potvrďte odebrání přístupu' : 'Potvrďte odebrání administrátora'}
+              </h3>
             </div>
             <p className="text-sm text-brand-navy/60 mb-5">
-              Chystáte se odebrat přístup uživateli <strong className="text-brand-navy">{revokeTarget.name || revokeTarget.email}</strong>. Pro potvrzení {usesPasswordAuth ? 'zadejte znovu své heslo' : 'se znovu ověřte přes Google'}.
+              Chystáte se {confirmTarget.kind === 'user' ? 'odebrat přístup uživateli' : 'odebrat administrátorský přístup uživateli'} <strong className="text-brand-navy">{confirmTarget.displayName}</strong>. Pro potvrzení {usesPasswordAuth ? 'zadejte znovu své heslo' : 'se znovu ověřte přes Google'}.
             </p>
             {usesPasswordAuth && (
               <input

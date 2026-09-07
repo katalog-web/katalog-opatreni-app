@@ -64,6 +64,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const admin = adminSnap.exists();
             setIsAdmin(admin);
 
+            // Jméno a datum prvního vstupu pro přehled v administraci (sekce
+            // Administrátoři) — stejný princip jako u schválených uživatelů níž.
+            if (admin && !adminSnap.data()?.firstLoginAt) {
+              setDoc(
+                doc(db, 'config', 'admins', 'members', myEmail),
+                {
+                  name: firebaseUser.displayName || null,
+                  firstLoginAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
+                },
+                { merge: true }
+              ).catch((err) => console.error('Nepodařilo se zaevidovat datum prvního vstupu administrátora:', err));
+            }
+
             // Přístup ke katalogu (datům o dětech) schvaluje ručně administrátor —
             // stejný vzor jako admin oprávnění, jen v jiné kolekci. Administrátoři
             // mají přístup vždy, i bez vlastního schválení.
