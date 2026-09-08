@@ -750,24 +750,75 @@ export default function AdminPage() {
     return map;
   }, [allDocuments]);
 
-  // Dokumenty, které se nepodařilo přiřadit k žádnému schválenému uživateli (starší
-  // záznamy bez e-mailu vlastníka, nebo dokumenty administrátora) — ať se neztratí,
-  // zobrazí se v samostatném "Ostatní dokumenty" řádku na konci seznamu.
+  // Sekce "Uživatelé aplikace" sjednocuje schválené uživatele i administrátory —
+  // administrátor appku taky používá a generuje si PDF, takže by jinak jeho vlastní
+  // dokumenty skončily nenajitelné v "Ostatní dokumenty" jen proto, že je vedený
+  // v jiné kolekci (config/admins misto config/approved_users). Kdo je v obou
+  // kolekcích zároveň (výjimečné, ale možné), se sloučí do jednoho řádku.
+  interface CombinedUser {
+    email: string;
+    name: string | null;
+    firstLoginAt: string | null;
+    lastLoginAt: string | null;
+    isAdmin: boolean;
+    isApprovedUser: boolean; // má vlastní dokument v config/approved_users (tj. dá se mu tady odebrat přístup)
+  }
+  const combinedUsers = useMemo(() => {
+    const map: Record<string, CombinedUser> = {};
+    approvedUsers.forEach((au) => {
+      map[au.email.toLowerCase()] = {
+        email: au.email,
+        name: au.name,
+        firstLoginAt: au.firstLoginAt,
+        lastLoginAt: au.lastLoginAt,
+        isAdmin: false,
+        isApprovedUser: true,
+      };
+    });
+    adminMembers.forEach((am) => {
+      const key = am.email.toLowerCase();
+      const existing = map[key];
+      if (existing) {
+        existing.isAdmin = true;
+        if (!existing.name && am.name) existing.name = am.name;
+        if (!existing.firstLoginAt && am.firstLoginAt) existing.firstLoginAt = am.firstLoginAt;
+        if (!existing.lastLoginAt && am.lastLoginAt) existing.lastLoginAt = am.lastLoginAt;
+      } else {
+        map[key] = {
+          email: am.email,
+          name: am.name,
+          firstLoginAt: am.firstLoginAt,
+          lastLoginAt: am.lastLoginAt,
+          isAdmin: true,
+          isApprovedUser: false,
+        };
+      }
+    });
+    return Object.values(map).sort((a, b) => {
+      const aTime = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
+      const bTime = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
+      return bTime - aTime;
+    });
+  }, [approvedUsers, adminMembers]);
+
+  // Dokumenty, které se nepodařilo přiřadit k žádnému uživateli ani administrátorovi
+  // (starší záznamy bez e-mailu vlastníka) — ať se neztratí, zobrazí se v samostatném
+  // "Ostatní dokumenty" řádku na konci seznamu.
   const unassignedDocuments = useMemo(() => {
-    const knownEmails = new Set(approvedUsers.map((au) => au.email.toLowerCase()));
+    const knownEmails = new Set(combinedUsers.map((u) => u.email.toLowerCase()));
     return allDocuments.filter((d) => {
       const email = (d.ownerEmail || '').toLowerCase();
       return !email || !knownEmails.has(email);
     });
-  }, [allDocuments, approvedUsers]);
+  }, [allDocuments, combinedUsers]);
 
   const filteredApprovedUsers = useMemo(() => {
     const q = usersSearchQuery.trim().toLowerCase();
-    if (!q) return approvedUsers;
-    return approvedUsers.filter(
-      (au) => au.email.toLowerCase().includes(q) || (au.name || '').toLowerCase().includes(q)
+    if (!q) return combinedUsers;
+    return combinedUsers.filter(
+      (u) => u.email.toLowerCase().includes(q) || (u.name || '').toLowerCase().includes(q)
     );
-  }, [approvedUsers, usersSearchQuery]);
+  }, [combinedUsers, usersSearchQuery]);
 
   const handleDownloadDocument = async (docItem: DocumentRecord) => {
     if (!docItem.ownerUid) return;
@@ -1002,7 +1053,7 @@ export default function AdminPage() {
           <h2 className="text-xl font-bold text-brand-navy flex items-center gap-3">
             <Users className="w-5 h-5 text-brand-navy" />
             Uživatelé aplikace
-            <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{approvedUsers.length}</span>
+            <span className="bg-brand-bg text-brand-navy/60 text-xs font-bold px-2 py-0.5 rounded-full">{combinedUsers.length}</span>
           </h2>
           <div className="flex items-center gap-2">
             <button
@@ -1062,7 +1113,16 @@ export default function AdminPage() {
                     >
                       <ChevronRight className={`w-4 h-4 text-brand-navy/30 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${userDocs.length === 0 ? 'opacity-0' : ''}`} />
                       <div className="min-w-0">
-                        <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
+                          <span
+                            className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                              au.isAdmin ? 'bg-brand-orange/10 text-brand-orange' : 'bg-brand-green/10 text-brand-green'
+                            }`}
+                          >
+                            {au.isAdmin ? 'Admin' : 'Uživatel'}
+                          </span>
+                        </div>
                         <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
                       </div>
                     </button>
@@ -1077,14 +1137,20 @@ export default function AdminPage() {
                         <FileText className="w-3.5 h-3.5" /> {userDocs.length}× PDF
                       </span>
                     </div>
-                    <button
-                      onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
-                      disabled={isApprovalActionLoading}
-                      title="Odebrat přístup"
-                      className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {au.isApprovedUser ? (
+                      <button
+                        onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
+                        disabled={isApprovalActionLoading}
+                        title="Odebrat přístup"
+                        className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <span className="flex-shrink-0 text-[11px] text-brand-navy/30 italic px-2" title="Odebrání administrátorského přístupu se řeší v sekci Administrátoři níže">
+                        spravováno v „Administrátoři"
+                      </span>
+                    )}
                   </div>
                   {isExpanded && userDocs.length > 0 && (
                     <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
