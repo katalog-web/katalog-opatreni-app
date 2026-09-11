@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Download, Trash2, FolderInput, CheckCircle2, HelpCircle, FolderOpen } from 'lucide-react';
+import { Search, Download, Trash2, FolderInput, CheckCircle2, HelpCircle, FolderOpen, Folder } from 'lucide-react';
 import type { DocumentRecord, FolderRecord } from '@/lib/dashboardTypes';
 
 interface DocumentListProps {
@@ -23,6 +23,11 @@ function formatDate(ts: number | null): string {
 
 export function DocumentList({ documents, folders, searchQuery, onSearchChange, onDownload, onOpenInCatalog, onMove, onDelete }: DocumentListProps) {
   const [openMoveMenuId, setOpenMoveMenuId] = useState<string | null>(null);
+
+  // Název složky ke každému dokumentu — ať je i v pohledu "Všechny dokumenty" hned
+  // vidět, kde už dokument je zařazený, bez nutnosti do složek proklikávat zvlášť.
+  const folderNameById: Record<string, string> = {};
+  folders.forEach(f => { folderNameById[f.id] = f.name; });
 
   return (
     <div className="flex-1 min-w-0">
@@ -66,6 +71,17 @@ export function DocumentList({ documents, folders, searchQuery, onSearchChange, 
                 <div className="font-bold text-brand-navy truncate mb-1">{docItem.title}</div>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-brand-navy/50 font-medium">
                   <span>{formatDate(docItem.createdAt)}</span>
+                  <span
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                      docItem.folderId
+                        ? 'bg-brand-yellow/15 text-brand-navy/70'
+                        : 'bg-brand-surface/20 text-brand-navy/40 italic'
+                    }`}
+                    title={docItem.folderId ? `Ve složce „${folderNameById[docItem.folderId] ?? '…'}"` : 'Není v žádné složce'}
+                  >
+                    <Folder className="w-3 h-3" />
+                    {docItem.folderId ? (folderNameById[docItem.folderId] ?? 'Neznámá složka') : 'Nezařazené'}
+                  </span>
                   {docItem.role && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.role}</span>}
                   {docItem.schoolType && <span className="bg-brand-surface/20 px-2 py-0.5 rounded-md">{docItem.schoolType}</span>}
                   <span className="flex items-center gap-1 text-brand-green font-bold">
