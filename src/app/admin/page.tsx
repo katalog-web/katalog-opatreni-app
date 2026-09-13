@@ -820,6 +820,15 @@ export default function AdminPage() {
     );
   }, [combinedUsers, usersSearchQuery]);
 
+  // Aktivita (počet přihlášení, generovaná PDF přes pdf_logs, účely práce) — stejná
+  // data jako v archivní sekci "Uživatelé a přístupy" (login_logs/pdf_logs se stále
+  // průběžně plní), jen připojená přímo k řádku v "Uživatelé aplikace" podle e-mailu.
+  const activityByEmail = useMemo(() => {
+    const map: Record<string, (typeof uniqueUsers)[number]> = {};
+    uniqueUsers.forEach((u) => { map[u.email.toLowerCase()] = u; });
+    return map;
+  }, [uniqueUsers]);
+
   const handleDownloadDocument = async (docItem: DocumentRecord) => {
     if (!docItem.ownerUid) return;
     const base64 = await loadDocumentPdfBase64(docItem.ownerUid, docItem.id, docItem);
@@ -1057,6 +1066,19 @@ export default function AdminPage() {
           </h2>
           <div className="flex items-center gap-2">
             <button
+              onClick={handleExportExcel}
+              disabled={uniqueUsers.length === 0}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl transition-all border disabled:opacity-40 ${
+                exportSuccess
+                  ? 'bg-brand-green/10 border-brand-green/30 text-brand-green'
+                  : 'bg-white hover:bg-brand-bg border-brand-surface/40 text-brand-navy/60 hover:text-brand-navy shadow-sm'
+              }`}
+              title="Exportovat přehled přihlášení a generovaných PDF do Excelu"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exportSuccess ? 'Ukládám...' : 'Exportovat uživatele'}
+            </button>
+            <button
               onClick={handleExportDocumentsExcel}
               disabled={allDocuments.length === 0}
               className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl transition-all border disabled:opacity-40 ${
@@ -1070,7 +1092,7 @@ export default function AdminPage() {
               {exportDocsSuccess ? 'Ukládám...' : 'Exportovat dokumenty'}
             </button>
             <button
-              onClick={() => { fetchApprovedUsers(); fetchAllDocuments(); }}
+              onClick={() => { fetchApprovedUsers(); fetchAllDocuments(); fetchLogs(); }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy/60 hover:text-brand-navy hover:bg-brand-bg rounded-xl transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
@@ -1103,6 +1125,7 @@ export default function AdminPage() {
               const emailKey = au.email.toLowerCase();
               const userDocs = documentsByEmail[emailKey] || [];
               const isExpanded = expandedUserEmails.has(emailKey);
+              const activity = activityByEmail[emailKey];
               return (
                 <div key={au.email}>
                   <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
@@ -1152,6 +1175,50 @@ export default function AdminPage() {
                       </span>
                     )}
                   </div>
+                  {activity && (
+                    <div className="px-5 pb-4 -mt-1 flex flex-wrap items-start gap-x-8 gap-y-2 text-xs text-brand-navy/60">
+                      <div>
+                        <span className="font-bold text-brand-navy">{activity.loginCount}×</span> přihlášen
+                        {activity.lastLogin && (
+                          <span className="block text-brand-navy/40 mt-0.5">Naposledy: {new Date(activity.lastLogin).toLocaleDateString('cs-CZ')}</span>
+                        )}
+                      </div>
+                      <div>
+                        {activity.generatedPdf ? (
+                          <div className="flex flex-col gap-1.5">
+                            <span className="inline-flex items-center gap-1 w-fit font-bold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full border border-brand-green/20">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Vygeneroval PDF: Ano ({activity.pdfLogs.length}×)
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {activity.pdfLogs.map((pl, plIdx) => (
+                                <Link
+                                  key={pl.id}
+                                  href={`/admin/detail?id=${pl.id}`}
+                                  className="text-[10px] font-bold text-brand-green hover:text-brand-green/70 bg-brand-green/10 hover:bg-brand-green/20 px-1.5 py-0.5 rounded transition-colors"
+                                >
+                                  Detail {activity.pdfLogs.length > 1 ? `#${activity.pdfLogs.length - plIdx}` : ''}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 font-bold text-brand-navy/40 bg-brand-bg px-2 py-0.5 rounded-full">
+                            <HelpCircle className="w-3.5 h-3.5" /> Vygeneroval PDF: Ne
+                          </span>
+                        )}
+                      </div>
+                      {activity.purposes.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1 max-w-full">
+                          <span className="text-brand-navy/40 font-bold uppercase tracking-wide text-[10px] mr-1 flex-shrink-0">Účel:</span>
+                          {activity.purposes.map((p, pIdx) => (
+                            <span key={pIdx} className="bg-brand-surface/20 text-brand-navy px-2 py-0.5 rounded-md max-w-[200px] truncate" title={p}>
+                              {p}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {isExpanded && userDocs.length > 0 && (
                     <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
                       {userDocs.map((docItem) => renderDocumentRow(docItem))}
