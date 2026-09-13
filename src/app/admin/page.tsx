@@ -829,6 +829,15 @@ export default function AdminPage() {
     return map;
   }, [uniqueUsers]);
 
+  // Předschválení, kteří se ještě ani jednou nepřihlásili — appka jim založila
+  // dokument v approved_users (viz handlePreApprove), ale firstLoginAt zůstává null,
+  // dokud se skutečně poprvé nepřihlásí. Jakmile se přihlásí, zmizí odsud a plně
+  // se objeví v "Uživatelé aplikace" (tam jsou vidět po celou dobu, i tady).
+  const pendingPreApprovedUsers = useMemo(
+    () => approvedUsers.filter((au) => !au.firstLoginAt),
+    [approvedUsers]
+  );
+
   const handleDownloadDocument = async (docItem: DocumentRecord) => {
     if (!docItem.ownerUid) return;
     const base64 = await loadDocumentPdfBase64(docItem.ownerUid, docItem.id, docItem);
@@ -1120,76 +1129,72 @@ export default function AdminPage() {
             </p>
           </div>
         ) : (
-          <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[600px] overflow-y-auto pr-2">
-            {filteredApprovedUsers.map((au) => {
-              const emailKey = au.email.toLowerCase();
-              const userDocs = documentsByEmail[emailKey] || [];
-              const isExpanded = expandedUserEmails.has(emailKey);
-              const activity = activityByEmail[emailKey];
-              return (
-                <div key={au.email}>
-                  <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 hover:bg-brand-bg/60 transition-colors">
-                    <button
-                      onClick={() => userDocs.length > 0 && toggleUserExpanded(emailKey)}
-                      disabled={userDocs.length === 0}
-                      className="flex-1 min-w-0 flex items-center gap-3 text-left disabled:cursor-default"
-                    >
-                      <ChevronRight className={`w-4 h-4 text-brand-navy/30 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${userDocs.length === 0 ? 'opacity-0' : ''}`} />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
-                          <span
-                            className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
-                              au.isAdmin ? 'bg-brand-orange/10 text-brand-orange' : 'bg-brand-green/10 text-brand-green'
-                            }`}
-                          >
-                            {au.isAdmin ? 'Admin' : 'Uživatel'}
-                          </span>
-                        </div>
-                        <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
-                      </div>
-                    </button>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-brand-navy/40 flex-shrink-0">
-                      <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
-                        První vstup: {au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : '—'}
-                      </span>
-                      <span className="bg-brand-surface/20 px-2 py-1 rounded-md">
-                        Poslední vstup: {au.lastLoginAt ? new Date(au.lastLoginAt).toLocaleDateString('cs-CZ') : '—'}
-                      </span>
-                      <span className="flex items-center gap-1 bg-brand-green/10 text-brand-green px-2 py-1 rounded-md font-bold">
-                        <FileText className="w-3.5 h-3.5" /> {userDocs.length}× PDF
-                      </span>
-                    </div>
-                    {au.isApprovedUser ? (
+          <>
+            {/* Záhlaví sloupců — jen na větší obrazovce, ať je hned jasné, co který
+                sloupec znamená (na mobilu se řádky stejně skládají pod sebe). */}
+            <div className="hidden lg:grid grid-cols-[2fr_1.1fr_1.3fr_1.4fr_2.5rem] gap-4 px-5 py-2.5 bg-brand-bg/60 border-b border-brand-surface/30 text-[10px] font-bold uppercase tracking-wide text-brand-navy/40">
+              <span>Uživatel</span>
+              <span>Vstupy</span>
+              <span>PDF</span>
+              <span>Účel práce</span>
+              <span />
+            </div>
+            <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-[600px] overflow-y-auto pr-2">
+              {filteredApprovedUsers.map((au) => {
+                const emailKey = au.email.toLowerCase();
+                const userDocs = documentsByEmail[emailKey] || [];
+                const isExpanded = expandedUserEmails.has(emailKey);
+                const activity = activityByEmail[emailKey];
+                return (
+                  <div key={au.email}>
+                    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.1fr_1.3fr_1.4fr_2.5rem] gap-2 lg:gap-4 items-start p-5 hover:bg-brand-bg/60 transition-colors">
+                      {/* Uživatel */}
                       <button
-                        onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
-                        disabled={isApprovalActionLoading}
-                        title="Odebrat přístup"
-                        className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
+                        onClick={() => userDocs.length > 0 && toggleUserExpanded(emailKey)}
+                        disabled={userDocs.length === 0}
+                        className="flex items-start gap-2 text-left disabled:cursor-default min-w-0"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <ChevronRight className={`w-4 h-4 mt-1 text-brand-navy/30 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${userDocs.length === 0 ? 'opacity-0' : ''}`} />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-brand-navy truncate">{au.name || '(bez jména)'}</p>
+                            <span
+                              className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                                au.isAdmin ? 'bg-brand-orange/10 text-brand-orange' : 'bg-brand-green/10 text-brand-green'
+                              }`}
+                            >
+                              {au.isAdmin ? 'Admin' : 'Uživatel'}
+                            </span>
+                            {!au.firstLoginAt && (
+                              <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-brand-surface/30 text-brand-navy/40">
+                                Čeká na 1. přihlášení
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-brand-navy/50 truncate">{au.email}</p>
+                        </div>
                       </button>
-                    ) : (
-                      <span className="flex-shrink-0 text-[11px] text-brand-navy/30 italic px-2" title="Odebrání administrátorského přístupu se řeší v sekci Administrátoři níže">
-                        spravováno v „Administrátoři"
-                      </span>
-                    )}
-                  </div>
-                  {activity && (
-                    <div className="px-5 pb-4 -mt-1 flex flex-wrap items-start gap-x-8 gap-y-2 text-xs text-brand-navy/60">
-                      <div>
-                        <span className="font-bold text-brand-navy">{activity.loginCount}×</span> přihlášen
-                        {activity.lastLogin && (
-                          <span className="block text-brand-navy/40 mt-0.5">Naposledy: {new Date(activity.lastLogin).toLocaleDateString('cs-CZ')}</span>
+
+                      {/* Vstupy */}
+                      <div className="text-xs text-brand-navy/60 pl-6 lg:pl-0">
+                        <p className="lg:hidden font-bold uppercase tracking-wide text-brand-navy/30 text-[10px] mb-1">Vstupy</p>
+                        <p>První: <span className="font-semibold text-brand-navy">{au.firstLoginAt ? new Date(au.firstLoginAt).toLocaleDateString('cs-CZ') : '—'}</span></p>
+                        <p>Poslední: <span className="font-semibold text-brand-navy">{au.lastLoginAt ? new Date(au.lastLoginAt).toLocaleDateString('cs-CZ') : '—'}</span></p>
+                        {activity && activity.loginCount > 0 && (
+                          <p className="text-brand-navy/40">{activity.loginCount}× přihlášen</p>
                         )}
                       </div>
-                      <div>
-                        {activity.generatedPdf ? (
-                          <div className="flex flex-col gap-1.5">
-                            <span className="inline-flex items-center gap-1 w-fit font-bold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full border border-brand-green/20">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Vygeneroval PDF: Ano ({activity.pdfLogs.length}×)
-                            </span>
-                            <div className="flex flex-wrap gap-1">
+
+                      {/* PDF */}
+                      <div className="text-xs text-brand-navy/60 pl-6 lg:pl-0">
+                        <p className="lg:hidden font-bold uppercase tracking-wide text-brand-navy/30 text-[10px] mb-1">PDF</p>
+                        <p className="flex items-center gap-1 font-bold text-brand-green">
+                          <FileText className="w-3.5 h-3.5" /> {userDocs.length}× uloženo
+                        </p>
+                        {activity && activity.generatedPdf ? (
+                          <div className="mt-1">
+                            <span className="text-brand-navy/50">Vygenerováno: {activity.pdfLogs.length}×</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
                               {activity.pdfLogs.map((pl, plIdx) => (
                                 <Link
                                   key={pl.id}
@@ -1202,32 +1207,54 @@ export default function AdminPage() {
                             </div>
                           </div>
                         ) : (
-                          <span className="inline-flex items-center gap-1 font-bold text-brand-navy/40 bg-brand-bg px-2 py-0.5 rounded-full">
-                            <HelpCircle className="w-3.5 h-3.5" /> Vygeneroval PDF: Ne
+                          <p className="text-brand-navy/30 italic mt-1">Zatím negenerováno</p>
+                        )}
+                      </div>
+
+                      {/* Účel práce */}
+                      <div className="text-xs pl-6 lg:pl-0">
+                        <p className="lg:hidden font-bold uppercase tracking-wide text-brand-navy/30 text-[10px] mb-1">Účel práce</p>
+                        {activity && activity.purposes.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {activity.purposes.map((p, pIdx) => (
+                              <span key={pIdx} className="bg-brand-surface/20 text-brand-navy px-2 py-0.5 rounded-md max-w-full truncate" title={p}>
+                                {p}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-brand-navy/30 italic">nevyplněno</span>
+                        )}
+                      </div>
+
+                      {/* Akce */}
+                      <div className="flex lg:justify-end pl-6 lg:pl-0">
+                        {au.isApprovedUser ? (
+                          <button
+                            onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.name || au.email })}
+                            disabled={isApprovalActionLoading}
+                            title="Odebrat přístup"
+                            className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <span className="flex-shrink-0 text-[11px] text-brand-navy/30 italic" title="Odebrání administrátorského přístupu se řeší v sekci Administrátoři níže">
+                            v „Administrátoři"
                           </span>
                         )}
                       </div>
-                      {activity.purposes.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1 max-w-full">
-                          <span className="text-brand-navy/40 font-bold uppercase tracking-wide text-[10px] mr-1 flex-shrink-0">Účel:</span>
-                          {activity.purposes.map((p, pIdx) => (
-                            <span key={pIdx} className="bg-brand-surface/20 text-brand-navy px-2 py-0.5 rounded-md max-w-[200px] truncate" title={p}>
-                              {p}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  )}
-                  {isExpanded && userDocs.length > 0 && (
-                    <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
-                      {userDocs.map((docItem) => renderDocumentRow(docItem))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    {isExpanded && userDocs.length > 0 && (
+                      <div className="bg-brand-bg/30 divide-y divide-brand-surface/20 pl-8 border-t border-brand-surface/20">
+                        {userDocs.map((docItem) => renderDocumentRow(docItem))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {unassignedDocuments.length > 0 && (
@@ -1412,6 +1439,37 @@ export default function AdminPage() {
             {preApproveResult && <p className="text-sm font-semibold text-brand-navy/50">{preApproveResult}</p>}
           </div>
         </div>
+
+        {pendingPreApprovedUsers.length > 0 && (
+          <div className="p-6 border-t border-brand-surface/30">
+            <h3 className="text-xs font-bold text-brand-navy/40 uppercase tracking-wide mb-1">
+              Předschváleno, čeká na první přihlášení ({pendingPreApprovedUsers.length})
+            </h3>
+            <p className="text-xs text-brand-navy/40 mb-3">
+              Jakmile se dotyčný poprvé přihlásí, zmizí odsud a plně se zobrazí v sekci „Uživatelé aplikace" výše.
+            </p>
+            <div className="custom-scrollbar divide-y divide-brand-surface/20 max-h-64 overflow-y-auto pr-2">
+              {pendingPreApprovedUsers.map((au) => (
+                <div key={au.email} className="py-2.5 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold text-brand-navy text-sm truncate">{au.email}</p>
+                    {au.approvedAt && (
+                      <p className="text-xs text-brand-navy/30">Předschváleno {new Date(au.approvedAt).toLocaleDateString('cs-CZ')}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setConfirmTarget({ kind: 'user', email: au.email, displayName: au.email })}
+                    disabled={isApprovalActionLoading}
+                    title="Zrušit předschválení"
+                    className="flex-shrink-0 p-2 text-brand-navy/30 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-40"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {approvalActionError && (
           <p className="text-brand-orange font-semibold text-sm px-6 py-4 border-t border-brand-surface/20">{approvalActionError}</p>
         )}
