@@ -512,7 +512,7 @@ export default function Home() {
           </p>
           <div className="flex items-center gap-2.5 mb-6">
             <a href="https://nadacersj.com/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
-              <img src="/rsj-foundation-logo.png" alt="RSJ Foundation logo" className="h-6 w-auto object-contain" />
+              <img src="/rsj-foundation-logo.png" alt="RSJ Foundation logo" className="h-12 w-auto object-contain" />
             </a>
             <p className="text-xs font-bold text-brand-navy/40 uppercase tracking-widest">
               Vzniklo za podpory Nadace RSJ
