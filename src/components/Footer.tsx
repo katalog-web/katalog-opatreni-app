@@ -32,6 +32,14 @@ export function Footer() {
           Vytvořeno AFREŠ © {new Date().getFullYear()}
         </p>
       </div>
+      <div className="flex items-center gap-3 opacity-30 grayscale hover:grayscale-0 transition-all group">
+        <a href="https://nadacersj.com/" target="_blank" rel="noopener noreferrer">
+          <img src="/rsj-foundation-logo.png" alt="RSJ Foundation logo" className="h-5 w-auto object-contain" />
+        </a>
+        <p className="text-xs font-bold text-brand-navy uppercase tracking-widest">
+          Vzniklo za podpory Nadace RSJ
+        </p>
+      </div>
     </footer>
   );
 }

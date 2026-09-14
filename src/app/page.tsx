@@ -510,6 +510,14 @@ export default function Home() {
           <p className="text-brand-orange/80 text-sm font-medium mb-3">
             Nacházíte se v PILOTNÍ verzi katalogu, která slouží především pro testování.
           </p>
+          <div className="flex items-center gap-2.5 mb-6">
+            <a href="https://nadacersj.com/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+              <img src="/rsj-foundation-logo.png" alt="RSJ Foundation logo" className="h-6 w-auto object-contain" />
+            </a>
+            <p className="text-xs font-bold text-brand-navy/40 uppercase tracking-widest">
+              Vzniklo za podpory Nadace RSJ
+            </p>
+          </div>
           <p className="font-body text-lg text-brand-navy/80 leading-relaxed mb-6">
             Vyplňte dotazník ke konkrétnímu dítěti a projděte si podpůrná opatření. U každého
             máte možnost se rozhodnout, zda ho zvládne zavést sama škola (Použiju v PO1), nebo
