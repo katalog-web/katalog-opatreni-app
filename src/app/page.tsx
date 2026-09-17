@@ -23,6 +23,11 @@ interface Measure {
   krok: string;
 }
 
+// Listy, na kterých se ještě pracuje — záložka zůstává vidět (ať appka nepůsobí,
+// že list zmizel/neexistuje), ale obsah je schovaný a nahrazený upozorněním.
+const HIDDEN_SHEETS = new Set<string>(['I.3 Intervence']);
+const HIDDEN_SHEET_MESSAGE = 'Na této části katalogu stále pracujeme.';
+
 // Rozdělí název listu ("I.2 Modifikace metod...") na číslo ("I.2") a popisek,
 // ať se v záložkách dají zobrazit na dvou oddělených, zarovnaných řádcích.
 function splitSheetLabel(sheetName: string): { num: string; label: string } {
@@ -132,9 +137,14 @@ export default function Home() {
     setIsGeneratingPdf(true);
     setSaveError(null);
 
+    // Skryté listy (viz HIDDEN_SHEETS) appka vylučuje i tady — kdyby si někdo
+    // v prohlížeči nesl staré volby z doby, než se list schoval, nesmí se
+    // propsat ani do statistik, ani do vygenerovaného PDF.
+    const visibleMeasures = measures.filter(m => !HIDDEN_SHEETS.has(m.sheetName));
+
     // Počty se počítají přímo z dat (stejná data appka teď posílá i do PDF generátoru).
-    const pouzijuC = measures.filter(m => userChoices[m.id] === 'POUZIJU').length;
-    const spzC = measures.filter(m => userChoices[m.id] === 'NECHAM_NA_SPZ').length;
+    const pouzijuC = visibleMeasures.filter(m => userChoices[m.id] === 'POUZIJU').length;
+    const spzC = visibleMeasures.filter(m => userChoices[m.id] === 'NECHAM_NA_SPZ').length;
     const childAge = formatChildAge(childAgeYears, childAgeMonths);
 
     // 1) Vygenerovat PDF jako skutečný text (ne snímek HTML) — pokud selže tohle,
@@ -151,7 +161,7 @@ export default function Home() {
         schoolType,
         studentCount,
         purpose,
-        measures,
+        measures: visibleMeasures,
         choices: userChoices,
         notes: userNotes,
       });
@@ -467,7 +477,7 @@ export default function Home() {
       if (measureMatches(m)) counts[m.sheetName] = (counts[m.sheetName] || 0) + 1;
     }
     return Object.keys(counts)
-      .filter((sheet) => sheet !== activeTab)
+      .filter((sheet) => sheet !== activeTab && !HIDDEN_SHEETS.has(sheet))
       .map((sheet) => ({ sheet, count: counts[sheet] }));
   }, [measures, normalizedQuery, activeTab, queryWords]);
 
@@ -771,26 +781,32 @@ export default function Home() {
                   a nezpůsobí předčasný onMouseLeave dřív, než myš na nabídku doputuje. */}
               {hoveredSheet === sheetName && (
                 <div className="absolute left-0 top-full pt-2 z-20 min-w-[280px]">
-                  <div className="bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 py-2 max-h-80 overflow-y-auto">
-                    {Object.keys(groupedSheets[sheetName]).map(oblast => {
-                      const OblastIcon = getOblastIcon(oblast);
-                      return (
-                        <button
-                          key={oblast}
-                          onClick={() => {
-                            setActiveTab(sheetName);
-                            setExpandedAreas(prev => ({ ...prev, [oblast]: true }));
-                            setPendingScrollOblast(oblast);
-                            setHoveredSheet(null);
-                          }}
-                          className="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-bold text-brand-navy/70 hover:bg-brand-bg hover:text-brand-navy transition-colors"
-                        >
-                          <OblastIcon className="w-4 h-4 flex-shrink-0 opacity-60" />
-                          <span>{oblast}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {HIDDEN_SHEETS.has(sheetName) ? (
+                    <div className="bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 p-4">
+                      <p className="text-sm font-bold text-brand-navy/70">{HIDDEN_SHEET_MESSAGE}</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 py-2 max-h-80 overflow-y-auto">
+                      {Object.keys(groupedSheets[sheetName]).map(oblast => {
+                        const OblastIcon = getOblastIcon(oblast);
+                        return (
+                          <button
+                            key={oblast}
+                            onClick={() => {
+                              setActiveTab(sheetName);
+                              setExpandedAreas(prev => ({ ...prev, [oblast]: true }));
+                              setPendingScrollOblast(oblast);
+                              setHoveredSheet(null);
+                            }}
+                            className="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-bold text-brand-navy/70 hover:bg-brand-bg hover:text-brand-navy transition-colors"
+                          >
+                            <OblastIcon className="w-4 h-4 flex-shrink-0 opacity-60" />
+                            <span>{oblast}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -801,7 +817,7 @@ export default function Home() {
       )}
 
       {/* Vyhledávání v aktuálním listu */}
-      {!isLoading && activeTab && (
+      {!isLoading && activeTab && !HIDDEN_SHEETS.has(activeTab) && (
         <div className="relative mb-8">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-navy/30" />
           <input
@@ -846,6 +862,20 @@ export default function Home() {
         {isLoading ? (
           <div className="text-center py-12 text-slate-500 animate-pulse">
             Načítám opatření...
+          </div>
+        ) : activeTab && HIDDEN_SHEETS.has(activeTab) ? (
+          <div key={activeTab} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h2 className="text-2xl font-bold text-brand-navy border-b border-brand-surface/30 pb-4">
+              {activeTab}
+            </h2>
+            <div className="text-center p-12 border border-dashed border-brand-surface/50 rounded-xl">
+              <img
+                src="/illustrations/skica_obycejna_01_zarovka.png"
+                alt=""
+                className="w-32 mx-auto mb-4 select-none pointer-events-none opacity-90"
+              />
+              <p className="text-brand-navy/50 font-medium text-lg">{HIDDEN_SHEET_MESSAGE}</p>
+            </div>
           </div>
         ) : (
           activeTab && filteredActiveSheet && (
@@ -1050,8 +1080,9 @@ export default function Home() {
               </h3>
               <div className="space-y-10">
                 {Object.keys(groupedSheets).map(sheet => {
-                  const sheetHasPouzi = Object.keys(groupedSheets[sheet]).some(oblast => 
-                    Object.keys(groupedSheets[sheet][oblast]).some(opatreni => 
+                  if (HIDDEN_SHEETS.has(sheet)) return null;
+                  const sheetHasPouzi = Object.keys(groupedSheets[sheet]).some(oblast =>
+                    Object.keys(groupedSheets[sheet][oblast]).some(opatreni =>
                       groupedSheets[sheet][oblast][opatreni].some((m: Measure) => userChoices[m.id] === 'POUZIJU')
                     )
                   );
@@ -1120,8 +1151,9 @@ export default function Home() {
               </h3>
               <div className="space-y-10">
                 {Object.keys(groupedSheets).map(sheet => {
-                  const sheetHasSpz = Object.keys(groupedSheets[sheet]).some(oblast => 
-                    Object.keys(groupedSheets[sheet][oblast]).some(opatreni => 
+                  if (HIDDEN_SHEETS.has(sheet)) return null;
+                  const sheetHasSpz = Object.keys(groupedSheets[sheet]).some(oblast =>
+                    Object.keys(groupedSheets[sheet][oblast]).some(opatreni =>
                       groupedSheets[sheet][oblast][opatreni].some((m: Measure) => userChoices[m.id] === 'NECHAM_NA_SPZ')
                     )
                   );
