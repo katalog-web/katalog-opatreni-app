@@ -125,13 +125,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Push upozornění administrátorce přes ntfy.sh — bez účtu/OAuth, jen
               // POST na "kanál" (topic). Posílá se jen při PRVNÍ žádosti daného
               // e-mailu, ne při každém dalším přihlášení, dokud čeká na schválení.
+              // Kanál je veřejný (název kanálu je vidět v JS kódu appky, kdokoliv si
+              // ho může přihlásit k odběru) — text proto neobsahuje jméno ani e-mail
+              // žadatele, to administrátorka uvidí až po přihlášení v sekci Uživatelé.
               if (!uzZadal) {
                 fetch('https://ntfy.sh/katalog-afres-zadosti-c25fb60ab1', {
                   method: 'POST',
-                  body:
-                    'Nová žádost o přístup do Katalogu podpůrných opatření: ' +
-                    (firebaseUser.displayName || '(bez jména)') +
-                    ' <' + firebaseUser.email + '>',
+                  body: 'Nová žádost o přístup do Katalogu podpůrných opatření (detail v sekci Uživatelé).',
                 }).catch((err) => console.error('Nepodařilo se odeslat upozornění:', err));
               }
             }
