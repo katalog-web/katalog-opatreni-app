@@ -13,7 +13,7 @@ import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment
 import { useAuth } from '@/lib/auth-context';
 import { buildSummaryPdf, splitBase64IntoChunks } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
-import { splitSheetLabel } from '@/lib/catalogSheets';
+import { splitSheetLabel, findSheetByNum } from '@/lib/catalogSheets';
 import measuresData from '@/data/measures.json';
 
 interface Measure {
@@ -430,19 +430,23 @@ export default function Home() {
     }
   }, [groupedSheets, activeTab]);
 
-  // Skok na konkrétní list podle URL (?list=...) — používá menu "Katalog" v
+  // Skok na konkrétní list podle URL (?list=I.1) — používá menu "Katalog" v
   // hlavičce (viz Header.tsx), funguje i při příchodu z jiné stránky appky.
-  // window.location.search místo useSearchParams, ať appka (statický export)
-  // kvůli tomu nemusí mít celou stránku v <Suspense>.
+  // Krátký kód místo celého názvu listu, ať adresa v prohlížeči nepůsobí
+  // divně (bez diakritiky zakódované na %-escapes). window.location.search
+  // místo useSearchParams, ať appka (statický export) kvůli tomu nemusí mít
+  // celou stránku v <Suspense>.
   const appliedListParamRef = useRef(false);
   useEffect(() => {
     if (appliedListParamRef.current) return;
     const sheets = Object.keys(groupedSheets);
     if (sheets.length === 0) return;
-    const list = new URLSearchParams(window.location.search).get('list');
-    if (!list || !sheets.includes(list)) return;
+    const listNum = new URLSearchParams(window.location.search).get('list');
+    if (!listNum) return;
+    const matchedSheet = findSheetByNum(sheets, listNum);
+    if (!matchedSheet) return;
     appliedListParamRef.current = true;
-    setActiveTab(list);
+    setActiveTab(matchedSheet);
     requestAnimationFrame(() => {
       document.getElementById('sheet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });

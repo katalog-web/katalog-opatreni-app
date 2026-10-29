@@ -17,3 +17,10 @@ export function splitSheetLabel(sheetName: string): { num: string; label: string
   if (!match) return { num: '', label: sheetName };
   return { num: match[1], label: match[2] };
 }
+
+// Najde v zadaném seznamu plných názvů listů ten, jehož krátký kód ("I.1")
+// odpovídá zadané hodnotě — pro čitelnou adresu v menu "Katalog"
+// (/?list=I.1 místo celého názvu s diakritikou v URL).
+export function findSheetByNum(sheetNames: string[], num: string): string | undefined {
+  return sheetNames.find((sheetName) => splitSheetLabel(sheetName).num === num);
+}

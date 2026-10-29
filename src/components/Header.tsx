@@ -54,7 +54,7 @@ export function Header({ context = 'app', isHome = false }: HeaderProps) {
   // vůbec nespustil, kdybyste menu použila, když už jste na hlavní stránce.
   const goToSheet = (sheetName: string) => {
     setIsCatalogMenuOpen(false);
-    window.location.href = `/?list=${encodeURIComponent(sheetName)}`;
+    window.location.href = `/?list=${splitSheetLabel(sheetName).num}`;
   };
 
   return (
