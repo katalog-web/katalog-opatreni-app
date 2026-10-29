@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { BookOpen, FolderOpen, ChevronLeft, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BookOpen, FolderOpen, ChevronLeft, ChevronDown, LayoutList, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { FeedbackWidget } from '@/components/FeedbackWidget';
+import { CATALOG_SHEETS, splitSheetLabel } from '@/lib/catalogSheets';
 
 interface HeaderProps {
   /**
@@ -24,11 +27,33 @@ const navLinkClass =
 
 export function Header({ context = 'app', isHome = false }: HeaderProps) {
   const { signOut } = useAuth();
+  const router = useRouter();
+  const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
+  const catalogMenuRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = () => {
     if (window.confirm('Opravdu se chcete odhlásit?')) {
       signOut();
     }
+  };
+
+  // Zavřít menu "Katalog" kliknutím mimo něj.
+  useEffect(() => {
+    if (!isCatalogMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (catalogMenuRef.current && !catalogMenuRef.current.contains(e.target as Node)) {
+        setIsCatalogMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCatalogMenuOpen]);
+
+  // Přejít na konkrétní list katalogu — funguje odkudkoliv v appce (viz
+  // zpracování ?list= na hlavní stránce v src/app/page.tsx).
+  const goToSheet = (sheetName: string) => {
+    setIsCatalogMenuOpen(false);
+    router.push(`/?list=${encodeURIComponent(sheetName)}`);
   };
 
   return (
@@ -60,6 +85,37 @@ export function Header({ context = 'app', isHome = false }: HeaderProps) {
             </Link>
           ) : (
             <>
+              <div className="relative" ref={catalogMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsCatalogMenuOpen((prev) => !prev)}
+                  className={navLinkClass}
+                  aria-label="Katalog"
+                  aria-expanded={isCatalogMenuOpen}
+                >
+                  <LayoutList className="w-4 h-4 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">Katalog</span>
+                  <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform ${isCatalogMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isCatalogMenuOpen && (
+                  <div className="absolute left-0 top-full mt-2 min-w-[260px] bg-white rounded-2xl shadow-xl border-2 border-brand-surface/30 py-2 z-40">
+                    {CATALOG_SHEETS.map((sheetName) => {
+                      const { num, label } = splitSheetLabel(sheetName);
+                      return (
+                        <button
+                          key={sheetName}
+                          type="button"
+                          onClick={() => goToSheet(sheetName)}
+                          className="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-bold text-brand-navy/70 hover:bg-brand-bg hover:text-brand-navy transition-colors"
+                        >
+                          <span className="text-brand-navy/40 flex-shrink-0">{num}</span>
+                          <span>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
               <Link href="/principy-vyuky" className={navLinkClass} aria-label="Principy výuky">
                 <BookOpen className="w-4 h-4 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
                 <span className="hidden sm:inline">Principy výuky</span>

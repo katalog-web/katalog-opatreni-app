@@ -13,6 +13,7 @@ import { collection, doc, setDoc, addDoc, serverTimestamp, arrayUnion, increment
 import { useAuth } from '@/lib/auth-context';
 import { buildSummaryPdf, splitBase64IntoChunks } from '@/lib/generateSummaryPdf';
 import { getOblastIcon } from '@/lib/oblastIcons';
+import { splitSheetLabel } from '@/lib/catalogSheets';
 import measuresData from '@/data/measures.json';
 
 interface Measure {
@@ -28,13 +29,6 @@ interface Measure {
 const HIDDEN_SHEETS = new Set<string>([]);
 const HIDDEN_SHEET_MESSAGE = 'Na této části katalogu stále pracujeme.';
 
-// Rozdělí název listu ("I.2 Modifikace metod...") na číslo ("I.2") a popisek,
-// ať se v záložkách dají zobrazit na dvou oddělených, zarovnaných řádcích.
-function splitSheetLabel(sheetName: string): { num: string; label: string } {
-  const match = sheetName.match(/^(I\.\d+)\s*(.*)$/);
-  if (!match) return { num: '', label: sheetName };
-  return { num: match[1], label: match[2] };
-}
 
 // Skloňování počtu let/měsíců v češtině (1 rok/měsíc, 2–4 roky/měsíce, 0 a 5+ let/měsíců).
 function pluralCzech(n: number, one: string, few: string, many: string): string {
@@ -436,6 +430,24 @@ export default function Home() {
     }
   }, [groupedSheets, activeTab]);
 
+  // Skok na konkrétní list podle URL (?list=...) — používá menu "Katalog" v
+  // hlavičce (viz Header.tsx), funguje i při příchodu z jiné stránky appky.
+  // window.location.search místo useSearchParams, ať appka (statický export)
+  // kvůli tomu nemusí mít celou stránku v <Suspense>.
+  const appliedListParamRef = useRef(false);
+  useEffect(() => {
+    if (appliedListParamRef.current) return;
+    const sheets = Object.keys(groupedSheets);
+    if (sheets.length === 0) return;
+    const list = new URLSearchParams(window.location.search).get('list');
+    if (!list || !sheets.includes(list)) return;
+    appliedListParamRef.current = true;
+    setActiveTab(list);
+    requestAnimationFrame(() => {
+      document.getElementById('sheet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, [groupedSheets]);
+
   // Vyhledávání — filtruje aktuálně zobrazený list podle klíčového slova (hledá
   // v názvu oblasti, opatření i konkrétního kroku), se zjednodušeným stemmingem
   // pro češtinu (viz textMatchesQuery výše), ať "relaxace" najde i "relaxaci"/"relaxační".
@@ -740,7 +752,7 @@ export default function Home() {
 
       {/* -------------------- ZÁLOŽKY (TABS) PRO LISTY -------------------- */}
       {!isLoading && Object.keys(groupedSheets).length > 1 && (
-        <div className="relative mb-6">
+        <div id="sheet-tabs" className="relative mb-6">
           {/* Náznak, že lišta na malé obrazovce jde posunout vodorovně (na sm+ se
               schová, tam se všech 6 listů vejde vedle sebe rovnoměrně). */}
           <div className="sm:hidden absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-brand-bg to-transparent z-10 pointer-events-none" />
@@ -993,7 +1005,7 @@ export default function Home() {
               key={sheetName + '-bottom'}
               onClick={() => {
                 setActiveTab(sheetName);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.getElementById('sheet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }}
               className={`text-sm font-semibold transition-colors ${
                 activeTab === sheetName
