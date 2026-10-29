@@ -447,9 +447,24 @@ export default function Home() {
     if (!matchedSheet) return;
     appliedListParamRef.current = true;
     setActiveTab(matchedSheet);
-    requestAnimationFrame(() => {
-      document.getElementById('sheet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+
+    // #sheet-tabs může v tuhle chvíli ještě chybět v DOMu — appka totiž tenhle
+    // efekt spustí, jakmile se (ze statického JSONu) načtou opatření, což bývá
+    // dřív, než AuthGate dokončí ověření přihlášení a vůbec vykreslí obsah
+    // stránky (do té doby vrací null). Jednorázový požadavek na scroll by proto
+    // nenašel nic ke scrollování — zkoušet najít element opakovaně, dokud se
+    // po přihlášení neobjeví (max. ~5 s, pak to vzdát).
+    let attempts = 0;
+    const intervalId = setInterval(() => {
+      attempts += 1;
+      const el = document.getElementById('sheet-tabs');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        clearInterval(intervalId);
+      } else if (attempts >= 50) {
+        clearInterval(intervalId);
+      }
+    }, 100);
   }, [groupedSheets]);
 
   // Vyhledávání — filtruje aktuálně zobrazený list podle klíčového slova (hledá
