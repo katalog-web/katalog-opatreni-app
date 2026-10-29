@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { BookOpen, FolderOpen, ChevronLeft, ChevronDown, LayoutList, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { FeedbackWidget } from '@/components/FeedbackWidget';
@@ -27,7 +26,6 @@ const navLinkClass =
 
 export function Header({ context = 'app', isHome = false }: HeaderProps) {
   const { signOut } = useAuth();
-  const router = useRouter();
   const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
   const catalogMenuRef = useRef<HTMLDivElement>(null);
 
@@ -50,10 +48,13 @@ export function Header({ context = 'app', isHome = false }: HeaderProps) {
   }, [isCatalogMenuOpen]);
 
   // Přejít na konkrétní list katalogu — funguje odkudkoliv v appce (viz
-  // zpracování ?list= na hlavní stránce v src/app/page.tsx).
+  // zpracování ?list= na hlavní stránce v src/app/page.tsx). Záměrně tvrdá
+  // navigace (ne router.push): na stejné trase ("/" → "/") by Next.js
+  // komponentu nepřekreslil od začátku, takže by se efekt čtoucí ?list=
+  // vůbec nespustil, kdybyste menu použila, když už jste na hlavní stránce.
   const goToSheet = (sheetName: string) => {
     setIsCatalogMenuOpen(false);
-    router.push(`/?list=${encodeURIComponent(sheetName)}`);
+    window.location.href = `/?list=${encodeURIComponent(sheetName)}`;
   };
 
   return (
