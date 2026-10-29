@@ -25,7 +25,7 @@ interface Measure {
 
 // Listy, na kterých se ještě pracuje — záložka zůstává vidět (ať appka nepůsobí,
 // že list zmizel/neexistuje), ale obsah je schovaný a nahrazený upozorněním.
-const HIDDEN_SHEETS = new Set<string>(['I.3 Intervence']);
+const HIDDEN_SHEETS = new Set<string>([]);
 const HIDDEN_SHEET_MESSAGE = 'Na této části katalogu stále pracujeme.';
 
 // Rozdělí název listu ("I.2 Modifikace metod...") na číslo ("I.2") a popisek,
